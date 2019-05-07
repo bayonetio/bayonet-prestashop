@@ -1,0 +1,10 @@
+{
+    "require": {
+        "guzzlehttp/guzzle": "5.3"
+    },
+	"autoload": {
+        "psr-4": {
+            "Bayonet\\": "sdk/"
+        }
+    }
+}
