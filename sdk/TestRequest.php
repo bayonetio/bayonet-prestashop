@@ -1,27 +1,44 @@
 <?php
 
-$requests = [
+$request = [
         "invalid_token" => "da2da838-6311-4646-805f-2466954b1a11",
         "consulting" => [
            "channel" => "ecommerce",
-           "product_name" => "test_php_product_name",
-           "consumer_name" => "test_php_consumer_name",
-           "transaction_time" => "1476813671",
-           "payment_method" => "offline",
-           "transaction_amount" => "500.00",
-           "currency_code" => "USD",
-           "coupon" => false,
-           "telephone" => "9999999999",
+           "consumer_name" => "test",
+           "consumer_internal_id" => "1",
+           "cardholder_name" => "Test",
+           "payment_method" => "card",
+           "transaction_amount" => "100.00",
+           "currency_code" => "MXN",
+           "telephone" => "12345678999",
+           "card_number" => "4242424242424242",
            "email" => "test_php@bayonet.io",
-           "payment_gateway" => null,
+           "payment_gateway" => "stripe",
            "shipping_address" => [
-              "address_line_1" => "test_php_line_1",
-              "address_line_2" => "test_php_line_2",
-              "city" => "Traverse City",
-              "state" => "Mississippi",
-              "country" => "USA",
-              "zip_code" => "49686"
-           ]
+              "line_1" => "abc",
+              "line_2" => "xyz",
+              "city" => "Mexico City",
+              "state" => "CDMX",
+              "country" => "MEX",
+              "zip_code" => "05670"
+           ],
+           "billing_address" => [
+              "line_1" => "abc",
+              "line_2" => "xyz",
+              "city" => "Mexico City",
+              "state" => "CDMX",
+              "country" => "MEX",
+              "zip_code" => "05670"
+           ],
+           "products" => [
+              [
+                "product_id" => "1",
+                "product_name" => "product_1",
+                "product_price" => 12.2433,
+                "product_category" => "test"
+              ],
+           ],
+           "transaction_id" => "1000000",
+           "order_id" => "100000"
         ],
   ];
-?>
