@@ -33,6 +33,9 @@ class Bayonet extends PaymentModule
 
 		$this->displayName = $this->l('Bayonet E-commerce Plugin');
 		$this->description = $this->l('This plugin will validate order details before placing it.');
+
+		$this->statuses = array('Accept', 'Reject', 'Review');
+		$this->colors = array('#00b301', '#bf1a00', '#e7c600');
 	}
 
 	public function install()
@@ -169,7 +172,7 @@ class Bayonet extends PaymentModule
 		$this->context->smarty->assign('error_msgs', $this->errors);
 
 		$output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/config.tpl');
-		return $output.$this->renderForm();
+		return $output.$this->generateOrdersList().renderForm();
 	}
 
 	protected function renderForm() 
@@ -297,6 +300,52 @@ class Bayonet extends PaymentModule
 		}
 
 		return $this->_html .= $this->displayConfirmation($this->l('Settings Updated'));
+	}
+
+	public function generateOrdersList()
+	{
+		$content = $this->getAll();
+		$fields_list = array(
+			'id_bayonet' => array(
+				'title' => 'ID',
+				'align' => 'center',
+				'class' => 'fixed-width-xs'
+			),
+			'id_cart' => array(
+				'title' => $this->l('Cart')
+			),
+			'order_no' => array(
+				'title' => $this->l('Order')
+			),
+			'bayonet_tracking_id' => array(
+				'title' => $this->l('Bayonet Tracking ID')
+			),
+			'consulting_api_response' => array(
+				'title' => $this->l('Consulting API Response')
+			),
+			'status' => array(
+				'title' => $this->l('Status')
+			),
+		);
+
+		$helper = new HelperList();
+		$helper->shopLinkType = '';
+		$helper->module = $this;
+		$helper->listTotal = count($content);
+		$helper->identifier = 'id_bayonet';
+		$helper->title = $this->l('List of Bayonet Orders');
+		$helper->table = $this->name;
+		$helper->token = Tools::getAdminTokenLite('AdminModules');
+		$helper->current_index = $this->context->link->getAdminLink('AdminModules', false.'$configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name);
+
+		return $helper->generateList($content, $fields_list);
+	}
+
+	public function getAll()
+	{
+		return Db::getInstance()->ExecuteS('
+			SELECT *
+			FROM '._DB_PREFIX_.$this->table_name);
 	}
 
 	public function hookActionValidateOrder($params)
