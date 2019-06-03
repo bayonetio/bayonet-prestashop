@@ -38,7 +38,7 @@ $request = [
                 "product_category" => "test"
               ],
            ],
-           "transaction_id" => "1000000",
-           "order_id" => "100000"
+           "transaction_id" => "100011",
+           "order_id" => "100011"
         ],
   ];

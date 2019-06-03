@@ -27,6 +27,7 @@ class Bayonet extends PaymentModule
 		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
 
 		$this->need_instance = 1;
+		$this->controllers = array('rejected');
 		$this->bootstrap = true;
 
 		parent::__construct();
@@ -57,7 +58,10 @@ class Bayonet extends PaymentModule
 		if (
 			!parent::install() ||
 			!$this->registerHook('displayHeader') ||
+			!$this->registerHook('displayOrderConfirmation') ||
+			!$this->registerHook('actionObjectOrderAddAfter') ||
 			!$this->registerHook('actionOrderHistoryAddAfter') ||
+			!$this->registerHook('actionPaymentCCAdd') ||
 			!$this->registerHook('actionValidateOrder')
 		)
 			return false;
@@ -174,7 +178,7 @@ class Bayonet extends PaymentModule
 		$this->context->smarty->assign('error_msgs', $this->errors);
 
 		$output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/config.tpl');
-		return $output.$this->generateOrdersList().renderForm();
+		return $output.$this->generateOrdersList().$this->renderForm();
 	}
 
 	protected function renderForm() 
@@ -311,22 +315,34 @@ class Bayonet extends PaymentModule
 			'id_bayonet' => array(
 				'title' => 'ID',
 				'align' => 'center',
-				'class' => 'fixed-width-xs'
+				'class' => 'fixed-width-xs',
+				'remove_onclick' => true,
+				'orderby' => false
 			),
 			'id_cart' => array(
-				'title' => $this->l('Cart')
+				'title' => $this->l('Cart'),
+				'remove_onclick' => true,
+				'orderby' => false
 			),
 			'order_no' => array(
-				'title' => $this->l('Order')
+				'title' => $this->l('Order'),
+				'remove_onclick' => true,
+				'orderby' => false
 			),
 			'bayonet_tracking_id' => array(
-				'title' => $this->l('Bayonet Tracking ID')
+				'title' => $this->l('Bayonet Tracking ID'),
+				'remove_onclick' => true,
+				'orderby' => false
 			),
 			'consulting_api_response' => array(
-				'title' => $this->l('Consulting API Response')
+				'title' => $this->l('Consulting API Response'),
+				'remove_onclick' => true,
+				'orderby' => false
 			),
 			'status' => array(
-				'title' => $this->l('Status')
+				'title' => $this->l('Status'),
+				'remove_onclick' => true,
+				'orderby' => false
 			),
 		);
 
@@ -335,6 +351,7 @@ class Bayonet extends PaymentModule
 		$helper->module = $this;
 		$helper->listTotal = count($content);
 		$helper->identifier = 'id_bayonet';
+		$helper->simple_header = true;
 		$helper->title = $this->l('List of Bayonet Orders');
 		$helper->table = $this->name;
 		$helper->token = Tools::getAdminTokenLite('AdminModules');
@@ -353,7 +370,7 @@ class Bayonet extends PaymentModule
 	public function hookActionValidateOrder($params)
 	{
 
-		include_once(_PS_MODULE_DIR_.'bayonet/sdk/PaymentMethods.php');
+		include_once(_PS_MODULE_DIR_.'bayonet/sdk/Paymethods.php');
 
 		$this->order = $params['order'];
 		$cart = $this->context->cart;
@@ -411,7 +428,7 @@ class Bayonet extends PaymentModule
 			"order_id" => (int)$this->order->id
 		];
 
-		foreach ($paymethods as $key => $value) {
+		foreach ($paymentMethods as $key => $value) {
 			if ($this->order->module == $key)
 			{
 				$request['payment_method'] = $value;
@@ -419,6 +436,8 @@ class Bayonet extends PaymentModule
 					$request['payment_gateway'] = 'paypal';  
 			}
 		}
+
+		$request['payment_gateway'] = 'stripe';
 
 		$this->bayonet = new BayonetClient([
 					'api_key' => Configuration::get('BAYONET_API_TEST_KEY'),

@@ -47,7 +47,7 @@ class BayonetClient {
         if(!isset($config['body']))
             $config['body'] = [];
 
-        $config['body']['api_key'] = $this->config['api_key'];
+        $config['body']['auth']['api_key'] = $this->config['api_key'];
 
         $base_uri = $this->config['base_uri'];
         if($api == "get-fingerprint-data")
@@ -55,12 +55,11 @@ class BayonetClient {
 		
 
         try {
-			
             $response = $this->client->post($base_uri . $api,  [
                 'headers' => [
                     'Content-Type' => 'application/json'
                 ],
-                'json' => json_encode($config['body'])
+                'body' => json_encode($config['body'])
             ]);
 
             if(isset($config['on_success'])) {
@@ -84,4 +83,3 @@ class BayonetClient {
         }
     }
 }
-?>

@@ -261,5 +261,3 @@ function convert_country_code( $country ) {
       $iso_code = isset( $countries[$country] ) ? $countries[$country] : $country;
       return $iso_code;
 }
-
-?>
