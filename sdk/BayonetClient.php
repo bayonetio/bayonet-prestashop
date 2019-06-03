@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
 class BayonetClient {
-    private $client;
     private $config;
 
     public function __construct(array $config = []) {
@@ -56,15 +55,12 @@ class BayonetClient {
 		
 
         try {
-			print_r($base_uri);
-			print_r($api);
 			
-			print_r($config);
             $response = $this->client->post($base_uri . $api,  [
                 'headers' => [
                     'Content-Type' => 'application/json'
                 ],
-                'json' => $config['body']
+                'json' => json_encode($config['body'])
             ]);
 
             if(isset($config['on_success'])) {

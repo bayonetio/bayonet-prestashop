@@ -36,6 +36,8 @@ class Bayonet extends PaymentModule
 
 		$this->statuses = array('Accept', 'Reject', 'Review');
 		$this->colors = array('#00b301', '#bf1a00', '#e7c600');
+
+		$this->table_name = $this->name;
 	}
 
 	public function install()
