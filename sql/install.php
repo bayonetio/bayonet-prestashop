@@ -30,7 +30,7 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet` (
     `id_bayonet` int(11) NOT NULL AUTO_INCREMENT,
     `id_cart` int(11) NULL,
     `order_no` varchar(255) NOT NULL,
-    `bayonet_trans_code` varchar(255) NOT NULL,
+    `bayonet_tracking_id` varchar(255) NOT NULL,
     `consulting_api` tinyint(1) NULL,
     `consulting_api_response` text NULL,
     `feedback_api` tinyint(1) NULL,
