@@ -37,7 +37,8 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet` (
     `feedback_api_response` text NULL,
     `historical_api` tinyint(1) NULL,
     `historical_api_response` text NULL,
-    `status` varchar(15) NOT NULL,
+    `decision` varchar(15) NOT NULL,
+    `rules_triggered` varchar(1000) NULL,
     `is_executed` int(11) NOT NULL,
     `date_add` timestamp default current_timestamp NOT NULL,
     PRIMARY KEY  (`id_bayonet`)

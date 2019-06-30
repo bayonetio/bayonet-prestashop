@@ -18,8 +18,7 @@ class BayonetClient {
         }
 
         $this->config = $config;
-        $this->config['base_uri'] = 'https://api.bayonet.io/v' . $this->config['version'] . '/';
-        $this->config['base_uri_fingerprinting'] = 'https://fingerprinting.bayonet.io/v' . $this->config['version'] . '/';
+        $this->config['base_uri'] = 'https://api.bayonet.io/v2/';
         $this->client = new Client();
     }
 
@@ -35,14 +34,6 @@ class BayonetClient {
         $this->request('feedback', $config);
     }
 
-    public function feedback_historical(array $config = []) {
-        $this->request('feedback-historical', $config);
-    }
-
-    public function get_fingerprint_data(array $config = []) {
-        $this->request('get-fingerprint-data', $config);
-    }
-
     private function request($api, array $config = []) {
         if(!isset($config['body']))
             $config['body'] = [];
@@ -50,8 +41,6 @@ class BayonetClient {
         $config['body']['auth']['api_key'] = $this->config['api_key'];
 
         $base_uri = $this->config['base_uri'];
-        if($api == "get-fingerprint-data")
-            $base_uri = $this->config['base_uri_fingerprinting'];
 		
 
         try {

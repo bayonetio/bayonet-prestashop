@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
-	<name>bayonetDev</name>
+	<name>bayonet</name>
 	<displayName><![CDATA[Bayonet E-commerce Plugin]]></displayName>
 	<version><![CDATA[1.0.0]]></version>
-	<description><![CDATA[This plugin will validate order details before placing it.]]></description>
+	<description><![CDATA[This plugin will validate order details for fraud.]]></description>
 	<author><![CDATA[Nazli]]></author>
-	<tab><![CDATA[payments_gateways]]></tab>
+	<tab><![CDATA[payment_security]]></tab>
 	<is_configurable>1</is_configurable>
 	<need_instance>1</need_instance>
 	<limited_countries></limited_countries>
