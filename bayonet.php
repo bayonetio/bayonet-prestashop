@@ -426,4 +426,25 @@ class Bayonet extends PaymentModule
 				}
 		]);
 	}
+	
+	public function hookDisplayAdminOrder($params)
+	{
+		$displayedOrder = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'bayonet` WHERE order_no = ' . (int) $params['id_order']);
+		
+		if ($displayedOrder)
+		{
+			$this->smarty->assign(array(
+				'unprocessed_order' => false,
+				'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#' . (($displayedOrder['decision'] == 'accept') ? '339933' : (($displayedOrder['decision'] == 'review') ? 'ff7f27' : 'f00')) . '">' . (($displayedOrder['decision'] == 'accept') ? 'ACCEPTED' : (($displayedOrder['decision'] == 'decline') ? 'DECLINED' : $displayedOrder['decision'])) . '</span>',
+				'bayonet_tracking_id' => $displayedOrder['bayonet_tracking_id'],
+				'api_response' => $displayedOrder['consulting_api_response'],
+			));	
+		} else {
+			$this->smarty->assign(array(
+				'unprocessed_order' => true,
+			));
+		}
+			
+		return $this->display(__FILE__, 'admin_order.tpl');
+	}
 }
