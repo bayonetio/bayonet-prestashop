@@ -9,25 +9,18 @@
 	</div>
 	{else}
 	<div class="table-responsive">
-		<table class="table" width="100%" border="0" cellspacing="0" cellpadding="3" style="border-collapse:collapse">
-			<col width="10%">
-			<col width="10%">
-			<col width="15%">
-			<col width="2%">
-			<col width="10%">
-			<col width="15%">
-			<col width="2%">
-			<col width="10%">
-			<col width="15%">
+		<table class="table" width="100%" cellspacing="0" cellpadding="0">
 			<tr>
-				<td rowspan="10" valign="top" align="center">
-					<p><span style="font-size:1.5em;font-weight:bold;color:#f00">{$decision}</span></p>
-					<hr/>
+				<td valign="top" align="center">
+				<p><span style="font-size:1.5em;font-weight:bold;color:#f00">{$decision}</span></p>
+				</td>
+				<td>
 					<p><strong>Bayonet Tracking ID:</strong></p>
 					<p>{$bayonet_tracking_id}</p>
-					<p><strong>Consulting API Response</strong></p>
+					<p><strong>Consulting API Response:</strong></p>
 					<p>{$api_response}</p>
-					<p>&nbsp;</p>
+					<p><strong>Rules Triggered:</strong></p>
+					<p>{$rules_triggered}</p>
 				</td>
 			</tr>
 		</table>

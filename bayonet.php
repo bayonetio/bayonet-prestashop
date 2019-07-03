@@ -435,9 +435,10 @@ class Bayonet extends PaymentModule
 		{
 			$this->smarty->assign(array(
 				'unprocessed_order' => false,
-				'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#' . (($displayedOrder['decision'] == 'accept') ? '339933' : (($displayedOrder['decision'] == 'review') ? 'ff7f27' : 'f00')) . '">' . (($displayedOrder['decision'] == 'accept') ? 'ACCEPTED' : (($displayedOrder['decision'] == 'decline') ? 'DECLINED' : $displayedOrder['decision'])) . '</span>',
+				'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#' . (($displayedOrder['decision'] == 'accept') ? '339933' : (($displayedOrder['decision'] == 'review') ? 'ff7f27' : 'f00')) . '">' . (($displayedOrder['decision'] == 'accept') ? 'ACCEPTED' : (($displayedOrder['decision'] == 'decline') ? 'DECLINED' : strtoupper($displayedOrder['decision']))) . '</span>',
 				'bayonet_tracking_id' => $displayedOrder['bayonet_tracking_id'],
 				'api_response' => $displayedOrder['consulting_api_response'],
+				'rules_triggered' => $displayedOrder['rules_triggered'],
 			));	
 		} else {
 			$this->smarty->assign(array(
