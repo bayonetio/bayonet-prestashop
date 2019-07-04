@@ -7,7 +7,7 @@
 		'skrill' => 'tokenized_card',
 		'amzpayments' => 'tokenized_card',
 		'billriantpay' => 'tokenized_card',
-		'conekta' => 'tokenized_card',
+		'conektaprestashop' => 'tokenized_card',
 		'paypal' => 'paypal',
 		'paypalusa' => 'paypal',
 		'paypalmx' => 'paypal',

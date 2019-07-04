@@ -3,9 +3,6 @@
 if (!defined('_PS_VERSION_'))
 	exit;
 
-#688c9f4a-e653-42ee-ad2a-53d6345b4118 - sandbox bayo
-#829f9696-0388-4c77-af77-bdc367cfa692 - sandbox js
-
 require_once('vendor/autoload.php');
 
 include_once(_PS_MODULE_DIR_.'bayonet/sdk/BayonetClient.php');
@@ -163,8 +160,7 @@ class Bayonet extends PaymentModule
 
 			if (empty($this->errors)) {
 				$this->bayonet = new BayonetClient([
-					'api_key' => Tools::getValue('BAYONET_API_TEST_KEY'),
-					'version' => Tools::getValue('BAYONET_API_VERSION')
+					'api_key' => Tools::getValue('BAYONET_API_TEST_KEY')
 				]);
 
 				$this->bayonet->consulting([
@@ -182,8 +178,7 @@ class Bayonet extends PaymentModule
 				if(empty($this->errors))
 				{
 					$this->bayonet = new BayonetClient([
-						'api_key' => Tools::getValue('BAYONET_API_LIVE_KEY'),
-						'version' => Tools::getValue('BAYONET_API_VERSION')
+						'api_key' => Tools::getValue('BAYONET_API_LIVE_KEY')
 					]);
 
 					$this->bayonet->consulting([
@@ -308,17 +303,16 @@ class Bayonet extends PaymentModule
 
 	public function hookActionValidateOrder($params)
 	{
-
 		include_once(_PS_MODULE_DIR_.'bayonet/sdk/Paymethods.php');
 
 		$this->order = $params['order'];
 		$cart = $this->context->cart;
 		$address_delivery = new Address((int)$cart->id_address_delivery);
 		$address_invoice = new Address((int)$cart->id_address_invoice);
-		$state_delivery = new State((int)$address_delivery->id_state);
+		$state_delivery = $address_delivery->id_state != 0 ? (new State((int)$address_delivery->id_state))->name : "NA";
 		$country_delivery = new Country((int)$address_delivery->id_country);
-		$state_invoice = new State((int)$address_invoice->id_state);
-		$country_invoice = new Country((int)$address_invoice->id_country);
+		$state_invoice = $address_invoice->id_state != 0 ? (new State((int)$address_invoice->id_state))->name : "NA";
+		$country_invoice = new Country((int)$address_invoice->id_country); 
 		$customer = $this->context->customer;
 		$currency = $this->context->currency;
 
@@ -339,19 +333,15 @@ class Bayonet extends PaymentModule
 			'channel' => 'ecommerce',
 			'consumer_name' => $customer->firstname.' '.$customer->lastname,
 			"consumer_internal_id" => $customer->id,
-			//"cardholder_name" => $customer->firstname.' '.$customer->lastname,
-			//"payment_method" => 'card',
 			"transaction_amount" => $cart->getOrderTotal(),
 			"currency_code" => $currency->iso_code,
-			"telephone" => $address_invoice->phone,
-		 	//"card_number" => "4242424242424242",
 		 	"email" => $customer->email,
 		 	"payment_gateway" => $this->order->module,
 		 	"shipping_address" => [
 		 	  "line_1" => $address_delivery->address1,
 		 	  "line_2" => $address_delivery->address2,
 		 	  "city" => $address_delivery->city,
-		 	  "state" => $state_delivery->name,
+		 	  "state" => $state_delivery,
 		 	  "country" => convert_country_code($country_delivery->iso_code),
 		 	  "zip_code" => $address_delivery->postcode
 		 	],
@@ -359,7 +349,7 @@ class Bayonet extends PaymentModule
 		 	  "line_1" => $address_invoice->address1,
 		 	  "line_2" => $address_invoice->address2,
 		 	  "city" => $address_invoice->city,
-		 	  "state" => $state_invoice->name,
+		 	  "state" => $state_invoice,
 		 	  "country" => convert_country_code($country_invoice->iso_code),
 		 	  "zip_code" => $address_invoice->postcode
 		 	],
@@ -367,63 +357,75 @@ class Bayonet extends PaymentModule
 			"order_id" => (int)$this->order->id
 		];
 
+		if ($address_invoice->phone != '')
+			$request['telephone'] = $address_invoice->phone;
+
 		foreach ($paymentMethods as $key => $value) {
 			if ($this->order->module == $key)
 			{
 				$request['payment_method'] = $value;
 				if ($this->order->module == 'paypalmx')
-					$request['payment_gateway'] = 'paypal';  
+					$request['payment_gateway'] = 'paypal';
+				if ($this->order->module == 'openpayprestashop')
+					$request['payment_gateway'] = 'openpay';
+				if ($this->order->module == 'conektaprestashop')
+					$request['payment_gateway'] = 'conekta';
+				if ($this->order->module == 'bankwire')
+					$request['payment_gateway'] = 'stripe';
+				if ($this->order->module == 'cheque')
+					$request['payment_gateway'] = 'conekta';
 			}
 		}
 
-		$request['payment_gateway'] = 'stripe';
-
 		$this->bayonet = new BayonetClient([
-					'api_key' => Configuration::get('BAYONET_API_TEST_KEY'),
-					'version' => Configuration::get('BAYONET_API_VERSION')
+					'api_key' => Configuration::get('BAYONET_API_TEST_KEY')
 				]);
 
 		$this->bayonet->consulting([
 			'body' => $request,
 			'on_success' => function($response) {
+				$triggered = '';
+				$rules = $response->rules_triggered->dynamic;
+				foreach ($rules as $rule)
+				{
+					$triggered .= '- ' . $rule . '<br>';
+				}
 				$this->dataToInsert = array(
 					'id_cart' => $this->context->cart->id,
 					'order_no' => $this->order->id,
-					'status' => $response->decision,
+					'decision' => $response->decision,
+					'rules_triggered' => $triggered,
 					'bayonet_tracking_id' => $response->bayonet_tracking_id,
 					'consulting_api' => 1,
 					'consulting_api_response' => json_encode(array(
 						'reason_code' => $response->reason_code,
-						'tracking_id' => $response->bayonet_tracking_id
+						'reason_message' => $response->reason_message
 					)),
 					'is_executed' => 1,
 				);
 
 				Db::getInstance()->insert('bayonet', $this->dataToInsert);
-
-				if ($response->decision == 'decline')
-				{
-					$this->module = Module::getInstanceByName('bayonet');
-					Tools::redirect($this->context->link->getModuleLink($this->module->name,'rejected', array()		));
-				}
 			},
 			'on_failure' => function($response) {
+				$message = str_replace("'", "-", $response->reason_message);
+				//$message = mysql_real_escape_string($response->reason_message);
+				//die(var_dump($message));
+				//die(var_dump(addslashes($response->reason_message)));
 				$this->dataToInsert = array(
 					'id_cart' => $this->context->cart->id,
 					'order_no' => $this->order->id,
-					'status' => $response->decision,
+					'decision' => $response->decision,
 					'bayonet_tracking_id' => $response->bayonet_tracking_id,
 					'consulting_api' => 0,
 					'consulting_api_response' => json_encode(array(
 						'reason_code' => $response->reason_code,
+						'reason_message' => $message
 					)),
 					'is_executed' => 1,
 				);
 
 				Db::getInstance()->insert('bayonet', $this->dataToInsert);
-				
-				$this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Api Test Key :'.$response->reason_message.'</div>';
-				}
+			}
 		]);
 	}
 	

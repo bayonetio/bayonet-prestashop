@@ -9,14 +9,6 @@ class BayonetClient {
     private $config;
 
     public function __construct(array $config = []) {
-        if(!isset($config['api_key'])) {
-            $config['api_key'] = getenv('BAYONET_API_KEY');
-        }
-
-        if(!isset($config['version'])) {
-            throw new \Exception('You need to specify a Bayonet API version.');
-        }
-
         $this->config = $config;
         $this->config['base_uri'] = 'https://api.bayonet.io/v2/';
         $this->client = new Client();
@@ -39,9 +31,8 @@ class BayonetClient {
             $config['body'] = [];
 
         $config['body']['auth']['api_key'] = $this->config['api_key'];
-
+        
         $base_uri = $this->config['base_uri'];
-		
 
         try {
             $response = $this->client->post($base_uri . $api,  [
