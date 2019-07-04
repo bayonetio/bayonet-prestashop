@@ -12,7 +12,7 @@ class Bayonet extends PaymentModule
 {
 
 	private $_html = '', $bayonet;
-	protected $errors, $dataToInsert, $order;
+	protected $errors, $dataToInsert, $order, $bayoID;
 	public $response;
 
 	public function __construct()
@@ -408,9 +408,6 @@ class Bayonet extends PaymentModule
 			},
 			'on_failure' => function($response) {
 				$message = str_replace("'", "-", $response->reason_message);
-				//$message = mysql_real_escape_string($response->reason_message);
-				//die(var_dump($message));
-				//die(var_dump(addslashes($response->reason_message)));
 				$this->dataToInsert = array(
 					'id_cart' => $this->context->cart->id,
 					'order_no' => $this->order->id,
@@ -449,5 +446,46 @@ class Bayonet extends PaymentModule
 		}
 			
 		return $this->display(__FILE__, 'admin_order.tpl');
+	}
+
+	public function hookActionPaymentConfirmation($params)
+	{
+		$bayoOrder = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'bayonet` WHERE order_no = ' . (int) $params['id_order']);
+		
+		if ($bayoOrder)
+		{
+			$this->bayoID = $bayoOrder['id_bayonet'];
+			if ($bayoOrder['bayonet_tracking_id'] != '')
+			{
+				$updateRequest = [
+					'bayonet_tracking_id' => $bayoOrder['bayonet_tracking_id'],
+					'transaction_status' => 'success',
+				];
+			}
+			$this->bayonet = new BayonetClient([
+					'api_key' => Configuration::get('BAYONET_API_TEST_KEY')
+				]);
+
+			$this->bayonet->updateTransaction([
+				'body' => $updateRequest,
+				'on_success' => function($response) {
+					Db::getInstance()->update('bayonet', array(
+						'feedback_api' => 1,
+						'feedback_api_response' => json_encode(array(
+							'reason_code' => $response->reason_code,
+							'message' => $response->reason_message
+						))), 'id_bayonet = ' . (int) $this->bayoID);
+				},
+				'on_failure' => function($response) {
+					$message = str_replace("'", "-", $response->reason_message);
+					Db::getInstance()->update('bayonet', array(
+						'feedback_api' => 0,
+						'feedback_api_response' => json_encode(array(
+							'reason_code' => $response->reason_code,
+							'message' => $message
+						))), 'id_bayonet = ' . (int) $this->bayoID);
+				},
+			]);
+		}
 	}
 }

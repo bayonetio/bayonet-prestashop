@@ -22,8 +22,8 @@ class BayonetClient {
         $this->request('sigma/consult', $config);
     }
 
-    public function feedback(array $config = []) {
-        $this->request('feedback', $config);
+    public function updateTransaction(array $config = []) {
+        $this->request('sigma/update-transaction', $config);
     }
 
     private function request($api, array $config = []) {
@@ -31,7 +31,7 @@ class BayonetClient {
             $config['body'] = [];
 
         $config['body']['auth']['api_key'] = $this->config['api_key'];
-        
+
         $base_uri = $this->config['base_uri'];
 
         try {
