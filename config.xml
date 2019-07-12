@@ -4,7 +4,7 @@
 	<displayName><![CDATA[Bayonet E-commerce Plugin]]></displayName>
 	<version><![CDATA[1.0.0]]></version>
 	<description><![CDATA[This plugin will validate order details for fraud.]]></description>
-	<author><![CDATA[Nazli]]></author>
+	<author><![CDATA[Bayonet.io]]></author>
 	<tab><![CDATA[payment_security]]></tab>
 	<is_configurable>1</is_configurable>
 	<need_instance>1</need_instance>
