@@ -78,6 +78,7 @@ class Bayonet extends PaymentModule
         Configuration::updateValue('BAYONET_API_MODE', 0);
         Configuration::updateValue('BAYONET_API_TEST_KEY', null);
         Configuration::updateValue('BAYONET_API_LIVE_KEY', null);
+        Configuration::updateValue('BAYONET_BACKFILL_MODE', 0);
 
         include(_PS_MODULE_DIR_.'bayonet/sql/install.php');
 
@@ -114,10 +115,11 @@ class Bayonet extends PaymentModule
         Configuration::deleteByName('BAYONET_API_MODE');
         Configuration::deleteByName('BAYONET_API_TEST_KEY');
         Configuration::deleteByName('BAYONET_API_LIVE_KEY');
+        Configuration::deleteByName('BAYONET_BACKFILL_MODE');
 
         include(_PS_MODULE_DIR_.'bayonet/sql/uninstall.php');
 
-        $query = 'SELECT * FROM `'._DB_PREFIX_.'order_state` WHERE `module_name` ='.$this->name;
+        $query = 'SELECT * FROM `'._DB_PREFIX_.'order_state` WHERE `module_name` = '."'$this->name'";
         $records = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
         if (count($records) > 0) {
             foreach ($records as $record) {
@@ -263,9 +265,23 @@ class Bayonet extends PaymentModule
         }
 
         $this->context->smarty->assign('error_msgs', $this->errors);
-        $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/config.tpl');
-        
-        return $output.$this->renderForm();
+        $this->context->smarty->assign('backfill_mode', Configuration::get('BAYONET_BACKFILL_MODE'));
+
+		if (!empty(Configuration::get('BAYONET_API_TEST_KEY')) &&
+			!empty(Configuration::get('BAYONET_API_LIVE_KEY'))) {
+			$this->context->smarty->assign('backfill_enable', 1);
+		} else {
+			$this->context->smarty->assign('backfill_enable', 0);
+		}
+
+		Media::addJsDef(array('urlBackfill' => $this->context->link->getModuleLink($this->name,'backfill',array())));
+		$output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/config.tpl');
+		$output1 = $this->context->smarty->fetch($this->local_path.'views/templates/admin/backfill.tpl');
+
+		$this->context->controller->addJS($this->_path.'views/js/back.js');
+		$this->context->controller->addCSS($this->_path.'views/css/back.css');
+
+		return $output.$this->renderForm().$output1;
     }
     
     /**
@@ -446,6 +462,8 @@ class Bayonet extends PaymentModule
 
         if ('' != $address_invoice->phone) {
             $request['telephone'] = $address_invoice->phone;
+        } else {
+            $request['telephone'] = null;
         }
         
         foreach ($paymentMethods as $key => $value) {
@@ -488,10 +506,12 @@ class Bayonet extends PaymentModule
                     'rules_triggered' => $triggered,
                     'bayonet_tracking_id' => $response->bayonet_tracking_id,
                     'consulting_api' => 1,
-                    'consulting_api_response' => json_encode(array(
-                        'reason_code' => $response->reason_code,
-                        'reason_message' => $response->reason_message
-                    )),
+                    'consulting_api_response' => json_encode(
+                    	array(
+                            'reason_code' => $response->reason_code,
+                            'reason_message' => $response->reason_message,
+                        )
+                    ),
                     'is_executed' => 1,
                 );
                 Db::getInstance()->insert('bayonet', $this->dataToInsert);
@@ -506,8 +526,8 @@ class Bayonet extends PaymentModule
                     'consulting_api' => 0,
                     'consulting_api_response' => json_encode(
                         array(
-                        'reason_code' => $response->reason_code,
-                        'reason_message' => $message
+                            'reason_code' => $response->reason_code,
+                            'reason_message' => $message,
                         )
                     ),
                     'is_executed' => 1,
@@ -589,17 +609,26 @@ class Bayonet extends PaymentModule
         $displayedOrder = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'bayonet` WHERE `order_no` = ' . (int)$params['id_order']);
         
         if ($displayedOrder) {
-            $this->smarty->assign(array(
-                'unprocessed_order' => false,
-                'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#'.
-                    (('accept' == $displayedOrder['decision']) ? '339933' : (('review' == $displayedOrder['decision']) ? 'ff7f27' : 'f00')).'">'.
-                    (('accept' == $displayedOrder['decision']) ? 'ACCEPTED' : (('decline' == $displayedOrder['decision']) ? 'DECLINED' : strtoupper($displayedOrder['decision']))).'</span>',
-                'bayonet_tracking_id' => $displayedOrder['bayonet_tracking_id'],
-                'api_response' => $displayedOrder['consulting_api_response'],
-                'rules_triggered' => $displayedOrder['rules_triggered'],
-            ));
+            if (!empty($displayedOrder['bayonet_tracking_id'])) {
+                $this->smarty->assign(array(
+                    'not_consulting_order' => false,
+                    'unprocessed_order' => false,
+                    'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#'.
+                        (('accept' == $displayedOrder['decision']) ? '339933' : (('review' == $displayedOrder['decision']) ? 'ff7f27' : 'f00')).'">'.
+                        (('accept' == $displayedOrder['decision']) ? 'ACCEPTED' : (('decline' == $displayedOrder['decision']) ? 'DECLINED' : strtoupper($displayedOrder['decision']))).'</span>',
+                    'bayonet_tracking_id' => $displayedOrder['bayonet_tracking_id'],
+                    'api_response' => $displayedOrder['consulting_api_response'],
+                    'rules_triggered' => $displayedOrder['rules_triggered'],
+                ));
+            } else {
+                $this->smarty->assign(array(
+                    'not_consulting_order' => true,
+                    'unprocessed_order' => false,
+                ));    
+            }
         } else {
             $this->smarty->assign(array(
+                'not_consulting_order' => false,
                 'unprocessed_order' => true,
             ));
         }
