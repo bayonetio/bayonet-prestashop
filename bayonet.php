@@ -38,6 +38,7 @@ class Bayonet extends PaymentModule
 {
     private $_html = '';
     private $bayonet;
+    private $bayonetFingerprint;
     protected $errors;
     protected $dataToInsert;
     protected $order;
@@ -78,6 +79,8 @@ class Bayonet extends PaymentModule
         Configuration::updateValue('BAYONET_API_MODE', 0);
         Configuration::updateValue('BAYONET_API_TEST_KEY', null);
         Configuration::updateValue('BAYONET_API_LIVE_KEY', null);
+        Configuration::updateValue('BAYONET_JS_TEST_KEY', null);
+        Configuration::updateValue('BAYONET_JS_LIVE_KEY', null);
         Configuration::updateValue('BAYONET_BACKFILL_MODE', 0);
 
         include(_PS_MODULE_DIR_.'bayonet/sql/install.php');
@@ -88,14 +91,11 @@ class Bayonet extends PaymentModule
             !parent::install() ||
             !$this->createTab() ||
             !$this->registerHook('displayHeader') ||
-            !$this->registerHook('displayOrderConfirmation') ||
-            !$this->registerHook('actionPaymentCCAdd') ||
             !$this->registerHook('actionValidateOrder') ||
             !$this->registerHook('displayAdminOrder') ||
-            !$this->registerHook('displayPaymentReturn') ||
             !$this->registerHook('actionPaymentConfirmation') ||
             !$this->registerHook('actionObjectOrderPaymentAddBefore') ||
-            !$this->registerHook('actionObjectOrderAddBefore')
+            !$this->registerHook('displayPaymentTop')
         ) {
             return false;
         }
@@ -115,6 +115,8 @@ class Bayonet extends PaymentModule
         Configuration::deleteByName('BAYONET_API_MODE');
         Configuration::deleteByName('BAYONET_API_TEST_KEY');
         Configuration::deleteByName('BAYONET_API_LIVE_KEY');
+        Configuration::deleteByName('BAYONET_JS_TEST_KEY');
+        Configuration::deleteByName('BAYONET_JS_LIVE_KEY');
         Configuration::deleteByName('BAYONET_BACKFILL_MODE');
 
         include(_PS_MODULE_DIR_.'bayonet/sql/uninstall.php');
@@ -216,11 +218,19 @@ class Bayonet extends PaymentModule
             $posted_data = $this->getConfigFormValues();
 
             if (empty(Tools::getValue('BAYONET_API_TEST_KEY'))) {
-                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Bayonet API sandbox key</div>';
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Bayonet API Sandbox Key</div>';
             }
 
             if (empty(Tools::getValue('BAYONET_API_LIVE_KEY'))) {
-                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Bayonet API live key</div>';
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Bayonet API Live Key</div>';
+            }
+
+            if (empty(Tools::getValue('BAYONET_JS_TEST_KEY'))) {
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Device Fingerprint API Sandbox Key</div>';
+            }
+
+            if (empty(Tools::getValue('BAYONET_JS_LIVE_KEY'))) {
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Device Fingerprint API Live Key</div>';
             }
 
             require_once(__DIR__ .'/sdk/TestRequest.php');
@@ -268,8 +278,10 @@ class Bayonet extends PaymentModule
         $this->context->smarty->assign('backfill_mode', Configuration::get('BAYONET_BACKFILL_MODE'));
 
 		if (!empty(Configuration::get('BAYONET_API_TEST_KEY')) &&
-			!empty(Configuration::get('BAYONET_API_LIVE_KEY'))) {
-			$this->context->smarty->assign('backfill_enable', 1);
+			!empty(Configuration::get('BAYONET_API_LIVE_KEY')) &&
+            !empty(Configuration::get('BAYONET_JS_TEST_KEY')) &&
+            !empty(Configuration::get('BAYONET_JS_LIVE_KEY'))) {
+            $this->context->smarty->assign('backfill_enable', 1);
 		} else {
 			$this->context->smarty->assign('backfill_enable', 0);
 		}
@@ -359,6 +371,20 @@ class Bayonet extends PaymentModule
                     'name' => 'BAYONET_API_LIVE_KEY',
                     'label' => $this->l('Bayonet API Live Key'),
                 ),
+                array(
+                    'col' => 3,
+                    'type' => 'text',
+                    'desc' => $this->l('Enter Device Fingerprint API Sandbox Key'),
+                    'name' => 'BAYONET_JS_TEST_KEY',
+                    'label' => $this->l('Device Fingerprint API Sandbox Key'),
+                ),
+                array(
+                    'col' => 3,
+                    'type' => 'text',
+                    'desc' => $this->l('Enter Device Fingerprint API Live Key'),
+                    'name' => 'BAYONET_JS_LIVE_KEY',
+                    'label' => $this->l('Device Fingerprint API Live Key'),
+                ),
             ),
             'submit' => array(
                 'title' => $this->l('Save'),
@@ -380,6 +406,8 @@ class Bayonet extends PaymentModule
             'BAYONET_API_MODE' => Configuration::get('BAYONET_API_MODE'),
             'BAYONET_API_TEST_KEY' => Configuration::get('BAYONET_API_TEST_KEY'),
             'BAYONET_API_LIVE_KEY' => Configuration::get('BAYONET_API_LIVE_KEY'),
+            'BAYONET_JS_TEST_KEY' => Configuration::get('BAYONET_JS_TEST_KEY'),
+            'BAYONET_JS_LIVE_KEY' => Configuration::get('BAYONET_JS_LIVE_KEY'),
         );
     }
     
@@ -396,6 +424,24 @@ class Bayonet extends PaymentModule
         }
 
         return $this->_html .= $this->displayConfirmation($this->l('Settings Updated'));
+    }
+
+    /**
+     * Sets the key for the device fingerprinting script execution.
+     * Adds the php controller definition to process in the back office
+     * the fingerprint token generated in the front office.
+     *
+     * @param object $params Object
+     */
+    public function hookDisplayPaymentTop($params)
+    {
+        if (1 == Configuration::get('BAYONET_API_MODE')) {
+            Media::addJsDef(array('bayonet_js_key' => Configuration::get('BAYONET_JS_LIVE_KEY')));
+        } else {
+            Media::addJsDef(array('bayonet_js_key' => Configuration::get('BAYONET_JS_TEST_KEY')));
+        }
+        Media::addJsDef(array('urlFingerprint' => $this->context->link->getModuleLink($this->name,'fingerprint',array())));
+        $this->context->controller->addJS($this->_path.'views/js/fingerprint.js');
     }
     
     /**
@@ -438,6 +484,7 @@ class Bayonet extends PaymentModule
             'consumer_internal_id' => $customer->id,
             'transaction_amount' => $cart->getOrderTotal(),
             'currency_code' => $currency->iso_code,
+            'transaction_time' => strtotime($this->order->date_add),
             'email' => $customer->email,
             'payment_gateway' => $this->order->module,
             'shipping_address' => [
@@ -465,6 +512,12 @@ class Bayonet extends PaymentModule
         } else {
             $request['telephone'] = null;
         }
+
+        if ($this->context->cookie->__isset('fingerprint') & (!empty($this->context->cookie->__get('fingerprint')))) {
+          $this->bayonetFingerprint = $this->context->cookie->__get('fingerprint');
+          $this->context->cookie->__unset('fingerprint');
+          $request['bayonet_fingerprint_token'] = $this->bayonetFingerprint;
+        } 
         
         foreach ($paymentMethods as $key => $value) {
             if ($this->order->module == $key) {
