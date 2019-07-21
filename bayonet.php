@@ -117,7 +117,7 @@ class Bayonet extends PaymentModule
 
         include(_PS_MODULE_DIR_.'bayonet/sql/uninstall.php');
 
-        $query = 'SELECT * FROM `'._DB_PREFIX_.'order_state` WHERE `module_name` ='.$this->name;
+        $query = 'SELECT * FROM `'._DB_PREFIX_.'order_state` WHERE `module_name` ='."'$this->name'";
         $records = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
         if (count($records) > 0) {
             foreach ($records as $record) {
