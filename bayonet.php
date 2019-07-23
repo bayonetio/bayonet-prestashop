@@ -90,8 +90,7 @@ class Bayonet extends PaymentModule
             !$this->registerHook('displayHeader') ||
             !$this->registerHook('actionValidateOrder') ||
             !$this->registerHook('displayAdminOrder') ||
-            !$this->registerHook('actionPaymentConfirmation') ||
-            !$this->registerHook('actionObjectOrderPaymentAddBefore')
+            !$this->registerHook('actionOrderStatusUpdate')
         ) {
             return false;
         }
@@ -519,56 +518,59 @@ class Bayonet extends PaymentModule
      *
      * @param object $params Object
      */
-    public function hookActionPaymentConfirmation($params)
+    public function hookActionOrderStatusUpdate($params)
     {
-        $bayoOrder = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.'bayonet` WHERE `order_no` = '.(int)$params['id_order']);
-        
-        if ($bayoOrder) {
-            $this->bayoID = $bayoOrder['id_bayonet'];
-            if (!empty($bayoOrder['bayonet_tracking_id'])) {
-                $updateRequest = [
-                    'bayonet_tracking_id' => $bayoOrder['bayonet_tracking_id'],
-                    'transaction_status' => 'success',
-                ];
-                
-                $this->bayonet = new BayonetClient([
+        if (1 == $params['newOrderStatus']->paid)
+        {
+            $bayoOrder = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.'bayonet` WHERE `order_no` = '.(int)$params['id_order']);
+
+            if ($bayoOrder) {
+                $this->bayoID = $bayoOrder['id_bayonet'];
+                if (!empty($bayoOrder['bayonet_tracking_id']) && null == $bayoOrder['feedback_api']) {
+                    $updateRequest = [
+                        'bayonet_tracking_id' => $bayoOrder['bayonet_tracking_id'],
+                        'transaction_status' => 'success',
+                    ];
+
+                    $this->bayonet = new BayonetClient([
                         'api_key' => Configuration::get('BAYONET_API_TEST_KEY'),
                     ]);
 
-                $this->bayonet->updateTransaction([
-                    'body' => $updateRequest,
-                    'on_success' => function ($response) {
-                        Db::getInstance()->update(
-                            'bayonet',
-                            array(
-                                'feedback_api' => 1,
-                                'feedback_api_response' => json_encode(
-                                    array(
-                                    'reason_code' => $response->reason_code,
-                                    'message' => $response->reason_message,
-                                    )
+                    $this->bayonet->updateTransaction([
+                        'body' => $updateRequest,
+                        'on_success' => function ($response) {
+                            Db::getInstance()->update(
+                                'bayonet',
+                                array(
+                                    'feedback_api' => 1,
+                                    'feedback_api_response' => json_encode(
+                                        array(
+                                            'reason_code' => $response->reason_code,
+                                            'message' => $response->reason_message,
+                                        )
+                                    ),
                                 ),
-                            ),
-                            'id_bayonet = '.(int)$this->bayoID
-                        );
-                    },
-                    'on_failure' => function ($response) {
-                        $message = str_replace("'", "-", $response->reason_message);
-                        Db::getInstance()->update(
-                            'bayonet',
-                            array(
-                                'feedback_api' => 0,
-                                'feedback_api_response' => json_encode(
-                                    array(
-                                    'reason_code' => $response->reason_code,
-                                    'message' => $message,
-                                    )
+                                'id_bayonet = '.(int)$this->bayoID
+                            );
+                        },
+                        'on_failure' => function ($response) {
+                            $message = str_replace("'", "-", $response->reason_message);
+                            Db::getInstance()->update(
+                                'bayonet',
+                                array(
+                                    'feedback_api' => 0,
+                                    'feedback_api_response' => json_encode(
+                                        array(
+                                            'reason_code' => $response->reason_code,
+                                            'message' => $message,
+                                        )
+                                    ),
                                 ),
-                            ),
-                            'id_bayonet = '.(int)$this->bayoID
-                        );
-                    },
-                ]);
+                                'id_bayonet = '.(int)$this->bayoID
+                            );
+                        },
+                    ]);
+                }
             }
         }
     }
