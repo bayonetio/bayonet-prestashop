@@ -31,7 +31,7 @@
  * @param string 2 letter country code
  * @return string ISO 3-letter country code
  */
-function convert_country_code($country)
+function convertCountryCode($country)
 {
     $countries = array(
             'AF' => 'AFG', //Afghanistan
