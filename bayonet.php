@@ -33,6 +33,7 @@ require_once('vendor/autoload.php');
 
 include_once(_PS_MODULE_DIR_.'bayonet/sdk/BayonetClient.php');
 include_once(_PS_MODULE_DIR_.'bayonet/sdk/Countries.php');
+include_once(_PS_MODULE_DIR_.'bayonet/sdk/Paymethods.php');
 
 class Bayonet extends PaymentModule
 {
@@ -453,9 +454,7 @@ class Bayonet extends PaymentModule
      * @param object $params Object
      */
     public function hookActionValidateOrder($params)
-    {
-        include_once(_PS_MODULE_DIR_.'bayonet/sdk/Paymethods.php');
-        
+    {   
         $this->order = $params['order'];
         $cart = $this->context->cart;
         $address_delivery = new Address((int)$cart->id_address_delivery);
@@ -492,7 +491,7 @@ class Bayonet extends PaymentModule
               'line_2' => $address_delivery->address2,
               'city' => $address_delivery->city,
               'state' => $state_delivery,
-              'country' => convert_country_code($country_delivery->iso_code),
+              'country' => convertCountryCode($country_delivery->iso_code),
               'zip_code' => $address_delivery->postcode,
             ],
             'billing_address' => [
@@ -500,7 +499,7 @@ class Bayonet extends PaymentModule
               'line_2' => $address_invoice->address2,
               'city' => $address_invoice->city,
               'state' => $state_invoice,
-              'country' => convert_country_code($country_invoice->iso_code),
+              'country' => convertCountryCode($country_invoice->iso_code),
               'zip_code' => $address_invoice->postcode,
             ],
             "products" => $products_list,
@@ -517,27 +516,20 @@ class Bayonet extends PaymentModule
           $this->bayonetFingerprint = $this->context->cookie->__get('fingerprint');
           $this->context->cookie->__unset('fingerprint');
           $request['bayonet_fingerprint_token'] = $this->bayonetFingerprint;
-        } 
-        
-        foreach ($paymentMethods as $key => $value) {
-            if ($this->order->module == $key) {
-                $request['payment_method'] = $value;
-                if ('paypalmx' == $this->order->module) {
-                    $request['payment_gateway'] = 'paypal';
-                }
-                if ('openpayprestashop' == $this->order->module) {
-                    $request['payment_gateway'] = 'openpay';
-                }
-                if ('conektaprestashop' == $this->order->module) {
-                    $request['payment_gateway'] = 'conekta';
-                }
-                if ('bankwire' == $this->order->module) {
-                    $request['payment_gateway'] = 'stripe';
-                }
-                if ('cheque' == $this->order->module) {
-                    $request['payment_gateway'] = 'conekta';
-                }
-            }
+        }
+
+        $request['payment_method'] = getPaymentMethod($this->order);
+
+        if ('paypalmx' == $this->order->module) {
+            $request['payment_gateway'] = 'paypal';
+        } elseif ('openpayprestashop' == $this->order->module) {
+            $request['payment_gateway'] = 'openpay';
+        } elseif ('conektaprestashop' == $this->order->module) {
+            $request['payment_gateway'] = 'conekta';
+        } elseif ('bankwire' == $this->order->module) {
+            $request['payment_gateway'] = 'stripe';
+        } elseif ('cheque' == $this->order->module) {
+            $request['payment_gateway'] = 'conekta';
         }
 
         $this->bayonet = new BayonetClient([

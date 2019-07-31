@@ -25,21 +25,46 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-$paymentMethods = array(
-    'bankwire' => 'offline',
-    'cheque' => 'offline',
-    'simplifycommerce'=> 'tokenized_card',
-    'stripe' => 'tokenized_card',
-    'skrill' => 'tokenized_card',
-    'amzpayments' => 'tokenized_card',
-    'billriantpay' => 'tokenized_card',
-    'conektaprestashop' => 'tokenized_card',
-    'paypal' => 'paypal',
-    'paypalusa' => 'paypal',
-    'paypalmx' => 'paypal',
-    'blockonomics' => 'crypto_currency',
-    'mercadopago' => 'tokenized_card',
-    'paygol' => 'tokenized_card',
-    'openpayprestashop' => 'tokenized_card',
-    'pagofacil' => 'tokenized_card',
-);
+/**
+ * Gets the payment method of the order based on the module used to
+ * process the order.
+ * @param Object created order
+ * @return string payment method
+ */
+function getPaymentMethod($order) 
+{
+    $paymentMethod = '';
+    $paymentMethods = array(
+        'bankwire' => 'offline',
+        'cheque' => 'offline',
+        'simplifycommerce'=> 'tokenized_card',
+        'stripe' => 'tokenized_card',
+        'skrill' => 'tokenized_card',
+        'amzpayments' => 'tokenized_card',
+        'billriantpay' => 'tokenized_card',
+        'conektaprestashop' => 'tokenized_card',
+        'paypal' => 'paypal',
+        'paypalusa' => 'paypal',
+        'paypalmx' => 'paypal',
+        'blockonomics' => 'crypto_currency',
+        'mercadopago' => 'tokenized_card',
+        'paygol' => 'tokenized_card',
+        'pagofacil' => 'tokenized_card',
+    );
+    if ('openpayprestashop' == $order->module) {
+        if (strpos(strtolower($order->payment), 'tarjeta') !== false || strpos(strtolower($order->payment), 'card') !== false) {
+            $paymentMethod = 'tokenized_card';
+        } elseif (strpos(strtolower($order->payment), 'bitcoin') !== false) {
+            $paymentMethod = 'crypto_currency';
+        } else {
+            $paymentMethod = 'offline';
+        }
+    } else {
+        foreach ($paymentMethods as $key => $value) {
+            if ($order->module == $key) {
+                $paymentMethod = $value;
+            }
+        }
+    }
+    return $paymentMethod;
+}
