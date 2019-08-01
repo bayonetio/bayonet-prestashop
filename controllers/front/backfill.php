@@ -27,8 +27,11 @@
 
 class BayonetBackfillModuleFrontController extends ModuleFrontController
 {
+    private $api_key;
     private $order_id;
     private $bayonet; 
+    private $orderModule;
+    private $orderDate;
     public $module;
 
     /**
@@ -83,8 +86,10 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
     public function executeBackfill()
     {
         $this->module = Module::getInstanceByName('bayonet');
-        $query = "select * from (SELECT * from ps_orders WHERE reference in (select reference from ps_order_payment)) o where o.id_order not in (select order_no from ps_bayonet)";
+        $query = 'SELECT * FROM (SELECT * FROM `ps_orders` WHERE `reference` IN (SELECT `order_reference` FROM `ps_order_payment`)) o WHERE o.`id_order` NOT IN (SELECT `order_no` FROM `ps_bayonet`)';
         $orders = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($query);
+
+        include_once(_PS_MODULE_DIR_.'bayonet/sdk/Paymethods.php');
 
         foreach ($orders as $order) {
             if (1 == Configuration::get('BAYONET_BACKFILL_MODE')) {
@@ -108,6 +113,8 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                 ]);
 
                 $this->order_id = $order['id_order'];
+                $this->orderModule = $order['module'];
+                $this->orderDate = $order['date_add'];
                 $customer = new Customer((int)$order['id_customer']);
                 $currency = new Currency((int)$order['id_currency']);
                 $cart = new Cart((int)$order['id_cart']);
@@ -117,8 +124,6 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                 $country_delivery = new Country((int)$address_delivery->id_country);
                 $state_invoice = 0 != $address_invoice->id_state ? (new State((int)$address_invoice->id_state))->name : "NA";
                 $country_invoice = new Country((int)$address_invoice->id_country);
-                $payment_gateway = null;
-                $payment_method = 'offline';
 
                 $products = $cart->getProducts();
                 $product_list = array();
@@ -147,7 +152,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                         'line_2' => $address_delivery->address2,
                         'city' => $address_delivery->city,
                         'state' => $state_delivery,
-                        'country' => convert_country_code($country_delivery->iso_code),
+                        'country' => convertCountryCode($country_delivery->iso_code),
                         'zip_code' => $address_delivery->postcode
                     ],
                     'billing_address' => [
@@ -155,14 +160,28 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                         'line_2' => $address_invoice->address2,
                         'city' => $address_invoice->city,
                         'state' => $state_invoice,
-                        'country' => convert_country_code($country_invoice->iso_code),
+                        'country' => convertCountryCode($country_invoice->iso_code),
                         'zip_code' => $address_invoice->postcode
                     ],
                     'products' => $products_list,
                     'order_id' => (int)$this->order_id,
                     'transaction_status' => 'success',
-                    'transaction_time' => (int)time()
+                    'transaction_time' => strtotime($this->orderDate),
                 ];
+
+                $request['payment_method'] = getPaymentMethod($order, 1);
+
+                if ('paypalmx' == $this->orderModule) {
+                    $request['payment_gateway'] = 'paypal';
+                } elseif ('openpayprestashop' == $this->orderModule) {
+                    $request['payment_gateway'] = 'openpay';
+                } elseif ('conektaprestashop' == $this->orderModule) {
+                    $request['payment_gateway'] = 'conekta';
+                } elseif ('bankwire' == $this->orderModule) {
+                    $request['payment_gateway'] = 'stripe';
+                } elseif ('cheque' == $this->orderModule) {
+                    $request['payment_gateway'] = 'conekta';
+                }
 
                 if (!empty($address_invoice->phone)) {
                     $request['telephone'] = $address_invoice->phone;
@@ -237,8 +256,8 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
     {
         header('content-type','application/json');
         $response = array();
-        $queryOrders = "SELECT count('*') AS total FROM `ps_orders` WHERE `reference` IN (SELECT `reference` FROM `ps_order_payment`)";
-        $queryBayonet = "SELECT count('*') AS completed FROM `ps_bayonet` WHERE `is_executed` = 1";
+        $queryOrders = 'SELECT count('*') AS total FROM `ps_orders` WHERE `reference` IN (SELECT `order_reference` FROM `ps_order_payment`)';
+        $queryBayonet = 'SELECT count('*') AS completed FROM `ps_bayonet` WHERE `is_executed` = 1';
         $totalOrders = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($queryOrders);
         $completedOrders = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($queryBayonet);
         $percentage = ($completedOrders['completed']/$totalOrders['total'])*100;

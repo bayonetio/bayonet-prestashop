@@ -517,7 +517,7 @@ class Bayonet extends PaymentModule
           $request['bayonet_fingerprint_token'] = $this->bayonetFingerprint;
         }
 
-        $request['payment_method'] = getPaymentMethod($this->order);
+        $request['payment_method'] = getPaymentMethod($this->order, 0);
 
         if ('paypalmx' == $this->order->module) {
             $request['payment_gateway'] = 'paypal';

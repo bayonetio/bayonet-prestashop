@@ -31,7 +31,7 @@
  * @param Object created order
  * @return string payment method
  */
-function getPaymentMethod($order) 
+function getPaymentMethod($order, $mode) 
 {
     $paymentMethod = '';
     $paymentMethods = array(
@@ -51,20 +51,40 @@ function getPaymentMethod($order)
         'paygol' => 'tokenized_card',
         'pagofacil' => 'tokenized_card',
     );
-    if ('openpayprestashop' == $order->module) {
-        if (strpos(strtolower($order->payment), 'tarjeta') !== false || strpos(strtolower($order->payment), 'card') !== false) {
-            $paymentMethod = 'tokenized_card';
-        } elseif (strpos(strtolower($order->payment), 'bitcoin') !== false) {
-            $paymentMethod = 'crypto_currency';
+
+    if (0 === $mode) {
+        if ('openpayprestashop' == $order->module) {
+            if (strpos(strtolower($order->payment), 'tarjeta') !== false || strpos(strtolower($order->payment), 'card') !== false) {
+                $paymentMethod = 'tokenized_card';
+            } elseif (strpos(strtolower($order->payment), 'bitcoin') !== false) {
+                $paymentMethod = 'crypto_currency';
+            } else {
+                $paymentMethod = 'offline';
+            }
         } else {
-            $paymentMethod = 'offline';
+            foreach ($paymentMethods as $key => $value) {
+                if ($order->module == $key) {
+                    $paymentMethod = $value;
+                }
+            }
         }
-    } else {
-        foreach ($paymentMethods as $key => $value) {
-            if ($order->module == $key) {
-                $paymentMethod = $value;
+    } elseif (1 === $mode) {
+        if ('openpayprestashop' == $order['module']) {
+            if (strpos(strtolower($order['payment']), 'tarjeta') !== false || strpos(strtolower($order['payment']), 'card') !== false) {
+                $paymentMethod = 'tokenized_card';
+            } elseif (strpos(strtolower($order['paymet']), 'bitcoin') !== false) {
+                $paymentMethod = 'crypto_currency';
+            } else {
+                $paymentMethod = 'offline';
+            }
+        } else {
+            foreach ($paymentMethods as $key => $value) {
+                if ($order['module'] == $key) {
+                    $paymentMethod = $value;
+                }
             }
         }
     }
+
     return $paymentMethod;
 }
