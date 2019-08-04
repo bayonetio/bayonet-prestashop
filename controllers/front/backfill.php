@@ -256,8 +256,8 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
     {
         header('content-type','application/json');
         $response = array();
-        $queryOrders = 'SELECT count('*') AS total FROM `ps_orders` WHERE `reference` IN (SELECT `order_reference` FROM `ps_order_payment`)';
-        $queryBayonet = 'SELECT count('*') AS completed FROM `ps_bayonet` WHERE `is_executed` = 1';
+        $queryOrders = "SELECT count('*') AS total FROM `ps_orders` WHERE `reference` IN (SELECT `order_reference` FROM `ps_order_payment`)";
+        $queryBayonet = "SELECT count('*') AS completed FROM `ps_bayonet` WHERE `is_executed` = 1";
         $totalOrders = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($queryOrders);
         $completedOrders = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($queryBayonet);
         $percentage = ($completedOrders['completed']/$totalOrders['total'])*100;

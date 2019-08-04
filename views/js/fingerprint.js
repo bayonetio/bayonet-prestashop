@@ -53,12 +53,12 @@ function getResponse(response) {
   if(response.bayonet_fingerprint_token == '') {
   } else {
     $.ajax({
-  	  url: urlFingerprint,
-	  type: 'post',
-	  data: { fingerprint: response.bayonet_fingerprint_token },
-	  dataType: 'json',
-	  success: function(data) {
-	  }
-	});
+      url: urlFingerprint,
+      type: 'post',
+      data: { fingerprint: response.bayonet_fingerprint_token },
+      dataType: 'json',
+      success: function(data) {
+      }
+    });
   }
 }

@@ -67,6 +67,9 @@ $(document).ready(function(){
   });
 });
 
+/**
+ * Gets the current status of the backfill process.
+ */
 function getStatus(){
   $.ajax({
     url: urlBackfill,
