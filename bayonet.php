@@ -39,6 +39,7 @@ class Bayonet extends PaymentModule
 {
     private $_html = '';
     private $bayonet;
+    private $api_key;
     protected $errors;
     protected $dataToInsert;
     protected $order;
@@ -207,9 +208,9 @@ class Bayonet extends PaymentModule
                         'on_success' => function ($response) {
                         },
                         'on_failure' => function ($response) {
-                            /*if (12 == $response->reason_code) {
+                            if (12 == $response->reason_code) {
                                 $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Live Key: '.$response->reason_message.'</div>';
-                            }*/
+                            }
                         },
                     ]);
                 }
@@ -426,8 +427,14 @@ class Bayonet extends PaymentModule
             $request['payment_gateway'] = 'conekta';
         }
 
+        if (0 == Configuration::get('BAYONET_API_MODE')) {
+            $this->api_key = Configuration::get('BAYONET_API_TEST_KEY');
+        } elseif (1 == Configuration::get('BAYONET_API_MODE')) {
+            $this->api_key = Configuration::get('BAYONET_API_LIVE_KEY');
+        }
+
         $this->bayonet = new BayonetClient([
-            'api_key' => Configuration::get('BAYONET_API_TEST_KEY'),
+            'api_key' => $this->api_key,
         ]);
 
         $this->bayonet->consulting([
@@ -500,8 +507,14 @@ class Bayonet extends PaymentModule
                         'transaction_status' => 'success',
                     ];
 
+                    if (0 == Configuration::get('BAYONET_API_MODE')) {
+                        $this->api_key = Configuration::get('BAYONET_API_TEST_KEY');
+                    } elseif (1 == Configuration::get('BAYONET_API_MODE')) {
+                        $this->api_key = Configuration::get('BAYONET_API_LIVE_KEY');
+                    }
+
                     $this->bayonet = new BayonetClient([
-                        'api_key' => Configuration::get('BAYONET_API_TEST_KEY'),
+                        'api_key' => $this->api_key,
                     ]);
 
                     $this->bayonet->updateTransaction([
