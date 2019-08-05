@@ -61,9 +61,6 @@ class Bayonet extends PaymentModule
         $this->displayName = $this->l('Bayonet E-commerce Plugin');
         $this->description = $this->l('This plugin will validate order details for fraud.');
 
-        $this->statuses = array('Accept', 'Reject', 'Review',);
-        $this->colors = array('#00b301', '#bf1a00', '#e7c600',);
-
         $this->table_name = $this->name;
     }
     
@@ -81,8 +78,6 @@ class Bayonet extends PaymentModule
         Configuration::updateValue('BAYONET_API_LIVE_KEY', null);
 
         include(_PS_MODULE_DIR_.'bayonet/sql/install.php');
-
-        $this->addOrderStatus();
 
         if (
             !parent::install() ||
@@ -114,15 +109,6 @@ class Bayonet extends PaymentModule
 
         include(_PS_MODULE_DIR_.'bayonet/sql/uninstall.php');
 
-        $query = 'SELECT * FROM `'._DB_PREFIX_.'order_state` WHERE `module_name` ='."'$this->name'";
-        $records = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
-        if (count($records) > 0) {
-            foreach ($records as $record) {
-                $orderState = new OrderState($record['id_order_state']);
-                $orderState->delete();
-            }
-        }
-
         if (!parent::uninstall() ||
             !$this->eraseTab()
         ) {
@@ -131,32 +117,7 @@ class Bayonet extends PaymentModule
         
         return true;
     }
-    
-    /**
-     * Bayonet's statuses installation
-     * Adds the Bayonet statuses; executed when installing the module.
-     */
-    private function addOrderStatus()
-    {
-        for ($i = 0; $i < count($this->statuses); $i++) {
-            $orderState = new OrderState();
-            $orderState->name = array();
-            $orderState->module_name = $this->name;
-            $orderState->send_email = false;
-            $orderState->color = $this->colors[$i];
-            $orderState->hidden = false;
-            $orderState->delivery = false;
-            $orderState->logable = true;
-            $orderState->invoice = false;
-            $orderState->paid = false;
-            foreach (Language::getLanguages() as $language) {
-                $orderState->template[$language['id_lang']] = 'payment';
-                $orderState->name[$language['id_lang']] = $this->statuses[$i];
-            }
-            $orderState->add();
-        }
-    }
-    
+
     /**
      * Bayonet's tab installation
      * Adds the Bayonet tab in the back office; executed when installing the module.
@@ -246,9 +207,9 @@ class Bayonet extends PaymentModule
                         'on_success' => function ($response) {
                         },
                         'on_failure' => function ($response) {
-                            // if ($response->reason_code == 12) {
-                            // 	$this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Live Key: '.$response->reason_message.'</div>';
-                            // }
+                            /*if (12 == $response->reason_code) {
+                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Live Key: '.$response->reason_message.'</div>';
+                            }*/
                         },
                     ]);
                 }
@@ -261,7 +222,7 @@ class Bayonet extends PaymentModule
 
         $this->context->smarty->assign('error_msgs', $this->errors);
         $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/config.tpl');
-        
+
         return $output.$this->renderForm();
     }
     
@@ -466,8 +427,8 @@ class Bayonet extends PaymentModule
         }
 
         $this->bayonet = new BayonetClient([
-                    'api_key' => Configuration::get('BAYONET_API_TEST_KEY'),
-                ]);
+            'api_key' => Configuration::get('BAYONET_API_TEST_KEY'),
+        ]);
 
         $this->bayonet->consulting([
             'body' => $request,
