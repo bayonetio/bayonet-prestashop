@@ -90,7 +90,8 @@ class Bayonet extends PaymentModule
             !$this->registerHook('displayHeader') ||
             !$this->registerHook('actionValidateOrder') ||
             !$this->registerHook('displayAdminOrder') ||
-            !$this->registerHook('actionOrderStatusUpdate')
+            !$this->registerHook('actionOrderStatusUpdate') ||
+            !$this->registerHook('displayBackOfficeHeader')
         ) {
             return false;
         }
@@ -601,5 +602,10 @@ class Bayonet extends PaymentModule
         }
             
         return $this->display(__FILE__, 'admin_order.tpl');
+    }
+
+    public function hookDisplayBackOfficeHeader($params)
+    {
+        $this->context->controller->addCSS($this->_path . 'views/css/'.$this->name.'_bo.css', 'all');
     }
 }
