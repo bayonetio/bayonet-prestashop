@@ -51,7 +51,7 @@ class Bayonet extends PaymentModule
         $this->tab = 'payment_security';
         $this->version = '1.0.0';
         $this->author = 'Bayonet.io';
-        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_,);
+        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.6.1.24',);
 
         $this->need_instance = 1;
         $this->bootstrap = true;
@@ -392,6 +392,7 @@ class Bayonet extends PaymentModule
         if (!Configuration::get('BAYONET_API_TEST_KEY') || !Configuration::get('BAYONET_API_LIVE_KEY')) {
             return;
         }
+
         $this->order = $params['order'];
         $cart = $this->context->cart;
         $address_delivery = new Address((int)$cart->id_address_delivery);
@@ -443,8 +444,13 @@ class Bayonet extends PaymentModule
             "order_id" => (int)$this->order->id,
         ];
 
-        if ('' != $address_invoice->phone) {
-            $request['telephone'] = $address_invoice->phone;
+        if (!empty($address_invoice->phone) || !empty($address_invoice->phone_mobile)) {
+            if (!empty($address_invoice->phone)) {
+                $request['telephone'] = $address_invoice->phone;
+            }
+            elseif (!empty($address_invoice->phone_mobile)) {
+                $request['telephone'] = $address_invoice->phone_mobile;
+            }
         } else {
             $request['telephone'] = null;
         }
@@ -457,10 +463,6 @@ class Bayonet extends PaymentModule
             $request['payment_gateway'] = 'openpay';
         } elseif ('conektaprestashop' == $this->order->module) {
             $request['payment_gateway'] = 'conekta';
-        } elseif ('bankwire' == $this->order->module) {
-            $request['payment_gateway'] = 'stripe';
-        } elseif ('cheque' == $this->order->module) {
-            $request['payment_gateway'] = 'conekta';
         }
 
         $this->bayonet = new BayonetClient([
@@ -471,8 +473,12 @@ class Bayonet extends PaymentModule
             'body' => $request,
             'on_success' => function ($response) {
                 $triggered = '';
-                $rules = $response->rules_triggered->dynamic;
-                foreach ($rules as $rule) {
+                $rulesDynamic = $response->rules_triggered->dynamic;
+                $rulesCustom = $response->rules_triggered->custom;
+                foreach ($rulesDynamic as $rule) {
+                    $triggered .= '- ' . $rule . '<br>';
+                }
+                foreach ($rulesCustom as $rule) {
                     $triggered .= '- ' . $rule . '<br>';
                 }
                 $this->dataToInsert = array(
@@ -604,6 +610,11 @@ class Bayonet extends PaymentModule
         return $this->display(__FILE__, 'admin_order.tpl');
     }
 
+    /**
+     * Loads the necessary css file to set the Bayonet tab icon
+     *
+     * @param object $params Object
+     */
     public function hookDisplayBackOfficeHeader($params)
     {
         $this->context->controller->addCSS($this->_path . 'views/css/'.$this->name.'_bo.css', 'all');
