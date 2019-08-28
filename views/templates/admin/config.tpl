@@ -24,3 +24,10 @@
 *}
  
 {$error_msgs}
+<div class="panel">
+	<h3><i class="icon icon-warning"></i> {l s='IMPORTANT' mod='bayonet'}</h3>
+	{l s='In order to obtain your API keys, you need to log into' mod='bayonet'} <a href="https://bayonet.io/login" target="_blank" rel="noopener noreferrer">Bayonet's Console</a> {l s='with your Bayonet credentials, once you are logged in, you can get them or generate them if you haven\'t done that.' mod='bayonet'}
+	<br />
+	{l s='If you haven\'t received your Bayonet credentials yet, please send an email to' mod='bayonet'} <a href="mailto:contacto@bayonet.io">contacto@bayonet.io</a>
+	{l s='with your information to provide you with them.' mod='bayonet'}
+</div>

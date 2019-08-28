@@ -176,8 +176,8 @@ class Bayonet extends PaymentModule
                 $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Bayonet API sandbox key</div>';
             }
 
-            if (empty(Tools::getValue('BAYONET_API_LIVE_KEY'))) {
-                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Bayonet API live key</div>';
+            if (empty(Tools::getValue('BAYONET_API_LIVE_KEY')) && 1 == Tools::getValue('BAYONET_API_MODE')) {
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Cannot enable live mode without a Bayonet API live key</div>';
             }
 
             require_once(__DIR__ .'/sdk/TestRequest.php');
@@ -199,20 +199,23 @@ class Bayonet extends PaymentModule
                 ]);
 
                 if (empty($this->errors)) {
-                    $this->bayonet = new BayonetClient([
-                        'api_key' => Tools::getValue('BAYONET_API_LIVE_KEY'),
-                    ]);
+                    if (!empty(Tools::getValue('BAYONET_API_LIVE_KEY')))
+                    {
+                        $this->bayonet = new BayonetClient([
+                            'api_key' => Tools::getValue('BAYONET_API_LIVE_KEY'),
+                        ]);
 
-                    $this->bayonet->consulting([
-                        'body' => $request['consulting'],
-                        'on_success' => function ($response) {
-                        },
-                        'on_failure' => function ($response) {
-                            if (12 == $response->reason_code) {
-                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Live Key: '.$response->reason_message.'</div>';
-                            }
-                        },
-                    ]);
+                         $this->bayonet->consulting([
+                            'body' => $request['consulting'],
+                            'on_success' => function ($response) {
+                            },
+                            'on_failure' => function ($response) {
+                                if (12 == $response->reason_code) {
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Live Key: '.$response->reason_message.'</div>';
+                                }
+                            },
+                        ]);
+                    }
                 }
             }
 
@@ -274,7 +277,8 @@ class Bayonet extends PaymentModule
                     'type' => 'switch',
                     'label' => $this->l('Live Mode'),
                     'name' => 'BAYONET_API_MODE',
-                    'desc' => $this->l('Use Bayonet in live mode'),
+                    'desc' => $this->l('Use Bayonet in Live Mode'),
+                    'hint' => $this->l('Enabling this setting will set the module to Live (production) Mode, disabling it will set the module to Sandbox (test) Mode'),
                     'values' => array(
                         array(
                             'id' => 'active_on',
@@ -291,14 +295,14 @@ class Bayonet extends PaymentModule
                 array(
                     'col' => 3,
                     'type' => 'text',
-                    'desc' => $this->l('Enter Bayonet API Sandbox Key'),
+                    'hint' => $this->l('Please enter a Sandbox Key to enable Sandbox Mode'),
                     'name' => 'BAYONET_API_TEST_KEY',
                     'label' => $this->l('Bayonet API Sandbox Key'),
                 ),
                 array(
                     'col' => 3,
                     'type' => 'text',
-                    'desc' => $this->l('Enter Bayonet API Live Key'),
+                    'hint' => $this->l('Please enter a Live Key to enable Live Mode'),
                     'name' => 'BAYONET_API_LIVE_KEY',
                     'label' => $this->l('Bayonet API Live Key'),
                 ),
