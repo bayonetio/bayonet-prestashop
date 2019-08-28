@@ -172,40 +172,43 @@ class Bayonet extends PaymentModule
         if (((bool)Tools::isSubmit('submitBayonetModule')) == true && !empty(Tools::getValue('save'))) {
             $posted_data = $this->getConfigFormValues();
 
-            if (empty(Tools::getValue('BAYONET_API_TEST_KEY'))) {
+            if (empty(trim(Tools::getValue('BAYONET_API_TEST_KEY')))) {
                 $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Bayonet API sandbox key</div>';
             }
 
-            if (empty(Tools::getValue('BAYONET_API_LIVE_KEY')) && 1 == Tools::getValue('BAYONET_API_MODE')) {
+            if (empty(trim(Tools::getValue('BAYONET_API_LIVE_KEY'))) && 1 == Tools::getValue('BAYONET_API_MODE')) {
                 $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Cannot enable live mode without a Bayonet API live key</div>';
             }
 
             require_once(__DIR__ .'/sdk/TestRequest.php');
 
             if (empty($this->errors)) {
-                $this->bayonet = new BayonetClient([
-                    'api_key' => Tools::getValue('BAYONET_API_TEST_KEY'),
-                ]);
+                if ('*****' != trim(Tools::getValue('BAYONET_API_TEST_KEY'))) {
+                    $this->bayonet = new BayonetClient([
+                        'api_key' => trim(Tools::getValue('BAYONET_API_TEST_KEY')),
+                    ]);
 
-                $this->bayonet->consulting([
-                    'body' => $request['consulting'],
-                    'on_success' => function ($response) {
-                    },
-                    'on_failure' => function ($response) {
-                        if ($response->reason_code == 12) {
-                            $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Test Key: '.$response->reason_message.'</div>';
-                        }
-                    },
-                ]);
+                    $this->bayonet->consulting([
+                        'body' => $request['consulting'],
+                        'on_success' => function ($response) {
+                        },
+                        'on_failure' => function ($response) {
+                            if ($response->reason_code == 12) {
+                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Test Key: '.$response->reason_message.'</div>';
+                            }
+                        },
+                    ]);
+                }
+            }
 
-                if (empty($this->errors)) {
-                    if (!empty(Tools::getValue('BAYONET_API_LIVE_KEY')))
-                    {
+            if (empty($this->errors)) {
+                if (!empty(trim(Tools::getValue('BAYONET_API_LIVE_KEY')))) {
+                    if ('*****' != trim(Tools::getValue('BAYONET_API_LIVE_KEY'))) {
                         $this->bayonet = new BayonetClient([
-                            'api_key' => Tools::getValue('BAYONET_API_LIVE_KEY'),
+                            'api_key' => trim(Tools::getValue('BAYONET_API_LIVE_KEY')),
                         ]);
 
-                         $this->bayonet->consulting([
+                        $this->bayonet->consulting([
                             'body' => $request['consulting'],
                             'on_success' => function ($response) {
                             },
@@ -323,10 +326,13 @@ class Bayonet extends PaymentModule
      */
     public function getConfigFormValues()
     {
+        $apiTestKey = null != Configuration::get('BAYONET_API_TEST_KEY') ? str_repeat("*", 10) : Configuration::get('BAYONET_API_TEST_KEY');
+        $apiLiveKey = null != Configuration::get('BAYONET_API_LIVE_KEY') ? str_repeat("*", 10) : Configuration::get('BAYONET_API_LIVE_KEY');
+
         return array(
             'BAYONET_API_MODE' => Configuration::get('BAYONET_API_MODE'),
-            'BAYONET_API_TEST_KEY' => Configuration::get('BAYONET_API_TEST_KEY'),
-            'BAYONET_API_LIVE_KEY' => Configuration::get('BAYONET_API_LIVE_KEY'),
+            'BAYONET_API_TEST_KEY' => $apiTestKey,
+            'BAYONET_API_LIVE_KEY' => $apiLiveKey,
         );
     }
     
@@ -339,7 +345,7 @@ class Bayonet extends PaymentModule
     {
         $forms_values = $this->getConfigFormValues();
         foreach (array_keys($forms_values) as $key) {
-            Configuration::updateValue($key, Tools::getValue($key));
+            Configuration::updateValue($key, trim(Tools::getValue($key)));
         }
 
         return $this->_html .= $this->displayConfirmation($this->l('Settings Updated'));
