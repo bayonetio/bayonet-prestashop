@@ -64,6 +64,5 @@ $request = [
             ],
         ],
         "transaction_id" => "100011",
-        "order_id" => "100011"
     ],
 ];

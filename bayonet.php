@@ -183,7 +183,7 @@ class Bayonet extends PaymentModule
             require_once(__DIR__ .'/sdk/TestRequest.php');
 
             if (empty($this->errors)) {
-                if ('*****' != trim(Tools::getValue('BAYONET_API_TEST_KEY'))) {
+                if ('**********' != trim(Tools::getValue('BAYONET_API_TEST_KEY'))) {
                     $this->bayonet = new BayonetClient([
                         'api_key' => trim(Tools::getValue('BAYONET_API_TEST_KEY')),
                     ]);
@@ -193,8 +193,12 @@ class Bayonet extends PaymentModule
                         'on_success' => function ($response) {
                         },
                         'on_failure' => function ($response) {
-                            if ($response->reason_code == 12) {
-                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Test Key: '.$response->reason_message.'</div>';
+                            if (159 == $response->reason_code) {
+                            }
+                            elseif (12 == $response->reason_code) {
+                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Sandbox Key: '.$response->reason_message.'</div>';
+                            } else {
+                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>An error occurred while validating the sandbox API key: '.$response->reason_message.'</div>';   
                             }
                         },
                     ]);
@@ -203,7 +207,7 @@ class Bayonet extends PaymentModule
 
             if (empty($this->errors)) {
                 if (!empty(trim(Tools::getValue('BAYONET_API_LIVE_KEY')))) {
-                    if ('*****' != trim(Tools::getValue('BAYONET_API_LIVE_KEY'))) {
+                    if ('**********' != trim(Tools::getValue('BAYONET_API_LIVE_KEY'))) {
                         $this->bayonet = new BayonetClient([
                             'api_key' => trim(Tools::getValue('BAYONET_API_LIVE_KEY')),
                         ]);
@@ -213,8 +217,12 @@ class Bayonet extends PaymentModule
                             'on_success' => function ($response) {
                             },
                             'on_failure' => function ($response) {
-                                if (12 == $response->reason_code) {
+                                if (159 == $response->reason_code) {
+                                }
+                                elseif (12 == $response->reason_code) {
                                     $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Live Key: '.$response->reason_message.'</div>';
+                                } else {
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>An error occurred while validating the live API key: '.$response->reason_message.'</div>';   
                                 }
                             },
                         ]);
