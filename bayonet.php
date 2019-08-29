@@ -194,8 +194,7 @@ class Bayonet extends PaymentModule
                         },
                         'on_failure' => function ($response) {
                             if (159 == $response->reason_code) {
-                            }
-                            elseif (12 == $response->reason_code) {
+                            } elseif (12 == $response->reason_code) {
                                 $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Sandbox Key: '.$response->reason_message.'</div>';
                             } else {
                                 $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>An error occurred while validating the sandbox API key: '.$response->reason_message.'</div>';   
@@ -218,9 +217,10 @@ class Bayonet extends PaymentModule
                             },
                             'on_failure' => function ($response) {
                                 if (159 == $response->reason_code) {
-                                }
-                                elseif (12 == $response->reason_code) {
+                                } elseif (12 == $response->reason_code) {
                                     $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Live Key: '.$response->reason_message.'</div>';
+                                } elseif (13 == $response->reason_code) {
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Error: '.$response->reason_message.'. In order to be able to use Bayonet in Live Mode properly, add your IP address to the whitelist in Bayonet\'s console</div>';
                                 } else {
                                     $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>An error occurred while validating the live API key: '.$response->reason_message.'</div>';   
                                 }
