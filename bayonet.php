@@ -40,11 +40,14 @@ class Bayonet extends PaymentModule
     private $_html = '';
     private $bayonet;
     private $bayonetFingerprint;
+    private $response;
+    private $idBlockList;
+    private $whiteList;
+    private $blackList;
     protected $errors;
     protected $dataToInsert;
     protected $order;
     protected $bayoID;
-    public $response;
 
     public function __construct()
     {
@@ -652,9 +655,25 @@ class Bayonet extends PaymentModule
     public function hookDisplayAdminOrder($params)
     {
         $displayedOrder = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'bayonet` WHERE `order_no` = ' . (int)$params['id_order']);
+        $orderCustomer = Db::getInstance()->getRow('SELECT a.`email`, a.`id_customer` FROM 
+            (SELECT `email`, `id_customer` FROM `' . _DB_PREFIX_ . 'customer` WHERE `id_customer` = 
+            (SELECT `id_customer` FROM `' . _DB_PREFIX_ . 'orders` where `id_order` = ' . (int)$params['id_order'] . ')) a');
+        $blockListData = Db::getInstance()->getRow('SELECT `id_blocklist`, `whitelist`, `blacklist` FROM `' ._DB_PREFIX_.'bayonet_blocklist` WHERE `id_customer` = (SELECT `id_customer` FROM `'._DB_PREFIX_.'orders` WHERE `id_order` = ' . (int)$params['id_order'] . ')');
+
+        if ($blockListData) {
+            $this->idBlockList = $blockListData['id_blocklist'];
+            $this->whitelist = $blockListData['whitelist'];
+            $this->blacklist = $blockListData['blacklist'];
+        } else {
+            $this->idBlockList = 0;
+            $this->whitelist = 0;
+            $this->blacklist = 0;
+        }
         
         if ($displayedOrder) {
+
             if (!empty($displayedOrder['bayonet_tracking_id'])) {
+
                 $this->smarty->assign(array(
                     'not_consulting_order' => false,
                     'unprocessed_order' => false,
@@ -664,6 +683,11 @@ class Bayonet extends PaymentModule
                     'bayonet_tracking_id' => $displayedOrder['bayonet_tracking_id'],
                     'api_response' => $displayedOrder['consulting_api_response'],
                     'rules_triggered' => $displayedOrder['rules_triggered'],
+                    'mailCustomer' => $orderCustomer['email'],
+                    'idCustomer' => $orderCustomer['id_customer'],
+                    'idBlockList' => $this->idBlockList,
+                    'whitelist' => $this->whitelist,
+                    'blacklist' => $this->blacklist,
                 ));
             } else {
                 $this->smarty->assign(array(
@@ -677,6 +701,9 @@ class Bayonet extends PaymentModule
                 'unprocessed_order' => true,
             ));
         }
+
+        Media::addJsDef(array('urlBlockList' => $this->context->link->getModuleLink($this->name,'blocklist',array())));
+        $this->context->controller->addJS($this->_path.'views/js/blocklist.js');
             
         return $this->display(__FILE__, 'admin_order.tpl');
     }

@@ -26,23 +26,34 @@
 
 $sql = array();
 
-$sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet` (
-    `id_bayonet` int(11) NOT NULL AUTO_INCREMENT,
-    `id_cart` int(11) NULL,
-    `order_no` varchar(255) NOT NULL,
-    `bayonet_tracking_id` varchar(255) NOT NULL,
-    `consulting_api` tinyint(1) NULL,
-    `consulting_api_response` text NULL,
-    `feedback_api` tinyint(1) NULL,
-    `feedback_api_response` text NULL,
-    `historical_api` tinyint(1) NULL,
-    `historical_api_response` text NULL,
-    `decision` varchar(15) NOT NULL,
-    `rules_triggered` varchar(1000) NULL,
-    `is_executed` int(11) NOT NULL,
-    `date_add` timestamp default current_timestamp NOT NULL,
-    PRIMARY KEY  (`id_bayonet`)
-) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
+$sql[] = 
+    'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet` (
+        `id_bayonet` int(11) NOT NULL AUTO_INCREMENT,
+        `id_cart` int(11) NULL,
+        `order_no` varchar(255) NOT NULL,
+        `bayonet_tracking_id` varchar(255) NOT NULL,
+        `consulting_api` tinyint(1) NULL,
+        `consulting_api_response` text NULL,
+        `feedback_api` tinyint(1) NULL,
+        `feedback_api_response` text NULL,
+        `historical_api` tinyint(1) NULL,
+        `historical_api_response` text NULL,
+        `decision` varchar(15) NOT NULL,
+        `rules_triggered` varchar(1000) NULL,
+        `is_executed` int(11) NOT NULL,
+        `date_add` timestamp default current_timestamp NOT NULL,
+        PRIMARY KEY  (`id_bayonet`)
+    ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
+$sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet_blocklist` (
+        `id_blocklist` int(11) NOT NULL AUTO_INCREMENT,
+        `id_customer` int(11) NOT NULL,
+        `email` varchar(255) NOT NULL,
+        `whitelist` tinyint(1) default 0 NOT NULL,
+        `blacklist` tinyint(1) default 0 NOT NULL,
+        `response_code` int(11) NOT NULL,
+        `response_message` text NULL,
+        PRIMARY KEY  (`id_blocklist`)
+    ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
