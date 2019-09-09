@@ -1,169 +1,72 @@
 <?php
-	$paymethods = array(
-		'2checkout' => 'card',
-		'adyen' => 'card',
-		'affirm' => 'card',
-		'alipay' => 'card',
-		'altapay' => 'card',
-		'amazon_payments' => 'card',
-		'astropay' => 'card',
-		'authorizenet' => 'card',
-		'balanced' => 'card',
-		'banwire' => 'card',
-		'beanstream' => 'card',
-		'billpocket' => 'card',
-		'bitpay' => 'card',
-		'blockchain' => 'card',
-		'bluepay' => 'card',
-		'braintree' => 'card',
-		'buckaroo' => 'card',
-		'ccavenue' => 'card',
-		'centro_de_pago' => 'card',
-		'chain_commerce' => 'card',
-		'chase_paymentech' => 'card',
-		'checkoutcom' => 'card',
-		'cielo' => 'card',
-		'cofinoga' => 'card',
-		'coinbase' => 'card',
-		'collector' => 'card',
-		'compropago' => 'card',
-		'conekta' => 'card',
-		'cuenta_digital' => 'card',
-		'csa' => 'card',
-		'culqi' => 'card',
-		'cybersource' => 'card',
-		'datacash' => 'card',
-		'debitway' => 'card',
-		'dibs' => 'card',
-		'digital_river' => 'card',
-		'dragonpay' => 'card',
-		'edgil_payway'=> 'card',
-		'elavon'=> 'card',
-		'epayeu'=> 'card',
-		'eprocessing_network'=> 'card',
-		'erede'=> 'card',
-		'eway'=> 'card',
-		'first_atlantic_commerce'=> 'card',
-		'first_data'=> 'card',
-		'flap'=> 'card',
-		'g2apay'=> 'card',
-		'giropay'=> 'card',
-		'global_payments'=> 'card',
-		'global_payways'=> 'card',
-		'globalcollect'=> 'card',
-		'gocardless'=> 'card',
-		'hdfc_fssnet'=> 'card',
-		'hipay'=> 'card',
-		'ingenico'=> 'card',
-		'internetsecure'=> 'card',
-		'intuit_quickbooks_payments'=> 'card',
-		'iugu'=> 'card',
-		'jabong'=> 'card',
-		'mastercard_payment_gateway'=> 'card',
-		'mercadopago'=> 'card',
-		'merchant_esolutions'=> 'card',
-		'mirjeh'=> 'card',
-		'moip'=> 'card',
-		'mollie'=> 'card',
-		'moneris_solutions'=> 'card',
-		'moneygram'=> 'card',
-		'nmi'=> 'card',
-		'netbilling ogone'=> 'card',
-		'okpay'=> 'card',
-		'omise'=> 'card',
-		'openpay'=> 'card',
-		'optimal_payments'=> 'card',
-		'pagar_me'=> 'card',
-		'pagseguro'=> 'card',
-		'pagofacil'=> 'card',
-		'paxum'=> 'card',
-		'payeer'=> 'card',
-		'payfast'=> 'card',
-		'paygate'=> 'card',
-		'payment_express'=> 'card',
-		'paymill'=> 'card',
-		'payone'=> 'card',
-		'paysera'=> 'card',
-		'paysimple'=> 'card',
-		'paystation'=> 'card',
-		'paytrace'=> 'card',
-		'paytrail'=> 'card',
-		'payture'=> 'card',
-		'payu'=> 'card',
-		'payulatam'=> 'card',
-		'payworks'=> 'card',
-		'payza'=> 'card',
-		'perfect_money'=> 'card',
-		'pinpayments'=> 'card',
-		'pivotal_payments'=> 'card',
-		'princeton_payment_solutions'=> 'card',
-		'psigate'=> 'card',
-		'qiwi'=> 'card',
-		'quickpay'=> 'card',
-		'raberil'=> 'card',
-		'rbkmoney'=> 'card',
-		'rede'=> 'card',
-		'redpagos'=> 'card',
-		'redsys'=> 'card',
-		'rewardspay'=> 'card',
-		'rietumu'=> 'card',
-		'rocketgate'=> 'card',
-		'sagepay'=> 'card',
-		'sermepa'=> 'card',
-		'simplify_commerce'=> 'card',
-		'smart2pay'=> 'card',
-		'smartcoin'=> 'card',
-		'sofort'=> 'card',
-		'sps_decidir'=> 'card',
-		'srpago'=> 'card',
-		'stone'=> 'card',
-		'srpago'=> 'card',
-		'synapsepay. telerecargas'=> 'card',
-		'towah'=> 'card',
-		'tnspay'=> 'card',
-		'transact_pro'=> 'card',
-		'transfirst'=> 'card',
-		'trustcommerce'=> 'card',
-		'trustly'=> 'card',
-		'twocheckout'=> 'card',
-		'nionpay'=> 'card',
-		'usa_epay'=> 'card',
-		'vantiv'=> 'card',
-		'veritrans'=> 'card',
-		'venmo'=> 'card',
-		'versapay'=> 'card',
-		'vesta'=> 'card',
-		'vindicia'=> 'card',
-		'virtual_card_services'=> 'card',
-		'vme'=> 'card',
-		'webmoney'=> 'card',
-		'webpay_oneclick'=> 'card',
-		'wepay'=> 'card',
-		'western_union'=> 'card',
-		'wirecard'=> 'card',
-		'worldpay'=> 'card',
-		'worldspan'=> 'card',
-		'xipay'=> 'card',
-		'yandex_money'=> 'card',
-		'stripe' => 'card',
-		'paypal' => 'paypal',
-	    'cashondelivery' => 'offline',
-	    'skrill' => 'card',
-	    'hipay' => 'card',
-	    'checkpayment' => 'offline',
-	    'wirepayment' => 'offline',
-	    'creditcard' => 'card'
-	);
 
+/**
+ * 2007-2019 PrestaShop SA and Contributors
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/AFL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to https://www.prestashop.com for more information.
+ *
+ * @author    PrestaShop SA <contact@prestashop.com>
+ * @copyright 2007-2019 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0  Academic Free License (AFL 3.0)
+ * International Registered Trademark & Property of PrestaShop SA
+ */
 
-	$payfields = array(
-		'credit-card' => 'card_number',
-		'credit-card-number' => 'card_number',
-		'card-number' => 'card_number',
-		'card' => 'card_number',
-		'card-firstname' => 'firstname',
-		'firstname' => 'firstname',
-		'card-lastname' => 'lastname',
-		'lastname' => 'lastname',
-	);
-?>
+/**
+ * Gets the payment method of the order based on the module used to
+ * process the order.
+ * @param Object created order
+ * @return string payment method
+ */
+function getPaymentMethod($order) 
+{
+    $paymentMethod = '';
+    $paymentMethods = array(
+        'bankwire' => 'offline',
+        'cheque' => 'offline',
+        'simplifycommerce'=> 'tokenized_card',
+        'stripe' => 'tokenized_card',
+        'skrill' => 'tokenized_card',
+        'amzpayments' => 'tokenized_card',
+        'billriantpay' => 'tokenized_card',
+        'conektaprestashop' => 'tokenized_card',
+        'paypal' => 'paypal',
+        'paypalusa' => 'paypal',
+        'paypalmx' => 'paypal',
+        'blockonomics' => 'crypto_currency',
+        'mercadopago' => 'tokenized_card',
+        'paygol' => 'tokenized_card',
+        'pagofacil' => 'tokenized_card',
+    );
+
+    if ('openpayprestashop' == $order->module) {
+        if (strpos(strtolower($order->payment), 'tarjeta') !== false || strpos(strtolower($order->payment), 'card') !== false) {
+            $paymentMethod = 'tokenized_card';
+        } elseif (strpos(strtolower($order->payment), 'bitcoin') !== false) {
+            $paymentMethod = 'crypto_currency';
+        } else {
+            $paymentMethod = 'offline';
+        }
+    } else {
+        foreach ($paymentMethods as $key => $value) {
+            if ($order->module == $key) {
+                $paymentMethod = $value;
+            }
+        }
+    }
+
+    return $paymentMethod;
+}
