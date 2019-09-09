@@ -27,7 +27,11 @@
   <div class="panel-heading"> 
     <img src="../modules/bayonet/logo.png" height="16" width="16" /> Bayonet
   </div>
-  {if $unprocessed_order}
+  {if $not_consulting_order}
+    <div class="alert alert-warning">
+	  This order was not processed by the consulting API.
+	</div>
+  {elseif $unprocessed_order}
     <div class="alert alert-warning">
 	  This order is not processed by Bayonet.
 	</div>

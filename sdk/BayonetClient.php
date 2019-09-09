@@ -59,6 +59,16 @@ class BayonetClient
     {
         $this->request('sigma/update-transaction', $config);
     }
+
+    /**
+     * Defines "feedback-historical" as the call to be executed in the request method
+     *
+     * @param array $config Client configuration
+     */
+    public function feedbackHistorical(array $config = [])
+    {
+        $this->request('sigma/feedback-historical', $config);
+    }
     
     /**
      * Executes a call to the Bayonet API
