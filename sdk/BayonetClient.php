@@ -69,6 +69,46 @@ class BayonetClient
     {
         $this->request('sigma/feedback-historical', $config);
     }
+
+    /**
+     * Defines "whitelist/add" as the call to be executed in the request method
+     *
+     * @param array $config Client configuration
+     */
+    public function addWhiteList(array $config = [])
+    {
+        $this->request('sigma/labels/whitelist/add', $config);
+    }
+
+    /**
+     * Defines "whitelist/remove" as the call to be executed in the request method
+     *
+     * @param array $config Client configuration
+     */
+    public function removeWhiteList(array $config = [])
+    {
+        $this->request('sigma/labels/whitelist/remove', $config);
+    }
+
+    /**
+     * Defines "block/add" as the call to be executed in the request method
+     *
+     * @param array $config Client configuration
+     */
+    public function addBlackList(array $config = [])
+    {
+        $this->request('sigma/labels/block/add', $config);
+    }
+
+    /**
+     * Defines "block/remove" as the call to be executed in the request method
+     *
+     * @param array $config Client configuration
+     */
+    public function removeBlackList(array $config = [])
+    {
+        $this->request('sigma/labels/block/remove', $config);
+    }
     
     /**
      * Executes a call to the Bayonet API
