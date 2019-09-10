@@ -40,6 +40,7 @@ class Bayonet extends PaymentModule
     private $_html = '';
     private $bayonet;
     private $bayonetFingerprint;
+    private $api_key;
     protected $errors;
     protected $dataToInsert;
     protected $order;
@@ -52,7 +53,7 @@ class Bayonet extends PaymentModule
         $this->tab = 'payment_security';
         $this->version = '1.0.0';
         $this->author = 'Bayonet.io';
-        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_,);
+        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.6.1.24',);
 
         $this->need_instance = 1;
         $this->bootstrap = true;
@@ -61,9 +62,6 @@ class Bayonet extends PaymentModule
 
         $this->displayName = $this->l('Bayonet E-commerce Plugin');
         $this->description = $this->l('This plugin will validate order details for fraud.');
-
-        $this->statuses = array('Accept', 'Reject', 'Review',);
-        $this->colors = array('#00b301', '#bf1a00', '#e7c600',);
 
         $this->table_name = $this->name;
     }
@@ -86,8 +84,6 @@ class Bayonet extends PaymentModule
 
         include(_PS_MODULE_DIR_.'bayonet/sql/install.php');
 
-        $this->addOrderStatus();
-
         if (
             !parent::install() ||
             !$this->createTab() ||
@@ -95,7 +91,8 @@ class Bayonet extends PaymentModule
             !$this->registerHook('actionValidateOrder') ||
             !$this->registerHook('displayAdminOrder') ||
             !$this->registerHook('actionOrderStatusUpdate') ||
-            !$this->registerHook('displayPaymentTop')
+            !$this->registerHook('displayPaymentTop') ||
+            !$this->registerHook('displayBackOfficeHeader')
         ) {
             return false;
         }
@@ -138,32 +135,7 @@ class Bayonet extends PaymentModule
         
         return true;
     }
-    
-    /**
-     * Bayonet's statuses installation
-     * Adds the Bayonet statuses; executed when installing the module.
-     */
-    private function addOrderStatus()
-    {
-        for ($i = 0; $i < count($this->statuses); $i++) {
-            $orderState = new OrderState();
-            $orderState->name = array();
-            $orderState->module_name = $this->name;
-            $orderState->send_email = false;
-            $orderState->color = $this->colors[$i];
-            $orderState->hidden = false;
-            $orderState->delivery = false;
-            $orderState->logable = true;
-            $orderState->invoice = false;
-            $orderState->paid = false;
-            foreach (Language::getLanguages() as $language) {
-                $orderState->template[$language['id_lang']] = 'payment';
-                $orderState->name[$language['id_lang']] = $this->statuses[$i];
-            }
-            $orderState->add();
-        }
-    }
-    
+
     /**
      * Bayonet's tab installation
      * Adds the Bayonet tab in the back office; executed when installing the module.
@@ -217,43 +189,28 @@ class Bayonet extends PaymentModule
         if (((bool)Tools::isSubmit('submitBayonetModule')) == true && !empty(Tools::getValue('save'))) {
             $posted_data = $this->getConfigFormValues();
 
-            if (empty(Tools::getValue('BAYONET_API_TEST_KEY'))) {
-                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Bayonet API Sandbox Key</div>';
+            if (empty(trim(Tools::getValue('BAYONET_API_TEST_KEY')))) {
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Bayonet API sandbox key</div>';
             }
 
-            if (empty(Tools::getValue('BAYONET_API_LIVE_KEY'))) {
-                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Bayonet API Live Key</div>';
+            if (empty(trim(Tools::getValue('BAYONET_API_LIVE_KEY'))) && 1 == Tools::getValue('BAYONET_API_MODE')) {
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Cannot enable live mode without a Bayonet API live key</div>';
+            }
+            
+            if (empty(trim(Tools::getValue('BAYONET_JS_TEST_KEY')))) {
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Device Fingerprint API sandbox key</div>';
             }
 
-            if (empty(Tools::getValue('BAYONET_JS_TEST_KEY'))) {
-                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Device Fingerprint API Sandbox Key</div>';
-            }
-
-            if (empty(Tools::getValue('BAYONET_JS_LIVE_KEY'))) {
-                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Device Fingerprint API Live Key</div>';
+            if (empty(trim(Tools::getValue('BAYONET_JS_LIVE_KEY'))) && 1 == Tools::getValue('BAYONET_API_MODE')) {
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Cannot enable live mode without a Device Fingerprint API live key</div>';
             }
 
             require_once(__DIR__ .'/sdk/TestRequest.php');
 
             if (empty($this->errors)) {
-                $this->bayonet = new BayonetClient([
-                    'api_key' => Tools::getValue('BAYONET_API_TEST_KEY'),
-                ]);
-
-                $this->bayonet->consulting([
-                    'body' => $request['consulting'],
-                    'on_success' => function ($response) {
-                    },
-                    'on_failure' => function ($response) {
-                        if ($response->reason_code == 12) {
-                            $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Test Key: '.$response->reason_message.'</div>';
-                        }
-                    },
-                ]);
-
-                if (empty($this->errors)) {
+                if ('**********' != trim(Tools::getValue('BAYONET_API_TEST_KEY'))) {
                     $this->bayonet = new BayonetClient([
-                        'api_key' => Tools::getValue('BAYONET_API_LIVE_KEY'),
+                        'api_key' => trim(Tools::getValue('BAYONET_API_TEST_KEY')),
                     ]);
 
                     $this->bayonet->consulting([
@@ -261,11 +218,40 @@ class Bayonet extends PaymentModule
                         'on_success' => function ($response) {
                         },
                         'on_failure' => function ($response) {
-                            // if ($response->reason_code == 12) {
-                            // 	$this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Live Key: '.$response->reason_message.'</div>';
-                            // }
+                            if (159 == $response->reason_code) {
+                            } elseif (12 == $response->reason_code) {
+                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Sandbox Key: '.$response->reason_message.'</div>';
+                            } else {
+                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>An error occurred while validating the sandbox API key: '.$response->reason_message.'</div>';   
+                            }
                         },
                     ]);
+                }
+            }
+
+            if (empty($this->errors)) {
+                if (!empty(trim(Tools::getValue('BAYONET_API_LIVE_KEY')))) {
+                    if ('**********' != trim(Tools::getValue('BAYONET_API_LIVE_KEY'))) {
+                        $this->bayonet = new BayonetClient([
+                            'api_key' => trim(Tools::getValue('BAYONET_API_LIVE_KEY')),
+                        ]);
+
+                        $this->bayonet->consulting([
+                            'body' => $request['consulting'],
+                            'on_success' => function ($response) {
+                            },
+                            'on_failure' => function ($response) {
+                                if (159 == $response->reason_code) {
+                                } elseif (12 == $response->reason_code) {
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Live Key: '.$response->reason_message.'</div>';
+                                } elseif (13 == $response->reason_code) {
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Error: '.$response->reason_message.'. In order to be able to use Bayonet in Live Mode properly, add your IP address to the whitelist in Bayonet\'s console</div>';
+                                } else {
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>An error occurred while validating the live API key: '.$response->reason_message.'</div>';   
+                                }
+                            },
+                        ]);
+                    }
                 }
             }
 
@@ -276,24 +262,24 @@ class Bayonet extends PaymentModule
 
         $this->context->smarty->assign('error_msgs', $this->errors);
         $this->context->smarty->assign('backfill_mode', Configuration::get('BAYONET_BACKFILL_MODE'));
-
-		if (!empty(Configuration::get('BAYONET_API_TEST_KEY')) &&
-			!empty(Configuration::get('BAYONET_API_LIVE_KEY')) &&
+        
+        if (!empty(Configuration::get('BAYONET_API_TEST_KEY')) &&
+			      !empty(Configuration::get('BAYONET_API_LIVE_KEY')) &&
             !empty(Configuration::get('BAYONET_JS_TEST_KEY')) &&
             !empty(Configuration::get('BAYONET_JS_LIVE_KEY'))) {
             $this->context->smarty->assign('backfill_enable', 1);
-		} else {
-			$this->context->smarty->assign('backfill_enable', 0);
-		}
+        } else {
+            $this->context->smarty->assign('backfill_enable', 0);
+        }
+      
+        Media::addJsDef(array('urlBackfill' => $this->context->link->getModuleLink($this->name,'backfill',array())));
+		    $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/config.tpl');
+		    $output1 = $this->context->smarty->fetch($this->local_path.'views/templates/admin/backfill.tpl');
 
-		Media::addJsDef(array('urlBackfill' => $this->context->link->getModuleLink($this->name,'backfill',array())));
-		$output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/config.tpl');
-		$output1 = $this->context->smarty->fetch($this->local_path.'views/templates/admin/backfill.tpl');
+		    $this->context->controller->addJS($this->_path.'views/js/back.js');
+		    $this->context->controller->addCSS($this->_path.'views/css/back.css');
 
-		$this->context->controller->addJS($this->_path.'views/js/back.js');
-		$this->context->controller->addCSS($this->_path.'views/css/back.css');
-
-		return $output.$this->renderForm().$output1;
+		    return $output.$this->renderForm().$output1;
     }
     
     /**
@@ -343,7 +329,8 @@ class Bayonet extends PaymentModule
                     'type' => 'switch',
                     'label' => $this->l('Live Mode'),
                     'name' => 'BAYONET_API_MODE',
-                    'desc' => $this->l('Use Bayonet in live mode'),
+                    'desc' => $this->l('Use Bayonet in Live Mode'),
+                    'hint' => $this->l('Enabling this setting will set the module to Live (production) Mode, disabling it will set the module to Sandbox (test) Mode'),
                     'values' => array(
                         array(
                             'id' => 'active_on',
@@ -360,14 +347,14 @@ class Bayonet extends PaymentModule
                 array(
                     'col' => 3,
                     'type' => 'text',
-                    'desc' => $this->l('Enter Bayonet API Sandbox Key'),
+                    'hint' => $this->l('Please enter a Sandbox Key to enable Sandbox Mode'),
                     'name' => 'BAYONET_API_TEST_KEY',
                     'label' => $this->l('Bayonet API Sandbox Key'),
                 ),
                 array(
                     'col' => 3,
                     'type' => 'text',
-                    'desc' => $this->l('Enter Bayonet API Live Key'),
+                    'hint' => $this->l('Please enter a Live Key to enable Live Mode'),
                     'name' => 'BAYONET_API_LIVE_KEY',
                     'label' => $this->l('Bayonet API Live Key'),
                 ),
@@ -402,12 +389,17 @@ class Bayonet extends PaymentModule
      */
     public function getConfigFormValues()
     {
+        $apiTestKey = null != Configuration::get('BAYONET_API_TEST_KEY') ? str_repeat("*", 10) : Configuration::get('BAYONET_API_TEST_KEY');
+        $apiLiveKey = null != Configuration::get('BAYONET_API_LIVE_KEY') ? str_repeat("*", 10) : Configuration::get('BAYONET_API_LIVE_KEY');
+        $jsTestKey = null != Configuration::get('BAYONET_JS_TEST_KEY') ? str_repeat("*", 10) : Configuration::get('BAYONET_JS_TEST_KEY');
+        $jsLiveKey = null != Configuration::get('BAYONET_JS_LIVE_KEY') ? str_repeat("*", 10) : Configuration::get('BAYONET_JS_LIVE_KEY');
+
         return array(
             'BAYONET_API_MODE' => Configuration::get('BAYONET_API_MODE'),
-            'BAYONET_API_TEST_KEY' => Configuration::get('BAYONET_API_TEST_KEY'),
-            'BAYONET_API_LIVE_KEY' => Configuration::get('BAYONET_API_LIVE_KEY'),
-            'BAYONET_JS_TEST_KEY' => Configuration::get('BAYONET_JS_TEST_KEY'),
-            'BAYONET_JS_LIVE_KEY' => Configuration::get('BAYONET_JS_LIVE_KEY'),
+            'BAYONET_API_TEST_KEY' => $apiTestKey,
+            'BAYONET_API_LIVE_KEY' => $apiLiveKey,
+            'BAYONET_JS_TEST_KEY' => $jsTestKey,
+            'BAYONET_JS_LIVE_KEY' => $jsLiveKey,
         );
     }
     
@@ -420,7 +412,7 @@ class Bayonet extends PaymentModule
     {
         $forms_values = $this->getConfigFormValues();
         foreach (array_keys($forms_values) as $key) {
-            Configuration::updateValue($key, Tools::getValue($key));
+            Configuration::updateValue($key, trim(Tools::getValue($key)));
         }
 
         return $this->_html .= $this->displayConfirmation($this->l('Settings Updated'));
@@ -453,7 +445,11 @@ class Bayonet extends PaymentModule
      * @param object $params Object
      */
     public function hookActionValidateOrder($params)
-    {   
+    {
+        if (!Configuration::get('BAYONET_API_TEST_KEY') || !Configuration::get('BAYONET_API_LIVE_KEY')) {
+            return;
+        }
+
         $this->order = $params['order'];
         $cart = $this->context->cart;
         $address_delivery = new Address((int)$cart->id_address_delivery);
@@ -481,6 +477,7 @@ class Bayonet extends PaymentModule
             'consumer_name' => $customer->firstname.' '.$customer->lastname,
             'consumer_internal_id' => $customer->id,
             'transaction_amount' => $cart->getOrderTotal(),
+            'transaction_time' => strtotime($this->order->date_add),
             'currency_code' => $currency->iso_code,
             'transaction_time' => strtotime($this->order->date_add),
             'email' => $customer->email,
@@ -505,8 +502,13 @@ class Bayonet extends PaymentModule
             "order_id" => (int)$this->order->id,
         ];
 
-        if ('' != $address_invoice->phone) {
-            $request['telephone'] = $address_invoice->phone;
+        if (!empty($address_invoice->phone) || !empty($address_invoice->phone_mobile)) {
+            if (!empty($address_invoice->phone)) {
+                $request['telephone'] = $address_invoice->phone;
+            }
+            elseif (!empty($address_invoice->phone_mobile)) {
+                $request['telephone'] = $address_invoice->phone_mobile;
+            }
         } else {
             $request['telephone'] = null;
         }
@@ -519,28 +521,35 @@ class Bayonet extends PaymentModule
 
         $request['payment_method'] = getPaymentMethod($this->order, 0);
 
+
         if ('paypalmx' == $this->order->module) {
             $request['payment_gateway'] = 'paypal';
         } elseif ('openpayprestashop' == $this->order->module) {
             $request['payment_gateway'] = 'openpay';
         } elseif ('conektaprestashop' == $this->order->module) {
             $request['payment_gateway'] = 'conekta';
-        } elseif ('bankwire' == $this->order->module) {
-            $request['payment_gateway'] = 'stripe';
-        } elseif ('cheque' == $this->order->module) {
-            $request['payment_gateway'] = 'conekta';
+        }
+
+        if (0 == Configuration::get('BAYONET_API_MODE')) {
+            $this->api_key = Configuration::get('BAYONET_API_TEST_KEY');
+        } elseif (1 == Configuration::get('BAYONET_API_MODE')) {
+            $this->api_key = Configuration::get('BAYONET_API_LIVE_KEY');
         }
 
         $this->bayonet = new BayonetClient([
-                    'api_key' => Configuration::get('BAYONET_API_TEST_KEY'),
-                ]);
+            'api_key' => $this->api_key,
+        ]);
 
         $this->bayonet->consulting([
             'body' => $request,
             'on_success' => function ($response) {
                 $triggered = '';
-                $rules = $response->rules_triggered->dynamic;
-                foreach ($rules as $rule) {
+                $rulesDynamic = $response->rules_triggered->dynamic;
+                $rulesCustom = $response->rules_triggered->custom;
+                foreach ($rulesDynamic as $rule) {
+                    $triggered .= '- ' . $rule . '<br>';
+                }
+                foreach ($rulesCustom as $rule) {
                     $triggered .= '- ' . $rule . '<br>';
                 }
                 $this->dataToInsert = array(
@@ -594,6 +603,7 @@ class Bayonet extends PaymentModule
         if (1 == $params['newOrderStatus']->paid)
         {
             $bayoOrder = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.'bayonet` WHERE `order_no` = '.(int)$params['id_order']);
+
             if ($bayoOrder) {
                 $this->bayoID = $bayoOrder['id_bayonet'];
                 if (!empty($bayoOrder['bayonet_tracking_id']) && null == $bayoOrder['feedback_api']) {
@@ -601,9 +611,17 @@ class Bayonet extends PaymentModule
                         'bayonet_tracking_id' => $bayoOrder['bayonet_tracking_id'],
                         'transaction_status' => 'success',
                     ];
+
+                    if (0 == Configuration::get('BAYONET_API_MODE')) {
+                        $this->api_key = Configuration::get('BAYONET_API_TEST_KEY');
+                    } elseif (1 == Configuration::get('BAYONET_API_MODE')) {
+                        $this->api_key = Configuration::get('BAYONET_API_LIVE_KEY');
+                    }
+
                     $this->bayonet = new BayonetClient([
-                        'api_key' => Configuration::get('BAYONET_API_TEST_KEY'),
+                        'api_key' => $this->api_key,
                     ]);
+
                     $this->bayonet->updateTransaction([
                         'body' => $updateRequest,
                         'on_success' => function ($response) {
@@ -679,5 +697,15 @@ class Bayonet extends PaymentModule
         }
             
         return $this->display(__FILE__, 'admin_order.tpl');
+    }
+
+    /**
+     * Loads the necessary css file to set the Bayonet tab icon
+     *
+     * @param object $params Object
+     */
+    public function hookDisplayBackOfficeHeader($params)
+    {
+        $this->context->controller->addCSS($this->_path . 'views/css/'.$this->name.'_bo.css', 'all');
     }
 }
