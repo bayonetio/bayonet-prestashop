@@ -30,18 +30,18 @@ $(document).ready(function(){
     $.ajax({
       url: urlBackfill,
 	  type: 'post',
-	  data: {mode:'initiate'},
+	  data: { mode:'initiate' },
 	  dataType: 'json',
 	  success: function(data) {
 	    if(data.error == 0) {
-	  	  $.ajax({
-	        url: urlBackfill,
-		    type: 'post',
-		    data: {mode:'execute'},
-		    dataType: 'json',
-		    success: function(result) {
-		    }
-		  });
+	  	   $.ajax({
+	         url: urlBackfill,
+		     type: 'post',
+		     data: { mode:'execute' },
+		     dataType: 'json',
+		     success: function(result) {
+		     }
+		   });
 		  location.reload();
 	    } else {
 	  	  $('#error-msg').html('<div class="alert alert-danger" id="error-msg">Unable to initiate history backfill please try again</div>');
@@ -54,7 +54,7 @@ $(document).ready(function(){
     $.ajax({
   	  url: urlBackfill,
 	  type: 'post',
-	  data: {mode:'stop'},
+	  data: { mode:'stop' },
 	  dataType: 'json',
 	  success: function(data) {
 	    if(data.error == 0) {
@@ -74,7 +74,7 @@ function getStatus(){
   $.ajax({
     url: urlBackfill,
 	type: 'post',
-	data: {mode:'status'},
+	data: { mode:'status' },
 	dataType: 'json',
 	success: function(data) {
 	  if(data.error == 0) {

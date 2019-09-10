@@ -1,0 +1,4 @@
+.icon-AdminBayonet:before {
+  content: url('../../logo_bo.png');
+  filter: grayscale(100%);
+}

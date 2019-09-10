@@ -31,6 +31,7 @@
  * @param Object created order
  * @return string payment method
  */
+
 function getPaymentMethod($order, $mode) 
 {
     $paymentMethod = '';
