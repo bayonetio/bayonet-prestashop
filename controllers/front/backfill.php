@@ -151,7 +151,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                     'line_2' => $address_delivery->address2,
                     'city' => $address_delivery->city,
                     'state' => $state_delivery,
-                    'country' => convert_country_code($country_delivery->iso_code),
+                    'country' => convertCountryCode($country_delivery->iso_code),
                     'zip_code' => $address_delivery->postcode
                 ],
                 'billing_address' => [
@@ -159,7 +159,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                     'line_2' => $address_invoice->address2,
                     'city' => $address_invoice->city,
                     'state' => $state_invoice,
-                    'country' => convert_country_code($country_invoice->iso_code),
+                    'country' => convertCountryCode($country_invoice->iso_code),
                     'zip_code' => $address_invoice->postcode
                 ],
                 'products' => $products_list,
@@ -167,24 +167,23 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                 'transaction_status' => 'success',
                 'transaction_time' => strtotime($this->orderDate),
             ];
+          
+            $request['payment_method'] = getPaymentMethod($orders[$currentOrder], 1);
 
-            foreach ($paymentMethods as $key => $value) {
-                if ($this->orderModule == $key) {
-                    $request['payment_method'] = $value;
-                    if ('paypalmx' == $this->orderModule) {
-                        $request['payment_gateway'] = 'paypal';
-                    }
-                    if ('openpayprestashop' == $this->orderModule) {
-                        $request['payment_gateway'] = 'openpay';
-                    }
-                    if ('conektaprestashop' == $this->orderModule) {
-                        $request['payment_gateway'] = 'conekta';
-                    }
-                }
+            if ('paypalmx' == $this->orderModule) {
+                $request['payment_gateway'] = 'paypal';
+            } elseif ('openpayprestashop' == $this->orderModule) {
+                $request['payment_gateway'] = 'openpay';
+            } elseif ('conektaprestashop' == $this->orderModule) {
+                $request['payment_gateway'] = 'conekta';
             }
 
-            if (!empty($address_invoice->phone)) {
-                $request['telephone'] = $address_invoice->phone;
+            if (!empty($address_invoice->phone) || !empty($address_invoice->phone_mobile)) {
+                if (!empty($address_invoice->phone)) {
+                    $request['telephone'] = $address_invoice->phone;
+                } elseif (!empty($address_invoice->phone_mobile)) {
+                    $request['telephone'] = $address_invoice->phone_mobile;
+                }
             } else {
                 $request['telephone'] = null;
             }
