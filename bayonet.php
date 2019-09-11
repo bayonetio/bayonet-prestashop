@@ -55,8 +55,8 @@ class Bayonet extends PaymentModule
         $this->name = 'bayonet';
         $this->tab = 'payment_security';
         $this->version = '1.0.0';
-        $this->author = 'Bayonet.io';
-        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.6.1.24',);
+        $this->author = 'Bayonet';
+        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.6.99.99');
 
         $this->need_instance = 1;
         $this->bootstrap = true;
@@ -120,15 +120,6 @@ class Bayonet extends PaymentModule
         Configuration::deleteByName('BAYONET_BACKFILL_MODE');
 
         include(_PS_MODULE_DIR_.'bayonet/sql/uninstall.php');
-
-        $query = 'SELECT * FROM `'._DB_PREFIX_.'order_state` WHERE `module_name` = '."'$this->name'";
-        $records = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
-        if (count($records) > 0) {
-            foreach ($records as $record) {
-                $orderState = new OrderState($record['id_order_state']);
-                $orderState->delete();
-            }
-        }
 
         if (!parent::uninstall() ||
             !$this->eraseTab()
@@ -426,7 +417,7 @@ class Bayonet extends PaymentModule
      * Adds the php controller definition to process in the back office
      * the fingerprint token generated in the front office.
      *
-     * @param object $params Object
+     * @param object $params
      */
     public function hookDisplayPaymentTop($params)
     {
@@ -445,7 +436,7 @@ class Bayonet extends PaymentModule
      * then it saves the corresponding data in the module table depending on the response.
      * This is done after an order has been created.
      *
-     * @param object $params Object
+     * @param object $params
      */
     public function hookActionValidateOrder($params)
     {
@@ -599,7 +590,7 @@ class Bayonet extends PaymentModule
      * then it saves the corresponding data in the module table depending on the response.
      * This is done after a payment has been confirmed for an order.
      *
-     * @param object $params Object
+     * @param object $params
      */
     public function hookActionOrderStatusUpdate($params)
     {
@@ -668,7 +659,7 @@ class Bayonet extends PaymentModule
     /**
      * Displays the Bayonet information corresponding to a specific order in the back office.
      *
-     * @param object $params Object
+     * @param object $params
      */
     public function hookDisplayAdminOrder($params)
     {
@@ -729,7 +720,7 @@ class Bayonet extends PaymentModule
     /**
      * Loads the necessary css file to set the Bayonet tab icon
      *
-     * @param object $params Object
+     * @param object $params
      */
     public function hookDisplayBackOfficeHeader($params)
     {
