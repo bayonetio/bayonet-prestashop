@@ -499,8 +499,7 @@ class Bayonet extends PaymentModule
         if (!empty($address_invoice->phone) || !empty($address_invoice->phone_mobile)) {
             if (!empty($address_invoice->phone)) {
                 $request['telephone'] = $address_invoice->phone;
-            }
-            elseif (!empty($address_invoice->phone_mobile)) {
+            } elseif (!empty($address_invoice->phone_mobile)) {
                 $request['telephone'] = $address_invoice->phone_mobile;
             }
         } else {
@@ -680,6 +679,10 @@ class Bayonet extends PaymentModule
         }
         
         if ($displayedOrder) {
+            $api_response = $displayedOrder['consulting_api_response'];
+            $api_response = rtrim($api_response, ',');
+            $api_response = "[" . trim($api_response) . "]";
+            $metadata = json_decode($api_response, true);
 
             if (!empty($displayedOrder['bayonet_tracking_id'])) {
 
@@ -688,9 +691,10 @@ class Bayonet extends PaymentModule
                     'unprocessed_order' => false,
                     'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#'.
                         (('accept' == $displayedOrder['decision']) ? '339933' : (('review' == $displayedOrder['decision']) ? 'ff7f27' : 'f00')).'">'.
-                        (('accept' == $displayedOrder['decision']) ? 'ACCEPTED' : (('decline' == $displayedOrder['decision']) ? 'DECLINED' : strtoupper($displayedOrder['decision']))).'</span>',
+                        (('accept' == $displayedOrder['decision']) ? $this->l('ACCEPTED') : (('decline' == $displayedOrder['decision']) ? $this->l('DECLINED') : $this->l('REVIEW'))).'</span>',
                     'bayonet_tracking_id' => $displayedOrder['bayonet_tracking_id'],
-                    'api_response' => $displayedOrder['consulting_api_response'],
+                    'reason_code' => $metadata[0]['reason_code'],
+                    'reason_message' => 'success' == $metadata[0]['reason_message'] ? 'Correct' : $metadata[0]['reason_message'],
                     'rules_triggered' => $displayedOrder['rules_triggered'],
                     'mailCustomer' => $orderCustomer['email'],
                     'idCustomer' => $orderCustomer['id_customer'],

@@ -25,15 +25,15 @@
 
 <div class="panel">
   <div class="panel-heading"> 
-    <img src="../modules/bayonet/logo.png" height="16" width="16" /> Bayonet
+    <img src="../modules/bayonet/logo.png" height="16" width="16" /> {l s='Bayonet Anti-Fraud Result' mod='bayonet'}
   </div>
   {if $not_consulting_order}
     <div class="alert alert-warning">
-	  This order was not processed by the consulting API.
+	  {l s='This order was not processed by the consulting API.' mod='bayonet'}
 	</div>
   {elseif $unprocessed_order}
     <div class="alert alert-warning">
-	  This order is not processed by Bayonet.
+	  {l s='This order is not processed by Bayonet.' mod='bayonet'}
 	</div>
   {else}
     <div class="table-responsive">
@@ -52,17 +52,21 @@
 			  {$bayonet_tracking_id}
 			</p>
 		    <p>
-			  <strong>Consulting API Response:</strong>
+			  <strong>{l s='API Call Status:' mod='bayonet'}</strong>
 			</p>
 			<p>
-			  {$api_response}
+			  - {l s='Code:' mod='bayonet'} {$reason_code}
+			  <br />
+			  - {l s='API Call:' mod='bayonet'} {$reason_message}
 			</p>
-			<p>
-			  <strong>Rules Triggered:</strong>
-			</p>
-		    <p>
-			  {$rules_triggered}
-			</p>
+		    {if strlen($rules_triggered) > 0}
+			  <p>
+			    <strong>{l s='Rules Triggered:' mod='bayonet'}</strong>
+			  </p>
+		      <p>
+			    {$rules_triggered}
+			  </p>
+			{/if}
 		  </td>
 		</tr>
 	  </table>
