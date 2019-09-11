@@ -25,6 +25,8 @@
 
 <div class="panel">
 	<h3><i class="icon icon-cogs"></i> {l s='History Backfill' mod='bayonet'}</h3>
+	<p>{l s='The history backfill is a process we perfom in order to get to know your store in a better way. We check all the orders in your store prior to this module\'s installation, in this way, we can detect patterns from your customers and how your store behaves in general. Doing this helps the module to have a better accuracy when analysing the new orders in your store for fraud.'  mod='bayonet'}</p>
+	<br />
 	<div class="text-center row">
 		<div class="col-md-12">
 			{if $backfill_enable == 1}
@@ -33,12 +35,12 @@
 						<div id="error-msg"></div>
 					</div>
 					<div class="col-md-12">
-						<button class="btn btn-primary" id="initiate">Initiate Backfill</button>
+						<button class="btn btn-primary" id="initiate">{l s='Initiate Backfill' mod='bayonet'}</button>
 					</div>
 				{else}
 					<div class="col-md-2 col-sm-12">
 						<label class="control-label">
-							Backfill Status
+							{l s='Backfill Status' mod='bayonet'}
 						</label>
 					</div>
 					<div class="col-md-8 col-sm-12">
@@ -50,12 +52,12 @@
 						</div>
 					</div>
 					<div class="col-md-12">
-						<button class="btn btn-primary" id="stop">Stop Backfill</button>
+						<button class="btn btn-primary" id="stop">{l s='Stop Backfill' mod='bayonet'}</button>
 					</div>
 				{/if}
 			{else}
 				<div class="col-md-12">
-					<p>Please enter API keys to enable this feature</p>
+					<p>{l s='Please enter API keys to enable this feature' mod='bayonet'}</p>
 				</div>
 			{/if}
 		</div>

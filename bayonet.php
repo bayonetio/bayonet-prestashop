@@ -184,19 +184,19 @@ class Bayonet extends PaymentModule
             $posted_data = $this->getConfigFormValues();
 
             if (empty(trim(Tools::getValue('BAYONET_API_TEST_KEY')))) {
-                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Bayonet API sandbox key</div>';
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Please enter Bayonet API sandbox key').'</div>';
             }
 
             if (empty(trim(Tools::getValue('BAYONET_API_LIVE_KEY'))) && 1 == Tools::getValue('BAYONET_API_MODE')) {
-                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Cannot enable live mode without a Bayonet API live key</div>';
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Cannot enable live mode without a Bayonet API live key').'</div>';
             }
             
             if (empty(trim(Tools::getValue('BAYONET_JS_TEST_KEY')))) {
-                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please enter Device Fingerprint API sandbox key</div>';
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Please enter Device Fingerprint API sandbox key').'</div>';
             }
 
             if (empty(trim(Tools::getValue('BAYONET_JS_LIVE_KEY'))) && 1 == Tools::getValue('BAYONET_API_MODE')) {
-                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Cannot enable live mode without a Device Fingerprint API live key</div>';
+                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Cannot enable live mode without a Device Fingerprint API live key').'</div>';
             }
 
             require_once(__DIR__ .'/sdk/TestRequest.php');
@@ -214,9 +214,9 @@ class Bayonet extends PaymentModule
                         'on_failure' => function ($response) {
                             if (159 == $response->reason_code) {
                             } elseif (12 == $response->reason_code) {
-                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Sandbox Key: '.$response->reason_message.'</div>';
+                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('API Sandbox Key: ').$response->reason_message.'</div>';
                             } else {
-                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>An error occurred while validating the sandbox API key: '.$response->reason_message.'</div>';   
+                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('An error occurred while validating the sandbox API key: ').$response->reason_message.'</div>';   
                             }
                         },
                     ]);
@@ -237,11 +237,11 @@ class Bayonet extends PaymentModule
                             'on_failure' => function ($response) {
                                 if (159 == $response->reason_code) {
                                 } elseif (12 == $response->reason_code) {
-                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>API Live Key: '.$response->reason_message.'</div>';
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('API Live Key: ').$response->reason_message.'</div>';
                                 } elseif (13 == $response->reason_code) {
-                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Error: '.$response->reason_message.'. In order to be able to use Bayonet in Live Mode properly, add your IP address to the whitelist in Bayonet\'s console</div>';
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Error: '.$response->reason_message.'. '.$this->l('In order to be able to use Bayonet in Live Mode properly, add your IP address to the whitelist in Bayonet\'s console').'</div>';
                                 } else {
-                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>An error occurred while validating the live API key: '.$response->reason_message.'</div>';   
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('An error occurred while validating the live API key: ').$response->reason_message.'</div>';   
                                 }
                             },
                         ]);
@@ -257,10 +257,10 @@ class Bayonet extends PaymentModule
         $this->context->smarty->assign('error_msgs', $this->errors);
         $this->context->smarty->assign('backfill_mode', Configuration::get('BAYONET_BACKFILL_MODE'));
         
-        if (!empty(Configuration::get('BAYONET_API_TEST_KEY')) &&
-			      !empty(Configuration::get('BAYONET_API_LIVE_KEY')) &&
-            !empty(Configuration::get('BAYONET_JS_TEST_KEY')) &&
-            !empty(Configuration::get('BAYONET_JS_LIVE_KEY'))) {
+        if ((!empty(Configuration::get('BAYONET_API_TEST_KEY')) &&
+             !empty(Configuration::get('BAYONET_JS_TEST_KEY'))) ||
+			(!empty(Configuration::get('BAYONET_API_LIVE_KEY')) &&
+             !empty(Configuration::get('BAYONET_JS_LIVE_KEY')))) {
             $this->context->smarty->assign('backfill_enable', 1);
         } else {
             $this->context->smarty->assign('backfill_enable', 0);
@@ -341,28 +341,29 @@ class Bayonet extends PaymentModule
                 array(
                     'col' => 3,
                     'type' => 'text',
-                    'hint' => $this->l('Please enter a Sandbox Key to enable Sandbox Mode'),
+                    'hint' => $this->l('Please enter a Bayonet API sandbox key to enable Sandbox Mode'),
                     'name' => 'BAYONET_API_TEST_KEY',
                     'label' => $this->l('Bayonet API Sandbox Key'),
                 ),
                 array(
                     'col' => 3,
                     'type' => 'text',
-                    'hint' => $this->l('Please enter a Live Key to enable Live Mode'),
-                    'name' => 'BAYONET_API_LIVE_KEY',
-                    'label' => $this->l('Bayonet API Live Key'),
-                ),
-                array(
-                    'col' => 3,
-                    'type' => 'text',
-                    'desc' => $this->l('Enter Device Fingerprint API Sandbox Key'),
+                    'hint' => $this->l('Please enter a Device Fingerprint API sandbox key'),
                     'name' => 'BAYONET_JS_TEST_KEY',
                     'label' => $this->l('Device Fingerprint API Sandbox Key'),
                 ),
                 array(
                     'col' => 3,
                     'type' => 'text',
-                    'desc' => $this->l('Enter Device Fingerprint API Live Key'),
+                    'hint' => $this->l('Please enter a Bayonet API live key to enable Live Mode'),
+                    'name' => 'BAYONET_API_LIVE_KEY',
+                    'label' => $this->l('Bayonet API Live Key'),
+                ),
+                
+                array(
+                    'col' => 3,
+                    'type' => 'text',
+                    'hint' => $this->l('Please enter a Device Fingerprint API live key'),
                     'name' => 'BAYONET_JS_LIVE_KEY',
                     'label' => $this->l('Device Fingerprint API Live Key'),
                 ),
@@ -440,7 +441,7 @@ class Bayonet extends PaymentModule
      */
     public function hookActionValidateOrder($params)
     {
-        if (!Configuration::get('BAYONET_API_TEST_KEY') || !Configuration::get('BAYONET_API_LIVE_KEY')) {
+        if ((!Configuration::get('BAYONET_API_TEST_KEY') && 0 == Configuration::get('BAYONET_API_MODE')) || (!Configuration::get('BAYONET_API_LIVE_KEY') && 1 == Configuration::get('BAYONET_API_MODE'))) {
             return;
         }
 

@@ -26,11 +26,15 @@
 {$error_msgs}
 <div class="panel">
 	<h3><i class="icon icon-warning"></i> {l s='IMPORTANT' mod='bayonet'}</h3>
-	{l s='In order to obtain your API keys, you need to log into' mod='bayonet'} <a href="https://bayonet.io/login" target="_blank" rel="noopener noreferrer">Bayonet's Console</a> {l s='with your Bayonet credentials, once you are logged in, you can get them or generate them if you haven\'t done that.' mod='bayonet'}
+	{l s='READ THE MANUAL' mod='bayonet'}
 	<br />
+	{l s='Don\'t forget to read this module\'s manual before using it. Reading the manual will help you a lot in understanding how to configure the module and how it works, in this way, navigating throughout its features will be a lot easier for you.' mod='bayonet'}
+	<br />
+	<br />
+	{l s='Enabling this module\'s features will require for you to enter your API keys, to obtain them you need to log into' mod='bayonet'} <a href="https://bayonet.io/login" target="_blank" rel="noopener noreferrer">{l s='Bayonet\'s Console' mod='bayonet'}</a> {l s='with your Bayonet credentials, once you are logged in, go to the ' mod='bayonet'} <a href="https://bayonet.io/developers/setup" target="_blank" rel="noopener noreferrer">{l s='Setup section' mod='bayonet'}</a>{l s=', where you can get them or generate them if you haven\'t done that.' mod='bayonet'}
 	{l s='If you haven\'t received your Bayonet credentials yet, please send an email to' mod='bayonet'} <a href="mailto:contacto@bayonet.io">contacto@bayonet.io</a>
 	{l s='with your information to provide you with them.' mod='bayonet'}
 	<br />
 	<br />
-	{l s='In order to be able to use Bayonet in Live Mode properly, you must add your IP address to the whitelist in' mod='bayonet'} <a href="https://bayonet.io/login" target="_blank" rel="noopener noreferrer">Bayonet's Console</a>. {l s='This is located in the' mod='bayonet'} <a href="https://bayonet.io/developers/setup" target="_blank" rel="noopener noreferrer">Setup section</a>, {l s='the same place where you get your API keys.' mod='bayonet'}
+	{l s='In order to be able to use Bayonet in Live Mode properly, you must add your IP address to the whitelist in' mod='bayonet'} <a href="https://bayonet.io/login" target="_blank" rel="noopener noreferrer">{l s='Bayonet\'s Console' mod='bayonet'}</a>. {l s='This is located in the' mod='bayonet'} <a href="https://bayonet.io/developers/setup" target="_blank" rel="noopener noreferrer">{l s='Setup section' mod='bayonet'}</a>, {l s='the same place where you get your API keys.' mod='bayonet'}
 </div>
