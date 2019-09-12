@@ -63,8 +63,8 @@ class Bayonet extends PaymentModule
 
         parent::__construct();
 
-        $this->displayName = $this->l('Bayonet E-commerce Plugin');
-        $this->description = $this->l('This plugin will validate order details for fraud.');
+        $this->displayName = $this->l('Bayonet Anti-Fraud');
+        $this->description = $this->l('This plugin will analyze the details of new orders to detect any fraud attempt.');
 
         $this->table_name = $this->name;
     }
