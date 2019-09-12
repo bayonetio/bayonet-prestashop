@@ -77,6 +77,20 @@ class AdminBayonetController extends ModuleAdminController
 
         parent::__construct();
     }
+
+    /**
+     * Initializes the Controller's page header toolbar, adding a custom button to go to the module's settings.
+     */
+    public function initPageHeaderToolbar()
+    {
+        $this->page_header_toolbar_btn['custom_button'] = array(
+            'href' => $this->context->link->getAdminLink('AdminModules').'&configure='.$this->module->name.'&tab_module=payment_security&module_name='.$this->module->name,
+            'desc' => $this->module->l('Bayonet Settings'),
+            'icon' => 'process-icon-configure'
+        );
+ 
+        parent::initPageHeaderToolbar();
+    }
     
     /**
      * Initializes the Controller's toolbar, disabling the "new" button.
