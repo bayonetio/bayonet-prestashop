@@ -74,7 +74,7 @@
 	  <div style="text-align:right; width:100%; padding:0;">
 	    {if $idBlockList == 0}
 	      <button class="btn btn-success" id="btn-addWhite" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Add Customer to Whitelist' mod='bayonet'}</button>
-          <button class="btn btn-danger" id="btn-addBlack" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Add Customer to Blacklist'</button>
+          <button class="btn btn-danger" id="btn-addBlack" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Add Customer to Blacklist' mod='bayonet'}</button>
         {elseif $idBlockList > 0}
           {if $whitelist == 1}
             <button class="btn btn-success" id="btn-removeWhite" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Remove Customer from Whitelist' mod='bayonet'}</button>

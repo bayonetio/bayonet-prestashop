@@ -45,10 +45,10 @@ class Bayonet extends PaymentModule
     private $whiteList;
     private $blackList;
     private $api_key;
-    protected $errors;
-    protected $dataToInsert;
-    protected $order;
-    protected $bayoID;
+    private $errors;
+    private $dataToInsert;
+    private $order;
+    private $bayoID;
 
     public function __construct()
     {
@@ -257,23 +257,21 @@ class Bayonet extends PaymentModule
         $this->context->smarty->assign('error_msgs', $this->errors);
         $this->context->smarty->assign('backfill_mode', Configuration::get('BAYONET_BACKFILL_MODE'));
         
-        if ((!empty(Configuration::get('BAYONET_API_TEST_KEY')) &&
-             !empty(Configuration::get('BAYONET_JS_TEST_KEY'))) ||
-			(!empty(Configuration::get('BAYONET_API_LIVE_KEY')) &&
-             !empty(Configuration::get('BAYONET_JS_LIVE_KEY')))) {
+        if (!empty(Configuration::get('BAYONET_API_LIVE_KEY')) &&
+            !empty(Configuration::get('BAYONET_JS_LIVE_KEY')))) {
             $this->context->smarty->assign('backfill_enable', 1);
         } else {
             $this->context->smarty->assign('backfill_enable', 0);
         }
       
         Media::addJsDef(array('urlBackfill' => $this->context->link->getModuleLink($this->name,'backfill',array())));
-		    $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/config.tpl');
-		    $output1 = $this->context->smarty->fetch($this->local_path.'views/templates/admin/backfill.tpl');
+		$output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/config.tpl');
+		$output1 = $this->context->smarty->fetch($this->local_path.'views/templates/admin/backfill.tpl');
 
-		    $this->context->controller->addJS($this->_path.'views/js/back.js');
-		    $this->context->controller->addCSS($this->_path.'views/css/back.css');
+		$this->context->controller->addJS($this->_path.'views/js/back.js');
+		$this->context->controller->addCSS($this->_path.'views/css/back.css');
 
-		    return $output.$this->renderForm().$output1;
+		return $output.$this->renderForm().$output1;
     }
     
     /**
@@ -424,7 +422,7 @@ class Bayonet extends PaymentModule
     {
         if (1 == Configuration::get('BAYONET_API_MODE')) {
             Media::addJsDef(array('bayonet_js_key' => Configuration::get('BAYONET_JS_LIVE_KEY')));
-        } else {
+        } elseif (0 == Configuration::get('BAYONET_API_MODE')) {
             Media::addJsDef(array('bayonet_js_key' => Configuration::get('BAYONET_JS_TEST_KEY')));
         }
         Media::addJsDef(array('urlFingerprint' => $this->context->link->getModuleLink($this->name,'fingerprint',array())));
