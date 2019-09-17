@@ -258,7 +258,7 @@ class Bayonet extends PaymentModule
         $this->context->smarty->assign('backfill_mode', Configuration::get('BAYONET_BACKFILL_MODE'));
         
         if (!empty(Configuration::get('BAYONET_API_LIVE_KEY')) &&
-            !empty(Configuration::get('BAYONET_JS_LIVE_KEY')))) {
+            !empty(Configuration::get('BAYONET_JS_LIVE_KEY'))) {
             $this->context->smarty->assign('backfill_enable', 1);
         } else {
             $this->context->smarty->assign('backfill_enable', 0);

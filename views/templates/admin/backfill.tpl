@@ -57,7 +57,8 @@
 				{/if}
 			{else}
 				<div class="col-md-12">
-					<p>{l s='Please enter API keys to enable this feature' mod='bayonet'}</p>
+				  <div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>{l s='Please enter your live API keys to enable this feature' mod='bayonet'}</div>
+					<p></p>
 				</div>
 			{/if}
 		</div>
