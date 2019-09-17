@@ -405,7 +405,9 @@ class Bayonet extends PaymentModule
     {
         $forms_values = $this->getConfigFormValues();
         foreach (array_keys($forms_values) as $key) {
-            Configuration::updateValue($key, trim(Tools::getValue($key)));
+            if ('**********' != trim(Tools::getValue($key))) {
+                Configuration::updateValue($key, trim(Tools::getValue($key)));
+            }
         }
 
         return $this->_html .= $this->displayConfirmation($this->l('Settings Updated'));
