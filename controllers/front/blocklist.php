@@ -102,20 +102,33 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
             		    'whitelist' => 1,
             		    'response_code' => $response->reason_code,
             		    'response_message' => $response->reason_message,
+                        'api_mode' => Configuration::get('BAYONET_API_MODE'),
             	    );
             	    Db::getInstance()->insert('bayonet_blocklist', $data);
                 }
             },
             'on_failure' => function($response) {
                 $message = str_replace("'", "-", $response->reason_message);
-                $data = array(
-            		'id_customer' => Tools::getValue('customer'),
-            		'email' => Tools::getValue('mail'),
-            		'whitelist' => 0,
-            		'response_code' => $response->reason_code,
-            		'response_message' => $message,
-            	);
-            	Db::getInstance()->insert('bayonet_blocklist', $data);
+                if (Tools::getValue('id') > 0) {
+                    Db::getInstance()->update(
+                        'bayonet_blocklist',
+                        array(
+                            'response_code' => $response->reason_code,
+                            'response_message' => $response->reason_message,
+                        ),
+                        'id_blocklist = '.(int)Tools::getValue('id')
+                    );
+                } elseif (Tools::getValue('id') == 0) {
+                    $data = array(
+                        'id_customer' => Tools::getValue('customer'),
+                        'email' => Tools::getValue('mail'),
+                        'whitelist' => 0,
+                        'response_code' => $response->reason_code,
+                        'response_message' => $response->reason_message,
+                        'api_mode' => Configuration::get('BAYONET_API_MODE'),
+                    );
+                    Db::getInstance()->insert('bayonet_blocklist', $data);
+                }
             },
         ]);
 	}
@@ -171,20 +184,33 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
                         'blacklist' => 1,
                         'response_code' => $response->reason_code,
                         'response_message' => $response->reason_message,
+                        'api_mode' => Configuration::get('BAYONET_API_MODE'),
                     );
                     Db::getInstance()->insert('bayonet_blocklist', $data);
                 }
             },
             'on_failure' => function($response) {
                 $message = str_replace("'", "-", $response->reason_message);
-                $data = array(
-                    'id_customer' => Tools::getValue('customer'),
-                    'email' => Tools::getValue('mail'),
-                    'blacklist' => 0,
-                    'response_code' => $response->reason_code,
-                    'response_message' => $message,
-                );
-                Db::getInstance()->insert('bayonet_blocklist', $data);
+                if (Tools::getValue('id') > 0) {
+                    Db::getInstance()->update(
+                        'bayonet_blocklist',
+                        array(
+                            'response_code' => $response->reason_code,
+                            'response_message' => $response->reason_message,
+                        ),
+                        'id_blocklist = '.(int)Tools::getValue('id')
+                    );
+                } elseif (Tools::getValue('id') == 0) {
+                    $data = array(
+                        'id_customer' => Tools::getValue('customer'),
+                        'email' => Tools::getValue('mail'),
+                        'blacklist' => 0,
+                        'response_code' => $response->reason_code,
+                        'response_message' => $response->reason_message,
+                        'api_mode' => Configuration::get('BAYONET_API_MODE'),
+                    );
+                    Db::getInstance()->insert('bayonet_blocklist', $data);
+                }
             },
         ]);
     }

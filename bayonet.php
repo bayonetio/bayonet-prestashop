@@ -667,7 +667,7 @@ class Bayonet extends PaymentModule
         $orderCustomer = Db::getInstance()->getRow('SELECT a.`email`, a.`id_customer` FROM 
             (SELECT `email`, `id_customer` FROM `' . _DB_PREFIX_ . 'customer` WHERE `id_customer` = 
             (SELECT `id_customer` FROM `' . _DB_PREFIX_ . 'orders` where `id_order` = ' . (int)$params['id_order'] . ')) a');
-        $blockListData = Db::getInstance()->getRow('SELECT `id_blocklist`, `whitelist`, `blacklist` FROM `' ._DB_PREFIX_.'bayonet_blocklist` WHERE `id_customer` = (SELECT `id_customer` FROM `'._DB_PREFIX_.'orders` WHERE `id_order` = ' . (int)$params['id_order'] . ')');
+        $blockListData = Db::getInstance()->getRow('SELECT `id_blocklist`, `whitelist`, `blacklist` FROM `' ._DB_PREFIX_.'bayonet_blocklist` WHERE `id_customer` = (SELECT `id_customer` FROM `'._DB_PREFIX_.'orders` WHERE `id_order` = ' . (int)$params['id_order'] . ') AND `api_mode` = '.Configuration::get('BAYONET_API_MODE'));
 
         if ($blockListData) {
             $this->idBlockList = $blockListData['id_blocklist'];

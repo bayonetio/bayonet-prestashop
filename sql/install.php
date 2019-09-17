@@ -52,6 +52,7 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet_blocklist` (
         `blacklist` tinyint(1) default 0 NOT NULL,
         `response_code` int(11) NOT NULL,
         `response_message` text NULL,
+        `api_mode` tinyint(1) NOT NULL,
         PRIMARY KEY  (`id_blocklist`)
     ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
 
