@@ -32,6 +32,7 @@ if (!defined('_PS_VERSION_')) {
 require_once('vendor/autoload.php');
 
 include_once(_PS_MODULE_DIR_.'bayonet/sdk/BayonetClient.php');
+include_once(_PS_MODULE_DIR_.'bayonet/sdk/FingerprintClient.php');
 include_once(_PS_MODULE_DIR_.'bayonet/sdk/Countries.php');
 include_once(_PS_MODULE_DIR_.'bayonet/sdk/Paymethods.php');
 
@@ -39,6 +40,7 @@ class Bayonet extends PaymentModule
 {
     private $_html = '';
     private $bayonet;
+    private $fingerprintClient;
     private $bayonetFingerprint;
     private $response;
     private $idBlockList;
@@ -214,12 +216,37 @@ class Bayonet extends PaymentModule
                         'on_failure' => function ($response) {
                             if (159 == $response->reason_code) {
                             } elseif (12 == $response->reason_code) {
-                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('API Sandbox Key: ').$response->reason_message.'</div>';
+                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Bayonet API Sandbox Key: ').$response->reason_message.'</div>';
                             } else {
-                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('An error occurred while validating the sandbox API key: ').$response->reason_message.'</div>';   
+                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('An error occurred while validating the Bayonet API Sandbox Key: ').$response->reason_message.'</div>';   
                             }
                         },
                     ]);
+                }
+            }
+
+            if (empty($this->errors)) {
+                if (!empty(trim(Tools::getValue('BAYONET_JS_LIVE_KEY')))) {
+                    if ('**********' != trim(Tools::getValue('BAYONET_JS_TEST_KEY'))) {
+                        $this->fingerprintClient = new FingerprintClient([
+                            'jsKey' => trim(Tools::getValue('BAYONET_JS_TEST_KEY')),
+                        ]);
+
+                        $jsRequestBody = [
+                            "device" => null,
+                        ];
+
+                        $this->fingerprintClient->generateToken([
+                            'body' => $jsRequestBody,
+                            'on_success' => function ($response) {
+                            },
+                            'on_failure' => function ($response) {
+                                if (12 == $response->reasonCode) {
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Device Fingerprint API Sandbox Key: ').$response->reasonMessage.'</div>';
+                                }
+                            },
+                        ]);
+                    }
                 }
             }
 
@@ -237,11 +264,36 @@ class Bayonet extends PaymentModule
                             'on_failure' => function ($response) {
                                 if (159 == $response->reason_code) {
                                 } elseif (12 == $response->reason_code) {
-                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('API Live Key: ').$response->reason_message.'</div>';
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Bayonet API Live Key: ').$response->reason_message.'</div>';
                                 } elseif (13 == $response->reason_code) {
                                     $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Error: '.$response->reason_message.'. '.$this->l('In order to be able to use Bayonet in Live Mode properly, add your IP address to the whitelist in Bayonet\'s console').'</div>';
                                 } else {
-                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('An error occurred while validating the live API key: ').$response->reason_message.'</div>';   
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('An error occurred while validating the Bayonet API Live Key: ').$response->reason_message.'</div>';   
+                                }
+                            },
+                        ]);
+                    }
+                }
+            }
+
+            if (empty($this->errors)) {
+                if (!empty(trim(Tools::getValue('BAYONET_JS_LIVE_KEY')))) {
+                    if ('**********' != trim(Tools::getValue('BAYONET_JS_LIVE_KEY'))) {
+                        $this->fingerprintClient = new FingerprintClient([
+                            'jsKey' => trim(Tools::getValue('BAYONET_JS_LIVE_KEY')),
+                        ]);
+
+                        $jsRequestBody = [
+                            "device" => null,
+                        ];
+
+                        $this->fingerprintClient->generateToken([
+                            'body' => $jsRequestBody,
+                            'on_success' => function ($response) {
+                            },
+                            'on_failure' => function ($response) {
+                                if (12 == $response->reasonCode) {
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Device Fingerprint API Live Key: ').$response->reasonMessage.'</div>';
                                 }
                             },
                         ]);
@@ -469,7 +521,7 @@ class Bayonet extends PaymentModule
 
         $request = [
             'channel' => 'ecommerce',
-            'consumer_name' => $customer->firstname.' '.$customer->lastname,
+            //'consumer_name' => $customer->firstname.' '.$customer->lastname,
             'consumer_internal_id' => $customer->id,
             'transaction_amount' => $cart->getOrderTotal(),
             'transaction_time' => strtotime($this->order->date_add),
@@ -685,14 +737,18 @@ class Bayonet extends PaymentModule
             $api_response = "[" . trim($api_response) . "]";
             $metadata = json_decode($api_response, true);
 
-            if (!empty($displayedOrder['bayonet_tracking_id'])) {
+            if (null != ($displayedOrder['consulting_api'])) {
 
                 $this->smarty->assign(array(
                     'not_consulting_order' => false,
                     'unprocessed_order' => false,
                     'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#'.
-                        (('accept' == $displayedOrder['decision']) ? '339933' : (('review' == $displayedOrder['decision']) ? 'ff7f27' : 'f00')).'">'.
-                        (('accept' == $displayedOrder['decision']) ? $this->l('ACCEPTED') : (('decline' == $displayedOrder['decision']) ? $this->l('DECLINED') : $this->l('REVIEW'))).'</span>',
+                        (('accept' == $displayedOrder['decision']) ? '339933' : 
+                            (('decline' == $displayedOrder['decision']) ? 'f00' :
+                                ('review' == $displayedOrder['decision'] ? 'ff7f27' : '000000'))).'">'.
+                        (('accept' == $displayedOrder['decision']) ? $this->l('ACCEPTED') :
+                            (('decline' == $displayedOrder['decision']) ? $this->l('DECLINED') :
+                                ('review' == $displayedOrder['decision'] ? $this->l('REVIEW') : 'ERROR'))).'</span>',
                     'bayonet_tracking_id' => $displayedOrder['bayonet_tracking_id'],
                     'reason_code' => $metadata[0]['reason_code'],
                     'reason_message' => 'success' == $metadata[0]['reason_message'] ? 'Correct' : $metadata[0]['reason_message'],

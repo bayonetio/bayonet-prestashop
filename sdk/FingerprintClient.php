@@ -28,92 +28,32 @@
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
-class BayonetClient
+class FingerprintClient
 {
-    private $config;
+	private $config;
     private $client;
 
     public function __construct(array $config = [])
     {
         $this->config = $config;
-        $this->config['base_uri'] = 'https://api.bayonet.io/v2/';
+        $this->config['base_uri'] = 'https://fingerprinting.bayonet.io/v2/';
         $this->client = new Client();
     }
-    
+
     /**
-     * Defines "consulting" as the call to be executed in the request method
+     * Defines "generate-fingerprint-token" as the call to be executed in the request method
      *
      * @param array $config Client configuration
      */
-    public function consulting(array $config = [])
+    public function generateToken(array $config = [])
     {
-        $this->request('sigma/consult', $config);
-    }
-    
-    /**
-     * Defines "update-transaction" as the call to be executed in the request method
-     *
-     * @param array $config Client configuration
-     */
-    public function updateTransaction(array $config = [])
-    {
-        $this->request('sigma/update-transaction', $config);
+        $this->request('generate-fingerprint-token', $config);
     }
 
     /**
-     * Defines "feedback-historical" as the call to be executed in the request method
+     * Executes a call to the Fingerprint API
      *
-     * @param array $config Client configuration
-     */
-    public function feedbackHistorical(array $config = [])
-    {
-        $this->request('sigma/feedback-historical', $config);
-    }
-
-    /**
-     * Defines "whitelist/add" as the call to be executed in the request method
-     *
-     * @param array $config Client configuration
-     */
-    public function addWhiteList(array $config = [])
-    {
-        $this->request('sigma/labels/whitelist/add', $config);
-    }
-
-    /**
-     * Defines "whitelist/remove" as the call to be executed in the request method
-     *
-     * @param array $config Client configuration
-     */
-    public function removeWhiteList(array $config = [])
-    {
-        $this->request('sigma/labels/whitelist/remove', $config);
-    }
-
-    /**
-     * Defines "block/add" as the call to be executed in the request method
-     *
-     * @param array $config Client configuration
-     */
-    public function addBlackList(array $config = [])
-    {
-        $this->request('sigma/labels/block/add', $config);
-    }
-
-    /**
-     * Defines "block/remove" as the call to be executed in the request method
-     *
-     * @param array $config Client configuration
-     */
-    public function removeBlackList(array $config = [])
-    {
-        $this->request('sigma/labels/block/remove', $config);
-    }
-    
-    /**
-     * Executes a call to the Bayonet API
-     *
-     * @param string $api Call specification (consulting, update-transaction)
+     * @param string $api Call specification (generate-fingerprint-token)
      * @param array $config Client configuration
      */
     private function request($api, array $config = [])
@@ -122,7 +62,7 @@ class BayonetClient
             $config['body'] = [];
         }
 
-        $config['body']['auth']['api_key'] = $this->config['api_key'];
+        $config['body']['auth']['jsKey'] = $this->config['jsKey'];
         $base_uri = $this->config['base_uri'];
 
         try {
