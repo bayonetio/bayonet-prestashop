@@ -226,7 +226,7 @@ class Bayonet extends PaymentModule
             }
 
             if (empty($this->errors)) {
-                if (!empty(trim(Tools::getValue('BAYONET_JS_LIVE_KEY')))) {
+                if (!empty(trim(Tools::getValue('BAYONET_JS_TEST_KEY')))) {
                     if ('**********' != trim(Tools::getValue('BAYONET_JS_TEST_KEY'))) {
                         $this->fingerprintClient = new FingerprintClient([
                             'jsKey' => trim(Tools::getValue('BAYONET_JS_TEST_KEY')),
