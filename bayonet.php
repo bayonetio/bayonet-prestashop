@@ -521,7 +521,7 @@ class Bayonet extends PaymentModule
 
         $request = [
             'channel' => 'ecommerce',
-            //'consumer_name' => $customer->firstname.' '.$customer->lastname,
+            'consumer_name' => $customer->firstname.' '.$customer->lastname,
             'consumer_internal_id' => $customer->id,
             'transaction_amount' => $cart->getOrderTotal(),
             'transaction_time' => strtotime($this->order->date_add),
