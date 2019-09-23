@@ -58,6 +58,7 @@ class AdminBayonetController extends ModuleAdminController
                 'title' => $this->l('Order'),
                 'align' => 'center',
                 'hint' => $this->l('The ID of the order'),
+                'remove_onclick' => true,
                 'callback' => 'vieworder',
                 ),
             'bayonet_tracking_id' => array(
