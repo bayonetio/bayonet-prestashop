@@ -185,7 +185,7 @@ class Bayonet extends PaymentModule
         if (((bool)Tools::isSubmit('submitBayonetModule')) == true && !empty(Tools::getValue('save'))) {
             $posted_data = $this->getConfigFormValues();
 
-            if (empty(trim(Tools::getValue('BAYONET_API_TEST_KEY')))) {
+            if (empty(trim(Tools::getValue('BAYONET_API_TEST_KEY'))) && 0 == Tools::getValue('BAYONET_API_MODE')) {
                 $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Please enter Bayonet API sandbox key').'</div>';
             }
 
@@ -193,7 +193,7 @@ class Bayonet extends PaymentModule
                 $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Cannot enable live mode without a Bayonet API live key').'</div>';
             }
             
-            if (empty(trim(Tools::getValue('BAYONET_JS_TEST_KEY')))) {
+            if (empty(trim(Tools::getValue('BAYONET_JS_TEST_KEY'))) && 0 == Tools::getValue('BAYONET_API_MODE')) {
                 $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Please enter Device Fingerprint API sandbox key').'</div>';
             }
 
@@ -204,24 +204,26 @@ class Bayonet extends PaymentModule
             require_once(__DIR__ .'/sdk/TestRequest.php');
 
             if (empty($this->errors)) {
-                if ('**********' != trim(Tools::getValue('BAYONET_API_TEST_KEY'))) {
-                    $this->bayonet = new BayonetClient([
-                        'api_key' => trim(Tools::getValue('BAYONET_API_TEST_KEY')),
-                    ]);
+                if (!empty(trim(Tools::getValue('BAYONET_API_TEST_KEY')))) {
+                    if ('**********' != trim(Tools::getValue('BAYONET_API_TEST_KEY'))) {
+                        $this->bayonet = new BayonetClient([
+                            'api_key' => trim(Tools::getValue('BAYONET_API_TEST_KEY')),
+                        ]);
 
-                    $this->bayonet->consulting([
-                        'body' => $request['consulting'],
-                        'on_success' => function ($response) {
-                        },
-                        'on_failure' => function ($response) {
-                            if (159 == $response->reason_code) {
-                            } elseif (12 == $response->reason_code) {
-                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Bayonet API Sandbox Key: ').$response->reason_message.'</div>';
-                            } else {
-                                $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('An error occurred while validating the Bayonet API Sandbox Key: ').$response->reason_message.'</div>';   
-                            }
-                        },
-                    ]);
+                        $this->bayonet->consulting([
+                            'body' => $request['consulting'],
+                            'on_success' => function ($response) {
+                            },
+                            'on_failure' => function ($response) {
+                                if (159 == $response->reason_code) {
+                                } elseif (12 == $response->reason_code) {
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Bayonet API Sandbox Key: ').$response->reason_message.'</div>';
+                                } else {
+                                    $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('An error occurred while validating the Bayonet API Sandbox Key: ').$response->reason_message.'</div>';   
+                                }
+                            },
+                        ]);
+                    }
                 }
             }
 
