@@ -58,7 +58,7 @@ class Bayonet extends PaymentModule
         $this->tab = 'payment_security';
         $this->version = '1.0.0';
         $this->author = 'Bayonet';
-        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.6.99.99');
+        $this->ps_versions_compliancy = array('min' => '1.6.1.0', 'max' => '1.6.99.99');
 
         $this->need_instance = 1;
         $this->bootstrap = true;
