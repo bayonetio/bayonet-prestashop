@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>bayonet</name>
+	<displayName><![CDATA[Bayonet Anti-Fraud]]></displayName>
+	<version><![CDATA[1.0.0]]></version>
+	<description><![CDATA[This plugin will analyze the details of new orders to detect any fraud attempt.]]></description>
+	<author><![CDATA[Bayonet]]></author>
+	<tab><![CDATA[payment_security]]></tab>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+	<limited_countries></limited_countries>
+</module>
