@@ -37,4 +37,7 @@
 	<br />
 	<br />
 	{l s='In order to be able to use Bayonet in Live Mode properly, you must add both your IP address and your domain to the whitelist in' mod='bayonet'} <a href="https://bayonet.io/login" target="_blank" rel="noopener noreferrer">{l s='Bayonet\'s Console' mod='bayonet'}</a>. {l s='This is located in the' mod='bayonet'} <a href="https://bayonet.io/developers/setup" target="_blank" rel="noopener noreferrer">{l s='Setup section' mod='bayonet'}</a>, {l s='the same place where you get your API keys.' mod='bayonet'}
+	<br />
+	<br />
+	{l s='If you need any support regarding this module, you can either send a mail to' mod='bayonet'} <a href="mailto:soporte@bayonet.io">soporte@bayonet.io</a> {l s=' or contact us via Intercom on our ' mod='bayonet'} <a href="https://bayonet.io/" target="_blank" rel="noopener noreferrer">{l s='Website' mod='bayonet'}</a>{l s='.' mod='bayonet'}
 </div>
