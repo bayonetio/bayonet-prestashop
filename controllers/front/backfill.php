@@ -105,7 +105,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
 
             if (1 == Configuration::get('BAYONET_API_MODE')) {
                 $this->api_key = Configuration::get('BAYONET_API_LIVE_KEY');
-            } else {
+            } elseif (0 == Configuration::get('BAYONET_API_MODE')) {
                 $this->api_key = Configuration::get('BAYONET_API_TEST_KEY');
             }
 
