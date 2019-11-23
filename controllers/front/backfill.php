@@ -90,7 +90,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
         $ordersNo = sizeof($orders);
         $currentOrder = 0;
 
-        include_once(_PS_MODULE_DIR_.'bayonet/sdk/Paymethods.php');
+        include_once(_PS_MODULE_DIR_.'bayonet/sdk/paymentMethods.php');
 
         while (0 != $this->getBackfillMode() && $currentOrder < $ordersNo)
         {

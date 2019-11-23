@@ -31,10 +31,10 @@ if (!defined('_PS_VERSION_')) {
 
 require_once('vendor/autoload.php');
 
-include_once(_PS_MODULE_DIR_.'bayonet/sdk/BayonetClient.php');
-include_once(_PS_MODULE_DIR_.'bayonet/sdk/FingerprintClient.php');
-include_once(_PS_MODULE_DIR_.'bayonet/sdk/Countries.php');
-include_once(_PS_MODULE_DIR_.'bayonet/sdk/Paymethods.php');
+include_once(_PS_MODULE_DIR_.'bayonet/sdk/bayonetClient.php');
+include_once(_PS_MODULE_DIR_.'bayonet/sdk/fingerprintClient.php');
+include_once(_PS_MODULE_DIR_.'bayonet/sdk/countries.php');
+include_once(_PS_MODULE_DIR_.'bayonet/sdk/paymentMethods.php');
 
 class Bayonet extends PaymentModule
 {
