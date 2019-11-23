@@ -84,7 +84,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     public function executeBackfill()
     {
-        $query = "SELECT * FROM (SELECT * FROM `ps_orders` WHERE `reference` IN (SELECT `order_reference` FROM `ps_order_payment`)) o WHERE o.`id_order` NOT IN (SELECT `order_no` FROM `ps_bayonet`)";
+        $query = 'SELECT * FROM (SELECT * FROM `'._DB_PREFIX_.'orders` WHERE `reference` IN (SELECT `order_reference` FROM `'._DB_PREFIX_.'order_payment`)) o WHERE o.`id_order` NOT IN (SELECT `order_no` FROM `'._DB_PREFIX_.'bayonet`)';
         $orders = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($query);
 
         $ordersNo = sizeof($orders);
@@ -254,8 +254,8 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
     {
         header('content-type','application/json');
         $response = array();
-        $queryOrders = "SELECT count('*') AS total FROM `ps_orders` WHERE `reference` IN (SELECT `order_reference` FROM `ps_order_payment`)";
-        $queryBayonet = "SELECT count('*') AS completed FROM `ps_bayonet` WHERE `is_executed` = 1";
+        $queryOrders = 'SELECT count(*) AS total FROM `'._DB_PREFIX_.'orders` WHERE `reference` IN (SELECT `order_reference` FROM `'._DB_PREFIX_.'order_payment`)';
+        $queryBayonet = 'SELECT count(*) AS completed FROM `'._DB_PREFIX_.'bayonet` WHERE `is_executed` = 1';
         $totalOrders = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($queryOrders);
         $completedOrders = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($queryBayonet);
         $percentage = ($completedOrders['completed']/$totalOrders['total'])*100;
@@ -276,7 +276,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     private function getBackfillMode()
     {
-        $query = "SELECT value FROM `ps_configuration` where `name` = 'BAYONET_BACKFILL_MODE'";
+        $query = 'SELECT value FROM `'._DB_PREFIX_.'configuration` where `name` = "BAYONET_BACKFILL_MODE"';
         $val = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($query);
 
         $current_backfill_mode = $val[0]['value'];
