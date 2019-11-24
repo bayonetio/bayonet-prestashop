@@ -148,7 +148,7 @@ class Bayonet extends PaymentModule
                 $tab->name[$language['id_lang']] = $this->displayName;
             }
         }
-        $tab->class_name = 'Admin'.ucfirst($this->name);
+        $tab->class_name = 'Admin'.Tools::ucfirst($this->name);
         $tab->module = $this->name;
         $tab->id_parent = 0;
 
@@ -163,7 +163,7 @@ class Bayonet extends PaymentModule
      */
     private function eraseTab()
     {
-        $id_tab = (int)Tab::getIdFromClassName('Admin'.ucfirst($this->name));
+        $id_tab = (int)Tab::getIdFromClassName('Admin'.Tools::ucfirst($this->name));
         if ($id_tab) {
             $tab = new Tab($id_tab);
             $tab->delete();
