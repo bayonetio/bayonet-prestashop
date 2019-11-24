@@ -201,7 +201,7 @@ class Bayonet extends PaymentModule
                 $this->errors .= '<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'.$this->l('Cannot enable live mode without a Device Fingerprint API live key').'</div>';
             }
 
-            require_once(__DIR__ .'/sdk/TestRequest.php');
+            require_once(_PS_MODULE_DIR_.'bayonet/sdk/testRequest.php');
 
             if (empty($this->errors)) {
                 if (!empty(trim(Tools::getValue('BAYONET_API_TEST_KEY')))) {
