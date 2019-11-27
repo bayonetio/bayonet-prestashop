@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2007-2019 PrestaShop SA and Contributors
  *
@@ -67,7 +66,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     public function startBackfill()
     {
-        header('content-type','application/json');
+        header('content-type', 'application/json');
         $response = array();
         if (Configuration::updateValue('BAYONET_BACKFILL_MODE', 1)) {
             $response['error'] = 0;
@@ -84,7 +83,9 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     public function executeBackfill()
     {
-        $query = 'SELECT * FROM (SELECT * FROM `'._DB_PREFIX_.'orders` WHERE `reference` IN (SELECT `order_reference` FROM `'._DB_PREFIX_.'order_payment`)) o WHERE o.`id_order` NOT IN (SELECT `order_no` FROM `'._DB_PREFIX_.'bayonet`)';
+        $query = 'SELECT * FROM (SELECT * FROM `'._DB_PREFIX_.'orders` 
+            WHERE `reference` IN (SELECT `order_reference` FROM `'._DB_PREFIX_.'order_payment`)) o 
+            WHERE o.`id_order` NOT IN (SELECT `order_no` FROM `'._DB_PREFIX_.'bayonet`)';
         $orders = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($query);
 
         $ordersNo = sizeof($orders);
@@ -121,13 +122,15 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
             $cart = new Cart((int)$orders[$currentOrder]['id_cart']);
             $address_delivery = new Address((int)$orders[$currentOrder]['id_address_delivery']);
             $address_invoice = new Address((int)$orders[$currentOrder]['id_address_invoice']);
-            $state_delivery = 0 != $address_delivery->id_state ? (new State((int)$address_delivery->id_state))->name : "NA";
+            $state_delivery = 0 != $address_delivery->id_state ? 
+                (new State((int)$address_delivery->id_state))->name : "NA";
             $country_delivery = new Country((int)$address_delivery->id_country);
-            $state_invoice = 0 != $address_invoice->id_state ? (new State((int)$address_invoice->id_state))->name : "NA";
+            $state_invoice = 0 != $address_invoice->id_state ? 
+                (new State((int)$address_invoice->id_state))->name : "NA";
             $country_invoice = new Country((int)$address_invoice->id_country);
 
             $products = $cart->getProducts();
-            $product_list = array();
+            $products_list = array();
 
             foreach ($products as $product)
             {
@@ -236,7 +239,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     public function stopBackfill()
     {
-        header('content-type','application/json');
+        header('content-type', 'application/json');
         $response = array();
         if (Configuration::updateValue('BAYONET_BACKFILL_MODE', 0)) {
             $response['error'] = 0;
@@ -252,12 +255,16 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     public function getStatus()
     {
-        header('content-type','application/json');
+        header('content-type', 'application/json');
         $response = array();
-        $queryOrders = 'SELECT count(*) AS total FROM `'._DB_PREFIX_.'orders` WHERE `reference` IN (SELECT `order_reference` FROM `'._DB_PREFIX_.'order_payment`)';
+
+        $queryOrders = 'SELECT count(*) AS total FROM `'._DB_PREFIX_.'orders` 
+            WHERE `reference` IN (SELECT `order_reference` FROM `'._DB_PREFIX_.'order_payment`)';
         $queryBayonet = 'SELECT count(*) AS completed FROM `'._DB_PREFIX_.'bayonet` WHERE `is_executed` = 1';
+
         $totalOrders = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($queryOrders);
         $completedOrders = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($queryBayonet);
+
         $percentage = ($completedOrders['completed']/$totalOrders['total'])*100;
         $response['percentage'] = ceil($percentage);
         
@@ -276,7 +283,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     private function getBackfillMode()
     {
-        $query = 'SELECT value FROM `'._DB_PREFIX_.'configuration` where `name` = "BAYONET_BACKFILL_MODE"';
+        $query = 'SELECT value FROM `'._DB_PREFIX_.'configuration` WHERE `name` = "BAYONET_BACKFILL_MODE"';
         $val = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($query);
 
         $current_backfill_mode = $val[0]['value'];

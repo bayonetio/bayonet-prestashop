@@ -41,7 +41,7 @@
 	    <tr>
 		  <td valign="top" align="center">
 		    <p>
-			  <span style="font-size:1.5em;font-weight:bold;color:#f00">{$decision}</span>
+			  <span style="font-size:1.5em;font-weight:bold;color:#f00">{$decision|escape:'html':'UTF-8'|htmlspecialchars_decode:3}</span>
 			</p>
 		  </td>
 		  <td>
@@ -49,22 +49,22 @@
 			  <strong>Bayonet Tracking ID:</strong>
 			</p>
 		    <p>
-			  {$bayonet_tracking_id}
+			  {$bayonet_tracking_id|escape:'htmlall':'UTF-8'}
 			</p>
 		    <p>
 			  <strong>{l s='API Call Status:' mod='bayonet'}</strong>
 			</p>
 			<p>
-			  - {l s='Code:' mod='bayonet'} {$reason_code}
+			  - {l s='Code:' mod='bayonet'} {$reason_code|escape:'htmlall':'UTF-8'}
 			  <br />
-			  - {l s='API Call:' mod='bayonet'} {$reason_message}
+			  - {l s='API Call:' mod='bayonet'} {$reason_message|escape:'htmlall':'UTF-8'}
 			</p>
 		    {if strlen($rules_triggered) > 0}
 			  <p>
 			    <strong>{l s='Rules Triggered:' mod='bayonet'}</strong>
 			  </p>
 		      <p>
-			    {$rules_triggered}
+			    {$rules_triggered|escape:'html':'UTF-8'|htmlspecialchars_decode:3}
 			  </p>
 			{/if}
 		  </td>
@@ -73,18 +73,18 @@
 	  <br/>
 	  <div style="text-align:right; width:100%; padding:0;">
 	    {if $idBlockList == 0}
-	      <button class="btn btn-success" id="btn-addWhite" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Add Customer to Whitelist' mod='bayonet'}</button>
-          <button class="btn btn-danger" id="btn-addBlack" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Add Customer to Blacklist' mod='bayonet'}</button>
+	      <button class="btn btn-success" id="btn-addWhite" data-mail="{$mailCustomer|escape:'htmlall':'UTF-8'}" data-customer="{$idCustomer|escape:'htmlall':'UTF-8'}" data-id="{$idBlockList|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist|escape:'htmlall':'UTF-8'}" data-blacklist="{$blacklist|escape:'htmlall':'UTF-8'}">{l s='Add Customer to Whitelist' mod='bayonet'}</button>
+          <button class="btn btn-danger" id="btn-addBlack" data-mail="{$mailCustomer|escape:'htmlall':'UTF-8'}" data-customer="{$idCustomer|escape:'htmlall':'UTF-8'}" data-id="{$idBlockList|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist|escape:'htmlall':'UTF-8'}" data-blacklist="{$blacklist|escape:'htmlall':'UTF-8'}">{l s='Add Customer to Blacklist' mod='bayonet'}</button>
         {elseif $idBlockList > 0}
           {if $whitelist == 1}
-            <button class="btn btn-success" id="btn-removeWhite" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Remove Customer from Whitelist' mod='bayonet'}</button>
-            <button class="btn btn-danger" id="btn-addBlack" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Add Customer to Blacklist' mod='bayonet'}</button>
+            <button class="btn btn-success" id="btn-removeWhite" data-mail="{$mailCustomer|escape:'htmlall':'UTF-8'}" data-customer="{$idCustomer|escape:'htmlall':'UTF-8'}" data-id="{$idBlockList|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist|escape:'htmlall':'UTF-8'}" data-blacklist="{$blacklist|escape:'htmlall':'UTF-8'}">{l s='Remove Customer from Whitelist' mod='bayonet'}</button>
+            <button class="btn btn-danger" id="btn-addBlack" data-mail="{$mailCustomer|escape:'htmlall':'UTF-8'}" data-customer="{$idCustomer|escape:'htmlall':'UTF-8'}" data-id="{$idBlockList|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist|escape:'htmlall':'UTF-8'}" data-blacklist="{$blacklist|escape:'htmlall':'UTF-8'}">{l s='Add Customer to Blacklist' mod='bayonet'}</button>
           {elseif $blacklist == 1}
-            <button class="btn btn-success" id="btn-addWhite" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Add Customer to Whitelist' mod='bayonet'}</button>
-            <button class="btn btn-danger" id="btn-removeBlack" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Remove Customer from Blacklist' mod='bayonet'}</button>
+            <button class="btn btn-success" id="btn-addWhite" data-mail="{$mailCustomer|escape:'htmlall':'UTF-8'}" data-customer="{$idCustomer|escape:'htmlall':'UTF-8'}" data-id="{$idBlockList|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist|escape:'htmlall':'UTF-8'}" data-blacklist="{$blacklist|escape:'htmlall':'UTF-8'}">{l s='Add Customer to Whitelist' mod='bayonet'}</button>
+            <button class="btn btn-danger" id="btn-removeBlack" data-mail="{$mailCustomer|escape:'htmlall':'UTF-8'}" data-customer="{$idCustomer|escape:'htmlall':'UTF-8'}" data-id="{$idBlockList|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist|escape:'htmlall':'UTF-8'}" data-blacklist="{$blacklist|escape:'htmlall':'UTF-8'}">{l s='Remove Customer from Blacklist' mod='bayonet'}</button>
           {elseif $whitelist == 0 && blocklist == 0}
-            <button class="btn btn-success" id="btn-addWhite" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Add Customer to Whitelist' mod='bayonet'}</button>
-            <button class="btn btn-danger" id="btn-addBlack" data-mail="{$mailCustomer}" data-customer="{$idCustomer}" data-id="{$idBlockList}" data-whitelist="{$whitelist}" data-blacklist="{$blacklist}">{l s='Add Customer to Blacklist' mod='bayonet'}</button>
+            <button class="btn btn-success" id="btn-addWhite" data-mail="{$mailCustomer|escape:'htmlall':'UTF-8'}" data-customer="{$idCustomer|escape:'htmlall':'UTF-8'}" data-id="{$idBlockList|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist|escape:'htmlall':'UTF-8'}" data-blacklist="{$blacklist|escape:'htmlall':'UTF-8'}">{l s='Add Customer to Whitelist' mod='bayonet'}</button>
+            <button class="btn btn-danger" id="btn-addBlack" data-mail="{$mailCustomer|escape:'htmlall':'UTF-8'}" data-customer="{$idCustomer|escape:'htmlall':'UTF-8'}" data-id="{$idBlockList|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist|escape:'htmlall':'UTF-8'}" data-blacklist="{$blacklist|escape:'htmlall':'UTF-8'}">{l s='Add Customer to Blacklist' mod='bayonet'}</button>
           {/if}
         {/if}
       </div>

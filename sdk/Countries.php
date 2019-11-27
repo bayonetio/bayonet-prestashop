@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2007-2019 PrestaShop SA and Contributors
  *
@@ -286,6 +285,6 @@ function convertCountryCode($country)
             'ZW' => 'ZWE', //Zimbabwe
     );
     $iso_code = isset($countries[$country]) ? $countries[$country] : $country;
-	
+      
     return $iso_code;
 }

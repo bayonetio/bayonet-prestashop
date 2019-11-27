@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2007-2019 PrestaShop SA and Contributors
  *
@@ -66,3 +65,5 @@ $request = [
         "transaction_id" => "100011",
     ],
 ];
+
+return $request;

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2007-2019 PrestaShop SA and Contributors
  *
@@ -55,7 +54,8 @@ function getPaymentMethod($order, $mode)
 
     if (0 === $mode) {
         if ('openpayprestashop' == $order->module) {
-            if (strpos(strtolower($order->payment), 'tarjeta') !== false || strpos(strtolower($order->payment), 'card') !== false) {
+            if (strpos(strtolower($order->payment), 'tarjeta') !== false || 
+                strpos(strtolower($order->payment), 'card') !== false) {
                 $paymentMethod = 'tokenized_card';
             } elseif (strpos(strtolower($order->payment), 'bitcoin') !== false) {
                 $paymentMethod = 'crypto_currency';
@@ -71,7 +71,8 @@ function getPaymentMethod($order, $mode)
         }
     } elseif (1 === $mode) {
         if ('openpayprestashop' == $order['module']) {
-            if (strpos(strtolower($order['payment']), 'tarjeta') !== false || strpos(strtolower($order['payment']), 'card') !== false) {
+            if (strpos(strtolower($order['payment']), 'tarjeta') !== false || 
+                strpos(strtolower($order['payment']), 'card') !== false) {
                 $paymentMethod = 'tokenized_card';
             } elseif (strpos(strtolower($order['paymet']), 'bitcoin') !== false) {
                 $paymentMethod = 'crypto_currency';

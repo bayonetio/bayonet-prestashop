@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2007-2019 PrestaShop SA and Contributors
  *
@@ -27,16 +26,16 @@
 
 class BayonetFingerprintModuleFrontController extends ModuleFrontController
 {
-	private $fingerprint;
+    private $fingerprint;
 
-	/**
+    /**
      * Receives the fingerprint token from the front office and sets it as a cookie variable
      * to make it available in Bayonet's order validation process.
      */
-	public function postProcess()
-	{
-		$this->fingerprint = Tools::getValue('fingerprint');
-		$this->context->cookie->__set('fingerprint', $this->fingerprint);
-		exit;
-	}
+    public function postProcess()
+    {
+        $this->fingerprint = Tools::getValue('fingerprint');
+        $this->context->cookie->__set('fingerprint', $this->fingerprint);
+        exit;
+    }
 }

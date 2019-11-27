@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2007-2019 PrestaShop SA and Contributors
  *
@@ -30,7 +29,7 @@ use GuzzleHttp\Exception\ClientException;
 
 class FingerprintClient
 {
-	private $config;
+    private $config;
     private $client;
 
     public function __construct(array $config = [])

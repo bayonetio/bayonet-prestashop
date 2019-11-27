@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2007-2019 PrestaShop SA and Contributors
  *
@@ -27,42 +26,41 @@
 
 class BayonetBlocklistModuleFrontController extends ModuleFrontController
 {
-
-	private $api_key;
-	private $bayonet;
-	private $request;
+    private $api_key;
+    private $bayonet;
+    private $request;
 
     /**
      * Gets the 'mode' value and evaluates it to execute the correct function(s).
      * It also initializes the Bayonet object with the API key creates the request body.
      */
-	public function init() 
-	{
-		parent::init();
-		if (0 == Configuration::get('BAYONET_API_MODE')) {
+    public function init() 
+    {
+        parent::init();
+        if (0 == Configuration::get('BAYONET_API_MODE')) {
             $this->api_key = Configuration::get('BAYONET_API_TEST_KEY');
         } elseif (1 == Configuration::get('BAYONET_API_MODE')) {
             $this->api_key = Configuration::get('BAYONET_API_LIVE_KEY');
         }
 
         $this->bayonet = new BayonetClient([
-        	'api_key' => $this->api_key
+            'api_key' => $this->api_key
         ]);
 
         $this->request = [
-        	'email' => Tools::getValue('mail'),
+            'email' => Tools::getValue('mail'),
         ];
 
-		if ('addWhite' == Tools::getValue('mode')) {
+        if ('addWhite' == Tools::getValue('mode')) {
             if (1 == Tools::getValue('blacklist')) {
                 $this->removeBlack();
             }
-			$this->addWhite();
+            $this->addWhite();
             exit;
-		} elseif ('removeWhite' == Tools::getValue('mode')) {
-			$this->removeWhite();
+        } elseif ('removeWhite' == Tools::getValue('mode')) {
+            $this->removeWhite();
             exit;
-		} elseif ('addBlack' == Tools::getValue('mode')) {
+        } elseif ('addBlack' == Tools::getValue('mode')) {
             if (1 == Tools::getValue('whitelist')) {
                 $this->removeWhite();
             }
@@ -72,17 +70,16 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
             $this->removeBlack();
             exit;
         }
-
-	}
+    }
 
     /**
      * Executes the process to add a customer to the whitelist, sending a call to the API
      * and then checking if the customer's record was already on the database table to 
      * either insert or update its information.
      */
-	public function addWhite()
-	{
-		$this->bayonet->addWhiteList([
+    public function addWhite()
+    {
+        $this->bayonet->addWhiteList([
             'body' => $this->request,
             'on_success' => function($response) {
                 if (Tools::getValue('id') > 0) {
@@ -96,15 +93,15 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
                         'id_blocklist = '.(int)Tools::getValue('id')
                     );
                 } elseif (Tools::getValue('id') == 0) {
-            	    $data = array(
-            		    'id_customer' => Tools::getValue('customer'),
-            		    'email' => Tools::getValue('mail'),
-            		    'whitelist' => 1,
-            		    'response_code' => $response->reason_code,
-            		    'response_message' => $response->reason_message,
+                    $data = array(
+                        'id_customer' => Tools::getValue('customer'),
+                        'email' => Tools::getValue('mail'),
+                        'whitelist' => 1,
+                        'response_code' => $response->reason_code,
+                        'response_message' => $response->reason_message,
                         'api_mode' => Configuration::get('BAYONET_API_MODE'),
-            	    );
-            	    Db::getInstance()->insert('bayonet_blocklist', $data);
+                    );
+                    Db::getInstance()->insert('bayonet_blocklist', $data);
                 }
             },
             'on_failure' => function($response) {
@@ -131,31 +128,31 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
                 }
             },
         ]);
-	}
+    }
 
     /**
      * Executes the process to remove a customer from the whitelist, sending a call to the API
      * and then updating update its information on the table in the database.
      */
-	public function removeWhite()
-	{
-		$this->bayonet->removeWhiteList([
+    public function removeWhite()
+    {
+        $this->bayonet->removeWhiteList([
             'body' => $this->request,
             'on_success' => function($response) {
-            	Db::getInstance()->update(
-            		'bayonet_blocklist',
-            		array(
-            			'whitelist' => 0,
-            			'response_code' => $response->reason_code,
-            			'response_message' => $response->reason_message,
-            		),
-            		'id_blocklist = '.(int)Tools::getValue('id')
-            	);
+                Db::getInstance()->update(
+                    'bayonet_blocklist',
+                    array(
+                        'whitelist' => 0,
+                        'response_code' => $response->reason_code,
+                        'response_message' => $response->reason_message,
+                    ),
+                    'id_blocklist = '.(int)Tools::getValue('id')
+                );
             },
             'on_failure' => function($response) {
             },
         ]);
-	}
+    }
 
     /**
      * Executes the process to add a customer to the blacklist, sending a call to the API
