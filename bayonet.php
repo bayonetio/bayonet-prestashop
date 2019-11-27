@@ -624,11 +624,11 @@ class Bayonet extends PaymentModule
                 $triggered = '';
                 $rulesDynamic = $response->rules_triggered->dynamic;
                 $rulesCustom = $response->rules_triggered->custom;
-                foreach ($rulesDynamic as $rule) {
-                    $triggered .= '- ' . $rule . '<br>';
+                foreach ($rulesDynamic as $ruleD) {
+                    $triggered .= '- ' . $ruleD . '<br>';
                 }
-                foreach ($rulesCustom as $rule) {
-                    $triggered .= '- ' . $rule . '<br>';
+                foreach ($rulesCustom as $ruleC) {
+                    $triggered .= '- ' . $ruleC . '<br>';
                 }
                 $this->dataToInsert = array(
                     'id_cart' => $this->context->cart->id,

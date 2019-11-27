@@ -3,8 +3,7 @@
 global $_MODULE;
 $_MODULE = array();
 $_MODULE['<{bayonet}prestashop>bayonet_742551183765832b62ebb7a7a137b745'] = 'Bayonet Anti-Fraude';
-$_MODULE['<{bayonet}prestashop>bayonet_2d83d0b72b1c77d4182ec03aa5651879'] = 'Este módulo analizará los detalles de nuevas ordenes ';
-$_MODULE['<{bayonet}prestashop>bayonet_708f37600fa8a08506d9f89e755f0439'] = 'para detectar cualquier intento de fraude.';
+$_MODULE['<{bayonet}prestashop>bayonet_8d0c06fe5ca1ba732d4b37ee5faac6b8'] = 'Un módulo que analizará los detalles de nuevas ordenes para detectar cualquier intento de fraude.';
 $_MODULE['<{bayonet}prestashop>bayonet_e6ef3daf88c494e7ed3beeb8aaf36a98'] = 'Por favor ingresa la llave de prueba del API de Bayonet';
 $_MODULE['<{bayonet}prestashop>bayonet_5bbbab7e2bf7739cb831f3906066fc92'] = 'No se puede habilitar el modo de producción sin una llave de producción del API de Bayonet';
 $_MODULE['<{bayonet}prestashop>bayonet_40b7831e3d1af2843039ee734ae66a6d'] = 'Por favor ingresa una llave de prueba del API de Device Fingerprint';
