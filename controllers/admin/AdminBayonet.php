@@ -71,8 +71,8 @@ class AdminBayonetController extends ModuleAdminController
                 'align' => 'center',
                 'remove_onclick' => true,
                 'hint' => $this->l('The actual decision obtained after the order analysis, this is what you use to ').
-                    $this->('decide what to do with an order, if an order has DECLINE in this field, ').
-                    $this->('you should cancel it right away'),
+                    $this->l('decide what to do with an order, if an order has DECLINE in this field, ').
+                    $this->l('you should cancel it right away'),
                 ),
         );
 
