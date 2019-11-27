@@ -1,6 +1,6 @@
 {
 	"name": "bayonet/bayonet",
-    "description": "This plugin will analyze the details of new orders to detect any fraud attempt.",
+    "description": "A module to analyze the details of new orders to detect any fraud attempt.",
     "authors": [
         {
             "name": "Bayonet",

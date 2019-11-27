@@ -93,8 +93,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
 
         include_once(_PS_MODULE_DIR_.'bayonet/sdk/paymentMethods.php');
 
-        while (0 != $this->getBackfillMode() && $currentOrder < $ordersNo)
-        {
+        while (0 != $this->getBackfillMode() && $currentOrder < $ordersNo) {
             $data = array(
                 'order_no' => $orders[$currentOrder]['id_order'],
                 'id_cart' => $orders[$currentOrder]['id_cart'],
@@ -122,18 +121,17 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
             $cart = new Cart((int)$orders[$currentOrder]['id_cart']);
             $address_delivery = new Address((int)$orders[$currentOrder]['id_address_delivery']);
             $address_invoice = new Address((int)$orders[$currentOrder]['id_address_invoice']);
-            $state_delivery = 0 != $address_delivery->id_state ? 
+            $state_delivery = 0 != $address_delivery->id_state ?
                 (new State((int)$address_delivery->id_state))->name : "NA";
             $country_delivery = new Country((int)$address_delivery->id_country);
-            $state_invoice = 0 != $address_invoice->id_state ? 
+            $state_invoice = 0 != $address_invoice->id_state ?
                 (new State((int)$address_invoice->id_state))->name : "NA";
             $country_invoice = new Country((int)$address_invoice->id_country);
 
             $products = $cart->getProducts();
             $products_list = array();
 
-            foreach ($products as $product)
-            {
+            foreach ($products as $product) {
                 $products_list[] = [
                     "product_id" => $product['id_product'],
                     "product_name" => $product['name'],
@@ -197,7 +195,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                 'body' => $request,
                 'on_success' => function ($response) use ($class) {
                     Db::getInstance()->update(
-                        'bayonet', 
+                        'bayonet',
                         array(
                             'historical_api' => 1,
                             'historical_api_response' => json_encode(
@@ -207,14 +205,14 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                                 )
                             ),
                             'is_executed' => 1,
-                        ), 
+                        ),
                         'order_no = '.(int)$class->order_id
                     );
                 },
                 'on_failure' => function ($response) use ($class) {
                     $message = str_replace("'", "-", $response->reason_message);
                     Db::getInstance()->update(
-                        'bayonet', 
+                        'bayonet',
                         array(
                             'historical_api' => 0,
                             'historical_api_response' => json_encode(
@@ -224,7 +222,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                                 )
                             ),
                             'is_executed' => 1,
-                        ), 
+                        ),
                         'order_no = '.(int)$class->order_id
                     );
                 },

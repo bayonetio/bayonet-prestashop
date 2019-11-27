@@ -34,7 +34,7 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
      * Gets the 'mode' value and evaluates it to execute the correct function(s).
      * It also initializes the Bayonet object with the API key creates the request body.
      */
-    public function init() 
+    public function init()
     {
         parent::init();
         if (0 == Configuration::get('BAYONET_API_MODE')) {
@@ -74,7 +74,7 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
 
     /**
      * Executes the process to add a customer to the whitelist, sending a call to the API
-     * and then checking if the customer's record was already on the database table to 
+     * and then checking if the customer's record was already on the database table to
      * either insert or update its information.
      */
     public function addWhite()
@@ -111,7 +111,7 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
                         'bayonet_blocklist',
                         array(
                             'response_code' => $response->reason_code,
-                            'response_message' => $response->reason_message,
+                            'response_message' => $message,
                         ),
                         'id_blocklist = '.(int)Tools::getValue('id')
                     );
@@ -121,7 +121,7 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
                         'email' => Tools::getValue('mail'),
                         'whitelist' => 0,
                         'response_code' => $response->reason_code,
-                        'response_message' => $response->reason_message,
+                        'response_message' => $message,
                         'api_mode' => Configuration::get('BAYONET_API_MODE'),
                     );
                     Db::getInstance()->insert('bayonet_blocklist', $data);
@@ -165,7 +165,7 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
 
     /**
      * Executes the process to add a customer to the blacklist, sending a call to the API
-     * and then checking if the customer's record was already on the database table to 
+     * and then checking if the customer's record was already on the database table to
      * either insert or update its information.
      */
     public function addBlack()

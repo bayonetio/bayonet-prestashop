@@ -65,8 +65,7 @@ class Bayonet extends PaymentModule
         parent::__construct();
 
         $this->displayName = $this->l('Bayonet Anti-Fraud');
-        $this->description = $this->l('This plugin will analyze the details of new orders ')
-        .$this->l('to detect any fraud attempt.');
+        $this->description = $this->l('A module to analyze the details of new orders to detect any fraud attempt.');
 
         $this->table_name = $this->name;
     }
@@ -228,7 +227,7 @@ class Bayonet extends PaymentModule
                                     $class->errors .= '<div class="alert alert-danger alert-dismissable">
                                     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'
                                     .$class->l('An error occurred while validating the Bayonet API Sandbox Key: ')
-                                    .$response->reason_message.'</div>';   
+                                    .$response->reason_message.'</div>';
                                 }
                             },
                         ]);
@@ -254,7 +253,8 @@ class Bayonet extends PaymentModule
                                 if (12 == $response->reasonCode) {
                                     $class->errors .= '<div class="alert alert-danger alert-dismissable">
                                     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'
-                                    .$class->l('Device Fingerprint API Sandbox Key: ').$response->reasonMessage.'</div>';
+                                    .$class->l('Device Fingerprint API Sandbox Key: ')
+                                    .$response->reasonMessage.'</div>';
                                 }
                             },
                         ]);
@@ -288,7 +288,7 @@ class Bayonet extends PaymentModule
                                     $class->errors .= '<div class="alert alert-danger alert-dismissable">
                                     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'
                                     .$class->l('An error occurred while validating the Bayonet API Live Key: ')
-                                    .$response->reason_message.'</div>';   
+                                    .$response->reason_message.'</div>';
                                 }
                             },
                         ]);
@@ -524,7 +524,8 @@ class Bayonet extends PaymentModule
      */
     public function hookActionValidateOrder($params)
     {
-        if ((!Configuration::get('BAYONET_API_TEST_KEY') && 0 == Configuration::get('BAYONET_API_MODE')) || (!Configuration::get('BAYONET_API_LIVE_KEY') && 1 == Configuration::get('BAYONET_API_MODE'))) {
+        if ((!Configuration::get('BAYONET_API_TEST_KEY') && 0 == Configuration::get('BAYONET_API_MODE')) ||
+            (!Configuration::get('BAYONET_API_LIVE_KEY') && 1 == Configuration::get('BAYONET_API_MODE'))) {
             return;
         }
 
@@ -591,9 +592,9 @@ class Bayonet extends PaymentModule
         }
 
         if ($this->context->cookie->__isset('fingerprint') & (!empty($this->context->cookie->__get('fingerprint')))) {
-          $this->bayonetFingerprint = $this->context->cookie->__get('fingerprint');
-          $this->context->cookie->__unset('fingerprint');
-          $request['bayonet_fingerprint_token'] = $this->bayonetFingerprint;
+            $this->bayonetFingerprint = $this->context->cookie->__get('fingerprint');
+            $this->context->cookie->__unset('fingerprint');
+            $request['bayonet_fingerprint_token'] = $this->bayonetFingerprint;
         }
 
         $request['payment_method'] = getPaymentMethod($this->order, 0);
@@ -677,8 +678,7 @@ class Bayonet extends PaymentModule
      */
     public function hookActionOrderStatusUpdate($params)
     {
-        if (1 == $params['newOrderStatus']->paid)
-        {
+        if (1 == $params['newOrderStatus']->paid) {
             $bayoOrder = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.'bayonet`
                 WHERE `order_no` = '.(int)$params['id_order']);
 
@@ -777,12 +777,11 @@ class Bayonet extends PaymentModule
             $metadata = json_decode($api_response, true);
 
             if (null != ($displayedOrder['consulting_api'])) {
-
                 $this->smarty->assign(array(
                     'not_consulting_order' => false,
                     'unprocessed_order' => false,
                     'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#'.
-                        (('accept' == $displayedOrder['decision']) ? '339933' : 
+                        (('accept' == $displayedOrder['decision']) ? '339933' :
                             (('decline' == $displayedOrder['decision']) ? 'f00' :
                                 ('review' == $displayedOrder['decision'] ? 'ff7f27' : '000000'))).'">'.
                         (('accept' == $displayedOrder['decision']) ? $this->l('ACCEPTED') :
@@ -790,7 +789,7 @@ class Bayonet extends PaymentModule
                                 ('review' == $displayedOrder['decision'] ? $this->l('REVIEW') : 'ERROR'))).'</span>',
                     'bayonet_tracking_id' => $displayedOrder['bayonet_tracking_id'],
                     'reason_code' => $metadata[0]['reason_code'],
-                    'reason_message' => 'success' == $metadata[0]['reason_message'] ? 'Correct' : 
+                    'reason_message' => 'success' == $metadata[0]['reason_message'] ? 'Correct' :
                     $metadata[0]['reason_message'],
                     'rules_triggered' => $displayedOrder['rules_triggered'],
                     'mailCustomer' => $orderCustomer['email'],
@@ -803,7 +802,7 @@ class Bayonet extends PaymentModule
                 $this->smarty->assign(array(
                     'not_consulting_order' => true,
                     'unprocessed_order' => false,
-                ));    
+                ));
             }
         } else {
             $this->smarty->assign(array(
@@ -815,7 +814,8 @@ class Bayonet extends PaymentModule
         Media::addJsDef(array('urlBlockList' => $this->context->link->getModuleLink(
             $this->name,
             'blocklist',
-            array())));
+            array()
+        )));
         $this->context->controller->addJS($this->_path.'views/js/blocklist.js');
             
         return $this->display(__FILE__, 'admin_order.tpl');

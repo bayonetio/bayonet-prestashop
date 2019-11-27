@@ -26,7 +26,7 @@
 
 $sql = array();
 
-$sql[] = 
+$sql[] =
     'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet` (
         `id_bayonet` int(11) NOT NULL AUTO_INCREMENT,
         `id_cart` int(11) NULL,
