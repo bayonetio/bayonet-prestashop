@@ -81,7 +81,7 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
     {
         $this->bayonet->addWhiteList([
             'body' => $this->request,
-            'on_success' => function($response) {
+            'on_success' => function ($response) {
                 if (Tools::getValue('id') > 0) {
                     Db::getInstance()->update(
                         'bayonet_blocklist',
@@ -104,7 +104,7 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
                     Db::getInstance()->insert('bayonet_blocklist', $data);
                 }
             },
-            'on_failure' => function($response) {
+            'on_failure' => function ($response) {
                 $message = str_replace("'", "-", $response->reason_message);
                 if (Tools::getValue('id') > 0) {
                     Db::getInstance()->update(
@@ -138,7 +138,7 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
     {
         $this->bayonet->removeWhiteList([
             'body' => $this->request,
-            'on_success' => function($response) {
+            'on_success' => function ($response) {
                 Db::getInstance()->update(
                     'bayonet_blocklist',
                     array(
@@ -149,7 +149,16 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
                     'id_blocklist = '.(int)Tools::getValue('id')
                 );
             },
-            'on_failure' => function($response) {
+            'on_failure' => function ($response) {
+                $message = str_replace("'", "-", $response->reason_message);
+                Db::getInstance()->update(
+                    'bayonet_blocklist',
+                    array(
+                        'response_code' => $response->reason_code,
+                        'response_message' => $message,
+                    ),
+                    'id_blocklist = '.(int)Tools::getValue('id')
+                );
             },
         ]);
     }
@@ -163,7 +172,7 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
     {
         $this->bayonet->addBlackList([
             'body' => $this->request,
-            'on_success' => function($response) {
+            'on_success' => function ($response) {
                 if (Tools::getValue('id') > 0) {
                     Db::getInstance()->update(
                         'bayonet_blocklist',
@@ -186,14 +195,14 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
                     Db::getInstance()->insert('bayonet_blocklist', $data);
                 }
             },
-            'on_failure' => function($response) {
+            'on_failure' => function ($response) {
                 $message = str_replace("'", "-", $response->reason_message);
                 if (Tools::getValue('id') > 0) {
                     Db::getInstance()->update(
                         'bayonet_blocklist',
                         array(
                             'response_code' => $response->reason_code,
-                            'response_message' => $response->reason_message,
+                            'response_message' => $message,
                         ),
                         'id_blocklist = '.(int)Tools::getValue('id')
                     );
@@ -203,7 +212,7 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
                         'email' => Tools::getValue('mail'),
                         'blacklist' => 0,
                         'response_code' => $response->reason_code,
-                        'response_message' => $response->reason_message,
+                        'response_message' => $message,
                         'api_mode' => Configuration::get('BAYONET_API_MODE'),
                     );
                     Db::getInstance()->insert('bayonet_blocklist', $data);
@@ -220,7 +229,7 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
     {
         $this->bayonet->removeBlackList([
             'body' => $this->request,
-            'on_success' => function($response) {
+            'on_success' => function ($response) {
                 Db::getInstance()->update(
                     'bayonet_blocklist',
                     array(
@@ -231,7 +240,16 @@ class BayonetBlocklistModuleFrontController extends ModuleFrontController
                     'id_blocklist = '.(int)Tools::getValue('id')
                 );
             },
-            'on_failure' => function($response) {
+            'on_failure' => function ($response) {
+                $message = str_replace("'", "-", $response->reason_message);
+                Db::getInstance()->update(
+                    'bayonet_blocklist',
+                    array(
+                        'response_code' => $response->reason_code,
+                        'response_message' => $message,
+                    ),
+                    'id_blocklist = '.(int)Tools::getValue('id')
+                );
             },
         ]);
     }
