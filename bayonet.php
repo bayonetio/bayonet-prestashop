@@ -119,8 +119,6 @@ class Bayonet extends PaymentModule
         Configuration::deleteByName('BAYONET_JS_LIVE_KEY');
         Configuration::deleteByName('BAYONET_BACKFILL_MODE');
 
-        include(_PS_MODULE_DIR_.'bayonet/sql/uninstall.php');
-
         if (!parent::uninstall() ||
             !$this->eraseTab()
         ) {
