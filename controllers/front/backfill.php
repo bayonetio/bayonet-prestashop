@@ -191,9 +191,11 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                 $request['telephone'] = null;
             }
 
+            $class = $this;
+
             $this->bayonet->feedbackHistorical([
                 'body' => $request,
-                'on_success' => function($response) {
+                'on_success' => function ($response) use ($class) {
                     Db::getInstance()->update(
                         'bayonet', 
                         array(
@@ -206,10 +208,10 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                             ),
                             'is_executed' => 1,
                         ), 
-                        'order_no = '.(int)$this->order_id
+                        'order_no = '.(int)$class->order_id
                     );
                 },
-                'on_failure' => function($response) {
+                'on_failure' => function ($response) use ($class) {
                     $message = str_replace("'", "-", $response->reason_message);
                     Db::getInstance()->update(
                         'bayonet', 
@@ -223,7 +225,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                             ),
                             'is_executed' => 1,
                         ), 
-                        'order_no = '.(int)$this->order_id
+                        'order_no = '.(int)$class->order_id
                     );
                 },
             ]);
