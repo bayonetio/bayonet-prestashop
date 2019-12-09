@@ -19,7 +19,7 @@ class ComposerAutoloaderInit164d9530d57345e983ee12140d042a98
             return self::$loader;
         }
 
-        spl_autoload_register(array('ComposerAutoloaderInit164d9530d57345e983ee12140d042a98', 'loadClassLoader'), true, true);
+        spl_autoload_register(array('ComposerAutoloaderInit164d9530d57345e983ee12140d042a98', 'loadClassLoader'), true, false);
         self::$loader = $loader = new \Composer\Autoload\ClassLoader();
         spl_autoload_unregister(array('ComposerAutoloaderInit164d9530d57345e983ee12140d042a98', 'loadClassLoader'));
 
@@ -45,7 +45,7 @@ class ComposerAutoloaderInit164d9530d57345e983ee12140d042a98
             }
         }
 
-        $loader->register(true);
+        $loader->register(false);
 
         if ($useStaticLoader) {
             $includeFiles = Composer\Autoload\ComposerStaticInit164d9530d57345e983ee12140d042a98::$files;
