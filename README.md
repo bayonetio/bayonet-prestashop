@@ -2,7 +2,7 @@
 
 This module will make you able to use the technology of Bayonet in your PrestaShop shop to prevent online fraud. In this way, your shop will obtain a win/win performance for you and your customers; which means that you will know when a suspicious order by a suspicious customer is trying to be processed, and at the same time your shop will gain a reputation of being a secure place to buy.
 
-The plugin requires **Prestashop 1.6** and some pretty easy configurations in order to function properly.
+The module requires **Prestashop 1.6** and some pretty easy configurations in order to function properly.
 
 *Read this in other languages: [Español](README.es.md).*
 
