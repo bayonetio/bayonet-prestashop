@@ -4,6 +4,18 @@ This module will make you able to use the technology of Bayonet in your PrestaSh
 
 The plugin requires **Prestashop 1.6** and some pretty easy configurations in order to function properly.
 
+*Read this in other languages: [Español](README.es.md).*
+
+## Table of Contents
+  - [Bayonet Anti-Fraud Installation](#bayonet-anti-fraud-installation)
+  - [Bayonet Anti-Fraud Configuration](#bayonet-anti-fraud-configuration)
+    - [History Backfill](#history-backfill)
+  - [Bayonet Anti-Fraud Management](#bayonet-anti-fraud-management)
+    - [History Backfill](#history-backfill)
+    - [Bayonet Anti-Fraud Result in Order Details](#bayonet-anti-fraud-result-in-order-details)
+    - [Bayonet Anti-Fraud Blocklist](#bayonet-anti-fraud-blocklist)
+    - [Bayonet Anti-Fraud Tab in Back Office](#bayonet-anti-fraud-tab-in-back-office)
+
 ## Bayonet Anti-Fraud Installation
 
 The next steps will guide you through Bayonet’s module installation.\
@@ -136,7 +148,7 @@ This section is where you will execute the process to analyze your existing orde
 _IMPORTANT_\
 The module will show an error if you try to save with empty/incorrect fields, please fill every one with the correct information in order to avoid any errors. Each of these errors will give you a different message depending on which field is trying to save something incorrect.
 
-## BAYONET’S MODULE MANAGEMENT
+## Bayonet Anti-Fraud Management
 ### History Backfill
 Once the module has been successfully installed and configured, the first step to take afterwards is to run the backfill process, this is very important to help the module know more about your store and your customers.
 To do this, press the “INITIATE BACKFILL” in the module’s configuration page.
@@ -238,4 +250,4 @@ Finally, in the lower part of the table, you have a pagination feature, its beha
   <img src="https://i.imgur.com/s2VR1Qk.png">
 </p>
 
-For further reference, please check [The user's manual](bayonet_manual_EN.docx)
+For further reference, please check the [user's manual](bayonet_manual_EN.docx)
