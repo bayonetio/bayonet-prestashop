@@ -7,12 +7,12 @@ El módulo requiere **PrestaShop 1.6** y algunas sencillas configuracion para fu
 *Leer esto en otros idiomas: [English](README.md).*
 
 ## Tabla de Contenidos
-  - [Instalación de Bayonet Anti-Fraude](instalacion-de-bayonet-anti-fraude)
-  - [Configuración de Bayonet Anti-Fraude](configuracion-de-bayonet-anti-fraude)
+  - [Instalación de Bayonet Anti-Fraude](#instalacion-de-bayonet-anti-fraude)
+  - [Configuración de Bayonet Anti-Fraude](#configuracion-de-bayonet-anti-fraude)
     - [Backfill Histórico](#backfill-historico)
   - [Administración de Bayonet Anti-Fraude](#administracion-de-bayonet-anti-fraude)
     - [Backfill Histórico](#backfill-historico)
-    - [Bayonet Resultado Anti-Fraude en Detalles de Orden](#bayonet-resultado-anti-fraude-en-detalles-de-orden)
+    - [Resultado Bayonet Anti-Fraude en Detalles de Orden](#resultado-bayonet-anti-fraude-en-detalles-de-orden)
     - [Lista de Bloqueo Bayonet Anti-Fraude](#lista-de-bloqueo-bayonet-anti-fraude)
     - [Bayonet Anti-Fraude Tab in Back Office](#pestana-bayonet-anti-fraude-en-back-office)
 
@@ -26,25 +26,25 @@ Lo que necesitas para esta tarea:
 1. Inicia sesión en el back office de tu tienda.
 
 <p align="center">
-  <img src="https://i.imgur.com/vW270uq.png">
+  <img src="https://i.imgur.com/WiNInvE.png">
 </p>
 
 2. Navega a la sección de módulos usando la barra lateral, posicionándote sobre “Módulos y Servicios” para después seleccionar “Módulos y Servicios” del menú desplegable.
 
 <p align="center">
-  <img src="https://i.imgur.com/F3SaUMB.png">
+  <img src="https://i.imgur.com/RYAFk6J.png">
 </p>
 
 3. Presiona el botón “Añadir un nuevo módulo”, ubicado a la derecha superior de la página “Listado de módulos”, un panel se mostrará en la página el cual permitirá subir el módulo.
 
 <p align="center">
-  <img src="https://i.imgur.com/rMY8Hq2.png">
+  <img src="https://i.imgur.com/doMcgSq.png">
 </p>
 
 4. Presiona el botón “Selecciona un archivo” para abrir un cuadro de dialogo y después selecciona el archivo comprimido, en este caso, “bayonet.zip”.
 
 <p align="center">
-  <img src="https://i.imgur.com/OKQSeER.png">
+  <img src="https://i.imgur.com/fd1pDNc.png">
 </p>
 
 <p align="center">
@@ -54,22 +54,22 @@ Lo que necesitas para esta tarea:
 5. Presiona el botón “Subir este módulo” para subir el módulo de Bayonet. Un mensaje de confirmación será mostrado después de que el módulo sea subido, la opción para instalarlo aparecerá disponible después de esto.
 
 <p align="center">
-  <img src="https://i.imgur.com/DPXjM3p.png">
+  <img src="https://i.imgur.com/oPWn1OD.png">
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/fXBQDYt.png">
+  <img src="https://i.imgur.com/UmF3Hif.png">
 </p>
 
 6. Presiona el botón “Instalar”. Un cuadro de dialogo aparecerá mostrando la información del módulo y pedirá que se confirme la instalación, presiona “Continuar con la instalación” para confirmar.\
 Después de que la instalación es completada, PrestaShop mostrará la página de configuración del módulo.
 
 <p align="center">
-  <img src="https://i.imgur.com/hvFofbt.png">
+  <img src="https://i.imgur.com/eTxZrnQ.png">
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/xclBQWA.png">
+  <img src="https://i.imgur.com/vovXRtb.png">
 </p>
 
 ## Configuración de Bayonet Anti-Fraude
@@ -80,7 +80,7 @@ Lo que necesitas para esta tarea:
 - Las llaves del API de Device Fingerprint
 
 <p align="center">
-  <img src="https://i.imgur.com/WMDpggl.png">
+  <img src="https://i.imgur.com/NBqKTTR.png">
 </p>
 
 The keys for both APIs are obtained in Bayonet’s console, to do that, you will need to log into [Bayonet’s console](https://bayonet.io/login) using your Bayonet’s credentials to get them or generate them if you haven’t done that. 
@@ -96,27 +96,27 @@ Los pasos para obtener tus llaves de ambos APIs son los siguientes:
 1. Inicia sesión en la [consola de Bayonet](https://bayonet.io/login) usando tus credenciales de Bayonet.
 
 <p align="center">
-  <img src="https://i.imgur.com/9WAZxg4.png">
+  <img src="https://i.imgur.com/GEU1QdX.png">
 </p>
 
 2. Una vez iniciada la sesión, selecciona la categoría “Desarrolladores”.
 
 <p align="center">
-  <img src="https://i.imgur.com/KRQ2Jdy.png">
+  <img src="https://i.imgur.com/uTV3QXj.png">
 </p>
 
 3. Selecciona la pestaña “Setup”. En esta pestaña podrás ver todo lo relacionado a tus llaves de los APIs.
 
 <p align="center">
-  <img src="https://i.imgur.com/cBlF5e3.png">
+  <img src="https://i.imgur.com/rgX6UEk.png">
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/uwzW8jA.png">
+  <img src="https://i.imgur.com/mAXFQrX.png">
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/l5OQj7O.png">
+  <img src="https://i.imgur.com/H0cMPie.png">
 </p>
 
 En esta pestaña, podrás generar llaves de prueba desde un inicio para tanto el API de Bayonet como el de Device Fingerprinting, sin embargo, la generación de las llaves de producción será habilitada una vez que hayas añadido tus detalles de pago en la sección de pagos.
@@ -129,7 +129,7 @@ Si crees que alguna de tus llaves se encuentra comprometida, no dudes en generar
 En la siguiente imagen, puedes ver como se muestra la página de configuración.
 
 <p align="center">
-  <img src="https://i.imgur.com/jU5UJpa.png">
+  <img src="https://i.imgur.com/eLPl5UU.png">
 </p>
 
 __Modo de Producción__: esta configuración establece el modo del módulo.
@@ -147,7 +147,7 @@ __Llave de Producción del API de Device Fingerprint__: esta llave es necesaria 
 En esta sección se ejecuta el proceso de analizar con Bayonet todas las ordenes ya existentes en tu tienda, esto le ayudará al módulo a tener un mejor entendimiento de tu tienda y tus clientes. En un inicio esta sección aparecerá inhabilitada, será necesario que agregues tus llaves de producción del API y guardarlas para que esta sección se vuelva disponible. Una vez que guardes tus llaves del API satisfactoriamente, así es como lucirá esta sección.
 
 <p align="center">
-  <img src="https://i.imgur.com/aOgiaYA.png">
+  <img src="https://i.imgur.com/M0qTLIw.png">
 </p>
 
 _IMPORTANTE_\
@@ -159,13 +159,13 @@ Una vez que el módulo haya sido satisfactoriamente instalado y configurado, el 
 Para hacer esto, presiona el botón “INICIAR BACKFILL” en la página de configuración del módulo.
 
 <p align="center">
-  <img src="https://i.imgur.com/hUF6uWz.png">
+  <img src="https://i.imgur.com/fBsijN4.png">
 </p>
 
 Esto iniciará el proceso de backfill y una barra de progreso aparecerá mostrando el porcentaje actual de terminación.
 
 <p align="center">
-  <img src="https://i.imgur.com/jZZSlBl.png">
+  <img src="https://i.imgur.com/Q9sjdvi.png">
 </p>
 
 Después de que el proceso de backfill ha sido iniciado, puedes ya sea esperar a que termine, o detener su ejecución presionando el botón “DETENER BACKFILL” debajo de la barra de progreso.\
@@ -179,7 +179,7 @@ El análisis evaluará la información referente a esa especifica orden y client
 Después de que una orden haya sido analizada por Bayonet, puedes checar su resultado en los detalles de la orden en el back office. 
 
 <p align="center">
-  <img src="https://i.imgur.com/wdexqAY.png">
+  <img src="https://i.imgur.com/hoycvLK.png">
 </p>
 
 Este panel incluye:
@@ -194,11 +194,11 @@ Este panel incluye:
 El panel mostrará un mensaje de alerta si la orden no fue procesada por Bayonet o si fue parte del proceso de backfill.
 
 <p align="center">
-  <img src="https://i.imgur.com/hmVurHN.png">
+  <img src="https://i.imgur.com/FcCwQSm.png">
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/RJqZXjE.png">
+  <img src="https://i.imgur.com/QM9hQOW.png">
 </p>
 
 ### Lista de Bloqueo Bayonet Anti-Fraude
@@ -207,7 +207,7 @@ El panel de Bayonet Anti-Fraude cuenta con dos botones, “Agregar Cliente a Lis
 A continuación, se visualiza una orden cuyo cliente fue agregado previamente a la lista negra de Bayonet.
 
 <p align="center">
-  <img src="https://i.imgur.com/3bahwcJ.png">
+  <img src="https://i.imgur.com/Wjopx2N.png">
 </p>
 
 La decisión aparece como “DECLINADA”, y dentro de las reglas disparadas al momento de analizar la orden, se encuentra “blocked_by_client”, esto quiere decir, que el dueño o administrador de tu tienda agregó a cliente de esta transacción a la lista negra de Bayonet. Asimismo, se puede ver como el botón de la lista negra cambia su leyenda a “Remover Cliente de Lista Negra” cuando este ya se encuentra en ella.
@@ -216,17 +216,17 @@ La decisión aparece como “DECLINADA”, y dentro de las reglas disparadas al 
 La instalación del módulo añade una nueva pestaña en el back office, esta se encuentra ubicada al fondo de la barra lateral, con la leyenda “Bayonet Anti-Fraude”. El seleccionar esta pestaña, mostrara su contenido, el cual es una tabla con todas las ordenes de tu tienda que han sido procesadas por Bayonet, específicamente por el API de consulta.
 
 <p align="center">
-  <img src="https://i.imgur.com/xTCaaIN.png">
+  <img src="https://i.imgur.com/9MBFALk.png">
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/2iYyrZk.png">
+  <img src="https://i.imgur.com/Z9cDDe4.png">
 </p>
 
 Descomponiendo su contenido, en la parte superior, tienes los nombres de las columnas.
 
 <p align="center">
-  <img src="https://i.imgur.com/gYHtSgh.png">
+  <img src="https://i.imgur.com/2u1hpQj.png">
 </p>
 
 Las columnas son:
@@ -242,7 +242,7 @@ Las columnas son:
 Enseguida, tienes un área de filtro, donde puede definir un conjunto especifico de órdenes a mostrar. Por ejemplo, puedes ingresar “ACCEPT” en el filtro de Decisión, presionando el botón “Buscar” mostrará solamente las ordenes que hayan sido aceptadas por Bayonet. Puedes limpiar estos filtros presionando el botón “Reinicializar”.
 
 <p align="center">
-  <img src="https://i.imgur.com/u5Td4An.png">
+  <img src="https://i.imgur.com/32spRqq.png">
 </p>
 
 Además de filtrar los datos de la tabla, también es posible ordenar sus filas por ID, Carrito, Orden o Decisión. Para hacer esto, solo da click en una de las dos flechas junto a un nombre de columna, la flecha hacia abajo hará un orden descendente, mientras que la flecha había arriba, mostrará las filas en un orden ascendente.
@@ -251,9 +251,8 @@ La tabla también cuenta con la opción de visualizar una orden especifica de ma
 
 Finalmente, en la parte baja de la tabla, tienes una característica de paginación, su comportamiento se verá afectado por el número de filas definido para mostrar por página. Se puede elegir entre 20, 50, 100, 300, 500, y 1000 filas por página, después de modificar este valor, el número de páginas cambiará dependiendo de cuantos registros haya en la tabla Bayonet de tu tienda.
 
-
 <p align="center">
-  <img src="https://i.imgur.com/s2VR1Qk.png">
+  <img src="https://i.imgur.com/TM5NSbm.png">
 </p>
 
 Para futura referencia, por favor revisa el [manual de usuario](bayonet_manual_ES.docx)
