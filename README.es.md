@@ -14,7 +14,7 @@ El módulo requiere **PrestaShop 1.6** y algunas sencillas configuracion para fu
     - [Backfill Histórico](#backfill-histórico)
     - [Resultado Bayonet Anti-Fraude en Detalles de Orden](#resultado-bayonet-anti-fraude-en-detalles-de-orden)
     - [Lista de Bloqueo Bayonet Anti-Fraude](#lista-de-bloqueo-bayonet-anti-fraude)
-    - [Pestaña Bayonet Anti-Fraude en Back Office](#pestaña-bayonet-anti-fraude-en-back-office)
+    - [Pestaña de Bayonet Anti-Fraude en Back Office](#pestaña-de-bayonet-anti-fraude-en-back-office)
 
 ## Instalación de Bayonet Anti-Fraude
 
