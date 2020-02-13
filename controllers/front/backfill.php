@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2007-2019 PrestaShop SA and Contributors
  *
@@ -67,7 +66,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     public function startBackfill()
     {
-        header('content-type','application/json');
+        header('content-type', 'application/json');
         $response = array();
         if (Configuration::updateValue('BAYONET_BACKFILL_MODE', 1)) {
             $response['error'] = 0;
@@ -84,16 +83,17 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     public function executeBackfill()
     {
-        $query = "SELECT * FROM (SELECT * FROM `ps_orders` WHERE `reference` IN (SELECT `order_reference` FROM `ps_order_payment`)) o WHERE o.`id_order` NOT IN (SELECT `order_no` FROM `ps_bayonet`)";
+        $query = 'SELECT * FROM (SELECT * FROM `'._DB_PREFIX_.'orders` 
+            WHERE `reference` IN (SELECT `order_reference` FROM `'._DB_PREFIX_.'order_payment`)) o 
+            WHERE o.`id_order` NOT IN (SELECT `order_no` FROM `'._DB_PREFIX_.'bayonet`)';
         $orders = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($query);
 
         $ordersNo = sizeof($orders);
         $currentOrder = 0;
 
-        include_once(_PS_MODULE_DIR_.'bayonet/sdk/Paymethods.php');
+        include_once(_PS_MODULE_DIR_.'bayonet/sdk/paymentMethods.php');
 
-        while (0 != $this->getBackfillMode() && $currentOrder < $ordersNo)
-        {
+        while (0 != $this->getBackfillMode() && $currentOrder < $ordersNo) {
             $data = array(
                 'order_no' => $orders[$currentOrder]['id_order'],
                 'id_cart' => $orders[$currentOrder]['id_cart'],
@@ -121,16 +121,17 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
             $cart = new Cart((int)$orders[$currentOrder]['id_cart']);
             $address_delivery = new Address((int)$orders[$currentOrder]['id_address_delivery']);
             $address_invoice = new Address((int)$orders[$currentOrder]['id_address_invoice']);
-            $state_delivery = 0 != $address_delivery->id_state ? (new State((int)$address_delivery->id_state))->name : "NA";
+            $state_delivery = 0 != $address_delivery->id_state ?
+                (new State((int)$address_delivery->id_state))->name : "NA";
             $country_delivery = new Country((int)$address_delivery->id_country);
-            $state_invoice = 0 != $address_invoice->id_state ? (new State((int)$address_invoice->id_state))->name : "NA";
+            $state_invoice = 0 != $address_invoice->id_state ?
+                (new State((int)$address_invoice->id_state))->name : "NA";
             $country_invoice = new Country((int)$address_invoice->id_country);
 
             $products = $cart->getProducts();
-            $product_list = array();
+            $products_list = array();
 
-            foreach ($products as $product)
-            {
+            foreach ($products as $product) {
                 $products_list[] = [
                     "product_id" => $product['id_product'],
                     "product_name" => $product['name'],
@@ -188,11 +189,13 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                 $request['telephone'] = null;
             }
 
+            $class = $this;
+
             $this->bayonet->feedbackHistorical([
                 'body' => $request,
-                'on_success' => function($response) {
+                'on_success' => function ($response) use ($class) {
                     Db::getInstance()->update(
-                        'bayonet', 
+                        'bayonet',
                         array(
                             'historical_api' => 1,
                             'historical_api_response' => json_encode(
@@ -202,14 +205,14 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                                 )
                             ),
                             'is_executed' => 1,
-                        ), 
-                        'order_no = '.(int)$this->order_id
+                        ),
+                        'order_no = '.(int)$class->order_id
                     );
                 },
-                'on_failure' => function($response) {
+                'on_failure' => function ($response) use ($class) {
                     $message = str_replace("'", "-", $response->reason_message);
                     Db::getInstance()->update(
-                        'bayonet', 
+                        'bayonet',
                         array(
                             'historical_api' => 0,
                             'historical_api_response' => json_encode(
@@ -219,8 +222,8 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
                                 )
                             ),
                             'is_executed' => 1,
-                        ), 
-                        'order_no = '.(int)$this->order_id
+                        ),
+                        'order_no = '.(int)$class->order_id
                     );
                 },
             ]);
@@ -236,7 +239,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     public function stopBackfill()
     {
-        header('content-type','application/json');
+        header('content-type', 'application/json');
         $response = array();
         if (Configuration::updateValue('BAYONET_BACKFILL_MODE', 0)) {
             $response['error'] = 0;
@@ -252,12 +255,16 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     public function getStatus()
     {
-        header('content-type','application/json');
+        header('content-type', 'application/json');
         $response = array();
-        $queryOrders = "SELECT count('*') AS total FROM `ps_orders` WHERE `reference` IN (SELECT `order_reference` FROM `ps_order_payment`)";
-        $queryBayonet = "SELECT count('*') AS completed FROM `ps_bayonet` WHERE `is_executed` = 1";
+
+        $queryOrders = 'SELECT count(*) AS total FROM `'._DB_PREFIX_.'orders` 
+            WHERE `reference` IN (SELECT `order_reference` FROM `'._DB_PREFIX_.'order_payment`)';
+        $queryBayonet = 'SELECT count(*) AS completed FROM `'._DB_PREFIX_.'bayonet` WHERE `is_executed` = 1';
+
         $totalOrders = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($queryOrders);
         $completedOrders = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($queryBayonet);
+
         $percentage = ($completedOrders['completed']/$totalOrders['total'])*100;
         $response['percentage'] = ceil($percentage);
         
@@ -276,7 +283,7 @@ class BayonetBackfillModuleFrontController extends ModuleFrontController
      */
     private function getBackfillMode()
     {
-        $query = "SELECT value FROM `ps_configuration` where `name` = 'BAYONET_BACKFILL_MODE'";
+        $query = 'SELECT value FROM `'._DB_PREFIX_.'configuration` WHERE `name` = "BAYONET_BACKFILL_MODE"';
         $val = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($query);
 
         $current_backfill_mode = $val[0]['value'];

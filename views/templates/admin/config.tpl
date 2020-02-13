@@ -23,7 +23,7 @@
 * International Registered Trademark & Property of PrestaShop SA
 *}
  
-{$error_msgs}
+{$error_msgs|escape:'html':'UTF-8'|htmlspecialchars_decode:3}
 <div class="panel">
 	<h3><i class="icon icon-warning"></i> {l s='IMPORTANT' mod='bayonet'}</h3>
 	{l s='READ THE MANUAL' mod='bayonet'}

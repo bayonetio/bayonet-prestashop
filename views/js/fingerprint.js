@@ -25,6 +25,7 @@
 
 let fingerprint = '';
 $(document).ready(function() {
+  console.log('fingerprinto');
   $.getScript('https://cdn.bayonet.io/fingerprinting-2.0.min.js', function() {
   	initBayonet();
   });
@@ -52,6 +53,7 @@ function initBayonet() {
 function getResponse(response) {
   if(response.bayonet_fingerprint_token == '') {
   } else {
+    console.log(response.bayonet_fingerprint_token);
     $.ajax({
       url: urlFingerprint,
       type: 'post',

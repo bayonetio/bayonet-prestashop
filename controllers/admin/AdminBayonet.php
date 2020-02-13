@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2007-2019 PrestaShop SA and Contributors
  *
@@ -29,7 +28,6 @@ class AdminBayonetController extends ModuleAdminController
 {
     public function __construct()
     {
-
         $this->table = 'bayonet';
         $this->module = 'bayonet';
         $this->lang = false;
@@ -72,7 +70,9 @@ class AdminBayonetController extends ModuleAdminController
                 'title' => $this->l('Decision'),
                 'align' => 'center',
                 'remove_onclick' => true,
-                'hint' => $this->l('The actual decision obtained after the order analysis, this is what you use to decide what to do with an order, if an order has DECLINE in this field, you should cancel it right away'),
+                'hint' => $this->l('The actual decision obtained after the order analysis, this is what you use to ').
+                    $this->l('decide what to do with an order, if an order has DECLINE in this field, ').
+                    $this->l('you should cancel it right away'),
                 ),
         );
 
@@ -85,11 +85,12 @@ class AdminBayonetController extends ModuleAdminController
     public function initPageHeaderToolbar()
     {
         $this->page_header_toolbar_btn['custom_button'] = array(
-            'href' => $this->context->link->getAdminLink('AdminModules').'&configure='.$this->module->name.'&tab_module=payment_security&module_name='.$this->module->name,
+            'href' => $this->context->link->getAdminLink('AdminModules').'&configure='.$this->module->name.
+                '&tab_module=payment_security&module_name='.$this->module->name,
             'desc' => $this->module->l('Bayonet Settings'),
             'icon' => 'process-icon-configure'
         );
- 
+
         parent::initPageHeaderToolbar();
     }
     
@@ -112,7 +113,7 @@ class AdminBayonetController extends ModuleAdminController
         if (isset($this->_filter) &&  '' == trim($this->_filter)) {
             $this->_filter = $this->original_filter;
         }
-        
+
         $content = parent::renderList();
 
         return $content;
@@ -124,7 +125,7 @@ class AdminBayonetController extends ModuleAdminController
      * @param string $value
      * @param array $row
      */
-    public function viewOrder($value, $row)
+    public function viewOrder($value)
     {
         $link = $this->context->link->getAdminLink('AdminOrders').'&id_order='.(int)$value.'&vieworder';
 
