@@ -250,4 +250,4 @@ Finally, in the lower part of the table, you have a pagination feature, its beha
   <img src="https://i.imgur.com/s2VR1Qk.png">
 </p>
 
-For further reference, please check the [user's manual](bayonet_manual_EN.docx)
+For further reference, please check the [user's manual](bayonet-manual-EN.docx)
