@@ -35,7 +35,27 @@ class BayonetFingerprintModuleFrontController extends ModuleFrontController
     public function postProcess()
     {
         $this->fingerprint = Tools::getValue('fingerprint');
-        $this->context->cookie->__set('fingerprint', $this->fingerprint);
+
+        $queryFingerprint = 'SELECT * FROM `'._DB_PREFIX_.'bayonet_fingerprint`
+            WHERE `customer` = '.$this->context->customer->id;
+        $fingerprintData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($queryFingerprint);
+
+        if ($fingerprintData) {
+            Db::getInstance()->update(
+                'bayonet_fingerprint',
+                array(
+                    'fingerprint_token' => $this->fingerprint,
+                ),
+                'customer = '.$this->context->customer->id
+            );
+        } else {
+            $data = array(
+                'customer' => $this->context->customer->id,
+                'fingerprint_token' => $this->fingerprint,
+            );
+            Db::getInstance()->insert('bayonet_fingerprint', $data);
+        }
+        
         exit;
     }
 }
