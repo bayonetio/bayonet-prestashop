@@ -44,7 +44,8 @@ $sql[] =
         `date_add` timestamp default current_timestamp NOT NULL,
         PRIMARY KEY  (`id_bayonet`)
     ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
-$sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet_blocklist` (
+$sql[] = 
+    'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet_blocklist` (
         `id_blocklist` int(11) NOT NULL AUTO_INCREMENT,
         `id_customer` int(11) NOT NULL,
         `email` varchar(255) NOT NULL,
@@ -54,6 +55,13 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet_blocklist` (
         `response_message` text NULL,
         `api_mode` tinyint(1) NOT NULL,
         PRIMARY KEY  (`id_blocklist`)
+    ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
+$sql[] = 
+    'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet_fingerprint` (
+        `id_fingerprint` INT NOT NULL AUTO_INCREMENT,
+        `customer` INT NOT NULL,
+        `fingerprint_token` VARCHAR(45) NULL,
+        PRIMARY KEY (`id_fingerprint`)
     ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
 
 foreach ($sql as $query) {

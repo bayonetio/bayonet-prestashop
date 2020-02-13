@@ -329,7 +329,8 @@ class Bayonet extends PaymentModule
         $this->context->smarty->assign('backfill_mode', Configuration::get('BAYONET_BACKFILL_MODE'));
         
         if (!empty(Configuration::get('BAYONET_API_LIVE_KEY')) &&
-            !empty(Configuration::get('BAYONET_JS_LIVE_KEY'))) {
+            !empty(Configuration::get('BAYONET_JS_LIVE_KEY')) &&
+            1 == Configuration::get('BAYONET_API_MODE')) {
             $this->context->smarty->assign('backfill_enable', 1);
         } else {
             $this->context->smarty->assign('backfill_enable', 0);
@@ -589,10 +590,12 @@ class Bayonet extends PaymentModule
             $request['telephone'] = null;
         }
 
-        if ($this->context->cookie->__isset('fingerprint') & (!empty($this->context->cookie->__get('fingerprint')))) {
-            $this->bayonetFingerprint = $this->context->cookie->__get('fingerprint');
-            $this->context->cookie->__unset('fingerprint');
-            $request['bayonet_fingerprint_token'] = $this->bayonetFingerprint;
+        $queryFingerprint = 'SELECT * FROM `'._DB_PREFIX_.'bayonet_fingerprint`
+            WHERE `customer` = '.$this->context->customer->id;
+        $fingerprintData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($queryFingerprint);
+
+        if($fingerprintData) {
+            $request['bayonet_fingerprint_token'] = $fingerprintData[0]['fingerprint_token'];
         }
 
         $request['payment_method'] = getPaymentMethod($this->order, 0);
