@@ -255,4 +255,4 @@ Finalmente, en la parte baja de la tabla, tienes una característica de paginaci
   <img src="https://i.imgur.com/TM5NSbm.png">
 </p>
 
-Para futura referencia, por favor revisa el [manual de usuario](bayonet_manual_ES.docx)
+Para futura referencia, por favor revisa el [manual de usuario](bayonet-manual-ES.docx)
