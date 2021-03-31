@@ -23,7 +23,14 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
- .icon-AdminBayonetOrders:before {
-  content: url('../../views/img/logo_bo.png');
-  filter: grayscale(100%);
+.progress {
+	width: 100%;
+	background-color: #dcdcdc !important;
+    height: 35px !important;
+}
+
+.progress-bar {
+	width: 0%;
+    line-height: 35px !important;
+    font-size: 17px !important;
 }
