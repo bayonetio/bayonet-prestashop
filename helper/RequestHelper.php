@@ -34,7 +34,7 @@ class RequestHelper
      */
     public function consulting($requestBody)
     {
-        $consultingResponse = $this->request('sigma/consult', $requestBody, 'bayonet');
+        $consultingResponse = $this->request('sigma/consult', $requestBody, 'bayonet', 0, '');
 
         return $consultingResponse;
     }
@@ -47,7 +47,7 @@ class RequestHelper
      */
     public function feedbackHistorical($requestBody)
     {
-        $historicalResponse = $this->request('sigma/feedback-historical', $requestBody, 'bayonet');
+        $historicalResponse = $this->request('sigma/feedback-historical', $requestBody, 'bayonet', 0, '');
 
         return $historicalResponse;
     }
@@ -60,7 +60,7 @@ class RequestHelper
      */
     public function updateTransaction($requestBody)
     {
-        $updateResponse = $this->request('sigma/update-transaction', $requestBody, 'bayonet');
+        $updateResponse = $this->request('sigma/update-transaction', $requestBody, 'bayonet', 0, '');
 
         return $updateResponse;
     }
@@ -74,9 +74,16 @@ class RequestHelper
      */
     public function deviceFingerprint($requestBody)
     {
-        $deviceFingerprintResponse = $this->request('', $requestBody, 'js');
+        $deviceFingerprintResponse = $this->request('', $requestBody, 'js', 0, '');
 
         return $deviceFingerprintResponse;
+    }
+
+    public function apiValidation($requestBody, $apiVersion)
+    {
+        $validationResult = $this->request('sigma/consult', $requestBody, 'bayonet', 1, $apiVersion);
+
+        return $validationResult;
     }
 
     /**
@@ -87,7 +94,7 @@ class RequestHelper
      */
     public function addWhitelist($requestBody)
     {
-        $listResponse = $this->request('sigma/labels/whitelist/add', $requestBody, 'bayonet');
+        $listResponse = $this->request('sigma/labels/whitelist/add', $requestBody, 'bayonet', 0, '');
 
         return $listResponse;
     }
@@ -100,7 +107,7 @@ class RequestHelper
      */
     public function removeWhitelist($requestBody)
     {
-        $listResponse = $this->request('sigma/labels/whitelist/remove', $requestBody, 'bayonet');
+        $listResponse = $this->request('sigma/labels/whitelist/remove', $requestBody, 'bayonet', 0, '');
 
         return $listResponse;
     }
@@ -113,7 +120,7 @@ class RequestHelper
      */
     public function addBlocklist($requestBody)
     {
-        $listResponse = $this->request('sigma/labels/block/add', $requestBody, 'bayonet');
+        $listResponse = $this->request('sigma/labels/block/add', $requestBody, 'bayonet', 0, '');
 
         return $listResponse;
     }
@@ -126,22 +133,21 @@ class RequestHelper
      */
     public function removeBlocklist($requestBody)
     {
-        $listResponse = $this->request('sigma/labels/block/remove', $requestBody, 'bayonet');
+        $listResponse = $this->request('sigma/labels/block/remove', $requestBody, 'bayonet', 0, '');
 
         return $listResponse;
     }
 
-    /**
-     * Performs a request to Bayonet/Device Fingerprint API with the provided
-     * request body to the provided endpoint
-     * 
-     * @param string $endpoint
-     * @param array $requestBody
-     * @param string $api
-     */
-    private function request($endpoint, $requestBody, $api)
+    private function request($endpoint, $requestBody, $api, $versionValidation, $version)
     {   
-        $apiVersion = Configuration::get('BAYONET_AF_API_VERSION');
+        $apiVersion = '';
+
+        if (0 === (int) $versionValidation) {
+            $apiVersion = Configuration::get('BAYONET_AF_API_VERSION');
+        } else if(1 === (int) $versionValidation) {
+            $apiVersion = $version;
+        }
+
         $requestJson = json_encode($requestBody);
         $requestUrl = strcmp($api, 'bayonet') === 0 ? 'https://api.bayonet.io/'.$apiVersion.'/'.$endpoint :
             'https://fingerprinting.bayonet.io/v2/generate-fingerprint-token';
