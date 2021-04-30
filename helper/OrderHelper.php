@@ -26,12 +26,116 @@
 
 class OrderHelper
 {
-    /**
-     * Converts the country codes to 3-letter ISO codes
-     * https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
-     * @param string 2 letter country code
-     * @return string ISO 3-letter country code
-     */
+    public function generateRequestBody($order, $cart, $customer, $currency, $type, $apiMode)
+    {
+        $requestBody = [];
+        $address_delivery = new Address((int)$cart->id_address_delivery);
+        $address_invoice = new Address((int)$cart->id_address_invoice);
+        $state_delivery = 0 !== $address_delivery->id_state ? (new State((int)$address_delivery->id_state))->name : "NA";
+        $country_delivery = new Country((int)$address_delivery->id_country);
+        $state_invoice = 0 !== $address_invoice->id_state ? (new State((int)$address_invoice->id_state))->name : "NA";
+        $country_invoice = new Country((int)$address_invoice->id_country);
+        $products = $cart->getProducts();
+        $products_list = [];
+
+        foreach ($products as $product) {
+            $products_list[] = [
+                'product_id' => $product['id_product'],
+                'product_name' => $product['name'],
+                'product_price' => $product['price'],
+                'product_category' => $product['category'],
+            ];
+        }
+
+        $requestBody = [
+            'email' => $customer->email,
+            'consumer_name' => $customer->firstname . ' ' . $customer->lastname,
+            'consumer_internal_id' => $customer->id,
+            'shipping_address' => [
+              'line_1' => $address_delivery->address1,
+              'line_2' => $address_delivery->address2,
+              'city' => $address_delivery->city,
+              'state' => $state_delivery,
+              'country' => $this->convertCountryCode($country_delivery->iso_code),
+              'zip_code' => $address_delivery->postcode
+            ],
+            'billing_address' => [
+              'line_1' => $address_invoice->address1,
+              'line_2' => $address_invoice->address2,
+              'city' => $address_invoice->city,
+              'state' => $state_invoice,
+              'country' => $this->convertCountryCode($country_invoice->iso_code),
+              'zip_code' => $address_invoice->postcode
+            ],
+            'products' => $products_list,
+            'order_id' => (int)$order->id,
+            'transaction_amount' => $cart->getOrderTotal(),
+            'currency_code' => $currency->iso_code,
+            'transaction_time' => strtotime($order->date_add),
+            'payment_gateway' => $order->module,
+            'channel' => 'ecommerce',
+        ];
+
+        if (!empty($address_invoice->phone) || !empty($address_invoice->phone_mobile)) {
+            if (!empty($address_invoice->phone)) {
+                $requestBody['telephone'] = preg_replace("/[^0-9]/", "", $address_invoice->phone);
+            } elseif (!empty($address_invoice->phone_mobile)) {
+                $requestBody['telephone'] = preg_replace("/[^0-9]/", "", $address_invoice->phone_mobile);
+            }
+        } else {
+            $requestBody['telephone'] = null;
+        }
+
+        $requestBody['payment_method'] = $this->getPaymentMethod($order);
+
+        if ('new' === $type) {
+            $queryFingerprint = 'SELECT * FROM `'._DB_PREFIX_.'bayonet_antifraud_fingerprint`
+            WHERE `customer_id` = '.$customer->id. ' AND `api_mode` = ' .$apiMode;
+            $fingerprintData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($queryFingerprint);
+
+            if ($fingerprintData) {
+                if ($fingerprintData[0]['fingerprint_token'] !== '') {
+                    $requestBody['bayonet_fingerprint_token'] = $fingerprintData[0]['fingerprint_token'];
+                    Db::getInstance()->update(
+                        'bayonet_antifraud_fingerprint',
+                        [
+                        'fingerprint_token' => '',
+                    ],
+                        'customer_id = '.(int)$customer->id. ' AND api_mode = ' .$apiMode
+                    );
+                }
+            }
+        }
+
+        if ('backfill' === $type) {
+            $transationStatus = '';
+
+            if (NULL !== $order->getCurrentOrderState()) {
+                if (1 === (int)$order->getCurrentOrderState()->paid) {
+                    $transationStatus = 'success';
+                    $requestBody['transaction_status'] = 'success';
+                } else if (0 === (int)$order->getCurrentOrderState()->paid) {
+                    foreach ($order->getCurrentOrderState()->paid as $template) {
+                        if (false !== strpos(strtolower($template), 'cancel') ||
+                        false !== strpos(strtolower($template), 'refund')) {
+                            $transationStatus = 'cancelled';
+                        }
+                    }
+
+                    if ('' === $transationStatus) {
+                        $transationStatus = 'pending';
+                    }
+                }
+            } else {
+                $transationStatus = 'pending';
+            }
+
+            $requestBody['transaction_status'] = $transationStatus;
+        }
+
+        return $requestBody;
+    }
+
     public function convertCountryCode($country)
     {
         $countries = [
@@ -290,5 +394,56 @@ class OrderHelper
         $isoCode = isset($countries[$country]) ? $countries[$country] : $country;
         
         return $isoCode;
+    }
+
+    public function getPaymentMethod($order)
+    {
+        $paymentMethod = 'tokenized_card';
+        $paymentMethods = [
+            'bankwire' => 'offline',
+            'cheque' => 'offline',
+            'paypal' => 'paypal',
+            'paypalusa' => 'paypal',
+            'paypalmx' => 'paypal',
+            'blockonomics' => 'crypto_currency',
+        ];
+        
+        if ('openpayprestashop' === $order->module) {
+            if (false !== strpos(strtolower($order->payment), 'tarjeta') ||
+                false !== strpos(strtolower($order->payment), 'card')) {
+                $paymentMethod = 'tokenized_card';
+            } elseif (false !== strpos(strtolower($order->payment), 'bitcoin')) {
+                $paymentMethod = 'crypto_currency';
+            } else {
+                $paymentMethod = 'offline';
+            }
+        } elseif (false !== strpos(strtolower($order->module), 'paypal')) {
+            $paymentMethod = 'paypal';
+        } else {
+            foreach ($paymentMethods as $key => $value) {
+                if ($key === $order->module) {
+                    $paymentMethod = $value;
+                }
+            }
+        }
+
+        return $paymentMethod;
+    }
+
+    public function getTriggeredRules($response)
+    {
+        $triggeredRules = '';
+        $dynamicRules = $response->rules_triggered->dynamic;
+        $customRules = $response->rules_triggered->custom;
+
+        foreach ($dynamicRules as $rule) {
+            $triggeredRules .= '- ' . $rule . '<br>';
+        }
+
+        foreach ($customRules as $rule) {
+            $triggeredRules .= '- ' . $rule . '<br>';
+        }
+
+        return $triggeredRules;
     }
 }
