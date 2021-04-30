@@ -24,18 +24,19 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 include_once(dirname(__FILE__) . '/model/BayonetDb.php');
 include_once(dirname(__FILE__) . '/helper/RequestHelper.php');
 include_once(dirname(__FILE__) . '/helper/OrderHelper.php');
 
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class BayonetAntiFraud extends Module
 {
-    protected $html = '';
-    protected $postErrors = [];
+    protected $_html = '';
+    protected $_postErrors = [];
 
     public function __construct()
     {
@@ -51,7 +52,7 @@ class BayonetAntiFraud extends Module
         parent::__construct();
 
         $this->displayName = $this->l('Bayonet Anti-Fraud');
-        $this->description = $this->l('A module to analyze the details of new orders to detect fraud attempts in PrestaShop stores.');
+        $this->description = $this->l('A module to analyze the details of new orders to detect any fraud attempt.');
 
         $this->table_name = $this->name;
 
@@ -65,13 +66,6 @@ class BayonetAntiFraud extends Module
         ];
     }
 
-    /**
-     * Bayonet's module installation
-     * Adds configuration values, registers hooks, creates table in database,
-     * creates order statuses and adds a tab in the back office.
-     *
-     * @return boolean installation result
-     */
     public function install()
     {
         if (!parent::install() ||
@@ -101,7 +95,8 @@ class BayonetAntiFraud extends Module
 
     /**
      * Bayonet's module uninstallation
-     * Removes configuration values and removes tab from back office.
+     * Removes configuration values, deletes table from database,
+     * deletes order statuses and removes tab from back office.
      *
      * @return boolean uninstallation result
      */
@@ -123,11 +118,6 @@ class BayonetAntiFraud extends Module
         return true;
     }
 
-    /**
-     * Bayonet's tab installation
-     * Adds the Bayonet tab in the back office; executed when installing the module.
-     *
-     */
     public function addTabs()
     {
         $languages = Language::getLanguages(false);
@@ -167,11 +157,7 @@ class BayonetAntiFraud extends Module
         }
     }
 
-    /**
-     * Defines all the settings that will be shown in the configuration screen.
-     *
-     * @return array with the settings
-     */
+
     public function createConfigForm()
     {
         $inputs = [
@@ -269,11 +255,6 @@ class BayonetAntiFraud extends Module
         return $inputs;
     }
 
-    /**
-     * Gets the configuration values currently stored in the database.
-     *
-     * @return array with configuration values
-     */
     public function getConfigFormValues()
     {
         $apiTestKey = '' !== Configuration::get('BAYONET_AF_API_TEST_KEY') ? str_repeat("*", 10) : Configuration::get('BAYONET_AF_API_TEST_KEY');
@@ -292,11 +273,6 @@ class BayonetAntiFraud extends Module
         ];
     }
 
-    /**
-     * Renders the form to display in the configuration screen.
-     *
-     * @return string HTML content
-     */
     public function renderForm()
     {
         $fields_form = $this->createConfigForm();
@@ -329,6 +305,8 @@ class BayonetAntiFraud extends Module
      */
     public function getContent()
     {
+        $backfillCompleted = 0;
+
         if (Tools::isSubmit('btnSubmit')) {
             $this->_postValidation();
             if (!count($this->postErrors)) {
@@ -342,9 +320,6 @@ class BayonetAntiFraud extends Module
             $this->html .= '<br />';
         }
         
-        $this->context->smarty->assign('backfill_mode', Configuration::get('BAYONET_AF_BACKFILL_MODE'));
-        $this->context->controller->addCSS($this->_path.'views/css/backfill.css');
-        
         if (Configuration::get('BAYONET_AF_API_LIVE_KEY') &&
             Configuration::get('BAYONET_AF_JS_LIVE_KEY') &&
             1 === (int) Configuration::get('BAYONET_AF_API_MODE')) {
@@ -352,6 +327,20 @@ class BayonetAntiFraud extends Module
         } else {
             $this->context->smarty->assign('backfill_enable', 0);
         }
+
+        $this->context->smarty->assign('backfill_mode', Configuration::get('BAYONET_AF_BACKFILL_MODE'));
+        $this->context->controller->addCSS($this->_path.'views/css/backfill.css');
+
+        $backfillQuery = 'SELECT * FROM `'._DB_PREFIX_.'bayonet_antifraud_backfill`';
+        $backfillData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($backfillQuery);
+
+        if (false !== $backfillData && NULL !== (int)$backfillData['backfill_status']) {
+            if (1 === (int)$backfillData['backfill_status']) {
+                $backfillCompleted = 1;
+            }
+        }
+
+        $this->context->smarty->assign('backfill_completed', $backfillCompleted);
 
         Media::addJsDef(array('urlBackfill' => $this->context->link->getModuleLink(
             $this->name,
@@ -368,10 +357,6 @@ class BayonetAntiFraud extends Module
         return $this->html;
     }
 
-    /**
-     * Validates the configuration values in the configuration window when
-     * trying to save them to the database.
-     */
     public function _postValidation()
     {      
         if (Tools::isSubmit('btnSubmit')) {
@@ -383,6 +368,21 @@ class BayonetAntiFraud extends Module
 
             if ((int) Tools::getValue('BAYONET_AF_API_MODE') === 1 && (Configuration::get('BAYONET_AF_API_LIVE_KEY') === '' || Configuration::get('BAYONET_AF_JS_LIVE_KEY') === '')) {
                 $this->postErrors[] = $this->l('Cannot set the API mode to live (production) with no live (production) API keys saved. Please save your live (production) API keys first');
+            }
+
+            if (!empty(trim(Tools::getValue('BAYONET_AF_API_VERSION')))) {
+                $requestBody = [
+                    "auth" => [
+                    ]
+                ];
+
+                $response = $requestHelper->apiValidation($requestBody, trim(Tools::getValue('BAYONET_AF_API_VERSION')));
+
+                if (!isset($response)) {
+                    $this->postErrors[] = $this->l('This API version is invalid, please try again');
+                }
+            } elseif (empty(trim(Tools::getValue('BAYONET_AF_API_VERSION')))) {
+                $this->postErrors[] = $this->l('Cannot save an empty value for the API version, please add an API version and try again');
             }
 
             if (!empty(trim(Tools::getValue('BAYONET_AF_API_TEST_KEY'))) && ('**********' !== trim(Tools::getValue('BAYONET_AF_API_TEST_KEY')))) {
@@ -440,6 +440,8 @@ class BayonetAntiFraud extends Module
                             break;
                     }
                 }
+            } elseif (empty(trim(Tools::getValue('BAYONET_AF_API_LIVE_KEY'))) && 1 === (int) Configuration::get('BAYONET_AF_API_LIVE_KEY')) {
+                $this->postErros[] = $this->l('Cannot save an empty live (production) API key when the live (production) mode is enabled');
             }
 
             if (!empty(trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY'))) && ('**********' !== trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY')))) {
@@ -459,15 +461,12 @@ class BayonetAntiFraud extends Module
                             break;
                     }
                 }
+            } elseif (empty(trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY'))) && 1 === (int) Configuration::get('BAYONET_AF_JS_LIVE_KEY')) {
+                $this->postErros[] = $this->l('Cannot save an empty live (production) API key when the live (production) mode is enabled');
             }
         }
     }
 
-    /**
-     * Saves the configuration values to the database.
-     *
-     * @return string HTML content
-     */
     public function _postProcess()
     {
         if (Tools::isSubmit('btnSubmit')) {
@@ -495,14 +494,15 @@ class BayonetAntiFraud extends Module
         if (0 === (int)Configuration::get('BAYONET_AF_ENABLE') ||
            (!Configuration::get('BAYONET_AF_API_TEST_KEY') && 0 === (int)Configuration::get('BAYONET_AF_API_MODE')) ||
            (!Configuration::get('BAYONET_AF_API_LIVE_KEY') && 1 === (int)Configuration::get('BAYONET_AF_API_MODE'))) {
-               return;
+            return;
         }
 
+        $apiMode = (int)Configuration::get('BAYONET_AF_API_MODE');
         $apiKey = '';
 
-        if (0 === (int)Configuration::get('BAYONET_AF_API_MODE')) {
+        if (0 === $apiMode) {
             $apiKey = Configuration::get('BAYONET_AF_API_TEST_KEY');
-        } elseif (1 === (int)Configuration::get('BAYONET_AF_API_MODE')) {
+        } elseif (1 === $apiMode) {
             $apiKey = Configuration::get('BAYONET_AF_API_LIVE_KEY');
         }
 
@@ -511,91 +511,21 @@ class BayonetAntiFraud extends Module
         $requestHelper = new RequestHelper();
         $orderHelper = new OrderHelper();
         $order = $params['order'];
-        $cart = $this->context->cart;
-        $address_delivery = new Address((int)$cart->id_address_delivery);
-        $address_invoice = new Address((int)$cart->id_address_invoice);
-        $state_delivery = 0 !== $address_delivery->id_state ? (new State((int)$address_delivery->id_state))->name : "NA";
-        $country_delivery = new Country((int)$address_delivery->id_country);
-        $state_invoice = 0 !== $address_invoice->id_state ? (new State((int)$address_invoice->id_state))->name : "NA";
-        $country_invoice = new Country((int)$address_invoice->id_country);
-        $customer = $this->context->customer;
-        $currency = $this->context->currency;
-        $products = $cart->getProducts();
-        $products_list = [];
+        $orderStatus = $params['orderStatus'];
+        $cart = $params['cart'];
+        $customer = $params['customer'];
+        $currency = $params['currency'];
 
-        foreach ($products as $product) {
-            $products_list[] = [
-                'product_id' => $product['id_product'],
-                'product_name' => $product['name'],
-                'product_price' => $product['price'],
-                'product_category' => $product['category'],
-            ];
-        }
-
-        $request = [
-            'auth' => [
-                'api_key' => $apiKey
-            ],
-            'email' => $customer->email,
-            'consumer_name' => $customer->firstname . ' ' . $customer->lastname,
-            'consumer_internal_id' => $customer->id,
-            'shipping_address' => [
-              'line_1' => $address_delivery->address1,
-              'line_2' => $address_delivery->address2,
-              'city' => $address_delivery->city,
-              'state' => $state_delivery,
-              'country' => $orderHelper->convertCountryCode($country_delivery->iso_code),
-              'zip_code' => $address_delivery->postcode
-            ],
-            'billing_address' => [
-              'line_1' => $address_invoice->address1,
-              'line_2' => $address_invoice->address2,
-              'city' => $address_invoice->city,
-              'state' => $state_invoice,
-              'country' => $orderHelper->convertCountryCode($country_invoice->iso_code),
-              'zip_code' => $address_invoice->postcode
-            ],
-            'products' => $products_list,
-            'order_id' => (int)$order->id,
-            'transaction_amount' => $cart->getOrderTotal(),
-            'currency_code' => $currency->iso_code,
-            'transaction_time' => strtotime($order->date_add),
-            'payment_gateway' => $order->module,
-            'channel' => 'ecommerce',
-        ];
-
-        if (!empty($address_invoice->phone) || !empty($address_invoice->phone_mobile)) {
-            if (!empty($address_invoice->phone)) {
-                $request['telephone'] = preg_replace("/[^0-9]/", "", $address_invoice->phone);
-            } elseif (!empty($address_invoice->phone_mobile)) {
-                $request['telephone'] = preg_replace("/[^0-9]/", "", $address_invoice->phone_mobile);
-            }
-        } else {
-            $request['telephone'] = null;
-        }
-
-        $queryFingerprint = 'SELECT * FROM `'._DB_PREFIX_.'bayonet_antifraud_fingerprint`
-            WHERE `customer_id` = '.$this->context->customer->id;
-        $fingerprintData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($queryFingerprint);
-
-        if ($fingerprintData) {
-            if ($fingerprintData[0]['fingerprint_token'] !== '') {
-                $request['bayonet_fingerprint_token'] = $fingerprintData[0]['fingerprint_token'];
-                Db::getInstance()->update(
-                    'bayonet_antifraud_fingerprint',
-                    [
-                        'fingerprint_token' => '',
-                    ],
-                    'customer_id = '.(int)$this->context->customer->id
-                );
-            }
-        }
+        $requestBody = $orderHelper->generateRequestBody($order, $cart, $customer, $currency, 'new', $apiMode);
+        $requestBody['auth']['api_key'] = $apiKey;
         
-        $response = $requestHelper->consulting($request);
+        // order analysis
+        $response = $requestHelper->consulting($requestBody);
 
+        $dataToInsert['cart_id'] = $cart->id;
+        $dataToInsert['order_id'] = $order->id;
+        
         if (isset($response)) {
-            $dataToInsert['cart_id'] = $this->context->cart->id;
-            $dataToInsert['order_id'] = $order->id;
             $dataToInsert['executed'] = 1;
 
             if (isset($response->reason_code) && (int)$response->reason_code === 0) {
@@ -608,16 +538,22 @@ class BayonetAntiFraud extends Module
                         'reason_message' => $response->reason_message,
                     ]
                 );
+                $dataToInsert['triggered_rules'] = $orderHelper->getTriggeredRules($response);
+                $dataToInsert['api_mode'] = $apiMode;
 
                 Db::getInstance()->insert('bayonet_antifraud_orders', $dataToInsert);
-                
-                $updateResponse = $requestHelper->updateTransaction([
+
+                // update transaction
+                $transactionStatus = 1 === (int)$orderStatus->paid ? 'success' : 'pending';
+                $updateRequest = [
                     'auth' => [
                         'api_key' => $apiKey
                     ],
                     'bayonet_tracking_id' => $response->bayonet_tracking_id,
-                    'transaction_status' => 'success',
-                ]);
+                    'transaction_status' => $transactionStatus,
+                ];
+
+                $updateResponse = $requestHelper->updateTransaction($updateRequest);
 
                 if (isset($updateResponse)) {
                     if (isset($updateResponse->reason_code) && (int)$updateResponse->reason_code === 0) {
@@ -631,6 +567,7 @@ class BayonetAntiFraud extends Module
                                         'reason_message' => $updateResponse->reason_message,
                                     ]
                                 ),
+                                'current_status' => $transactionStatus,
                             ],
                             'order_id = '.(int)$order->id
                         );
@@ -646,6 +583,7 @@ class BayonetAntiFraud extends Module
                                         'reason_message' => $message,
                                     ]
                                 ),
+                                'current_status' => $transactionStatus,
                             ],
                             'order_id = '.(int)$order->id
                         );
@@ -662,23 +600,109 @@ class BayonetAntiFraud extends Module
                         'reason_message' => $message,
                     ]
                 );
+                $dataToInsert['api_mode'] = $apiMode;
                 
                 Db::getInstance()->insert('bayonet_antifraud_orders', $dataToInsert);
                 $this->insertBlocklist($customer->email, $customer->id);
             }
         } else {
+            $dataToInsert['executed'] = 0;
             $dataToInsert['consulting_api'] = 0;
+            $dataToInsert['api_mode'] = $apiMode;
             Db::getInstance()->insert('bayonet_antifraud_orders', $dataToInsert);
         }
     }
 
     /**
-     * Sets the key for the device fingerprinting script execution.
-     * Adds the php controller definition to process in the back office
-     * the fingerprint token generated in the front office.
+     * Bayonet's order feedback
+     * Creates the request body and executes a feedback call to the API
+     * then it saves the corresponding data in the module table depending on the response.
+     * This is done after a payment has been confirmed for an order.
      *
      * @param object $params
      */
+    public function hookActionOrderStatusUpdate($params)
+    {
+        $apiKey = '';
+        $transactionStatus = '';
+        $requestHelper = new RequestHelper();
+        $bayonetOrder = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.'bayonet_antifraud_orders` WHERE `order_id` = '.(int)$params['id_order']);
+
+        if (false !== $bayonetOrder) {
+            if (NULL !== $bayonetOrder['bayonet_tracking_id'] && NULL !== $bayonetOrder['current_status']) {
+                $updateRequest = [
+                    'bayonet_tracking_id' => $bayonetOrder['bayonet_tracking_id'],
+                ];
+
+                if (1 === (int)$bayonetOrder['api_mode']) {
+                    $apiKey = Configuration::get('BAYONET_AF_API_LIVE_KEY');
+                } else if (0 === (int)$bayonetOrder['api_mode']) {
+                    $apiKey = Configuration::get('BAYONET_AF_API_TEST_KEY');
+                }
+
+                if ('pending' === $bayonetOrder['current_status']) {
+                    if (1 === (int)$params['newOrderStatus']->paid) {
+                        $transactionStatus = 'success';
+                    } else if (false !== strpos(strtolower($params['newOrderStatus']->template), 'cancel')) {
+                        $transactionStatus = 'cancelled';
+                    }
+                } else if ('success' === $bayonetOrder['current_status']) {
+                    if (false !== strpos(strtolower($params['newOrderStatus']->template), 'cancel') ||
+                    false !== strpos(strtolower($params['newOrderStatus']->template), 'refund')) {
+                        $transactionStatus = 'cancelled';
+                    } else if (1 !== (int)$params['newOrderStatus']->paid) {
+                        $transactionStatus = 'pending';
+                    }
+                } else if ('cancelled' === $bayonetOrder['current_status']) {
+                    if (1 === (int)$params['newOrderStatus']->paid) {
+                        $transactionStatus = 'success';
+                    }
+                }
+
+                if ('' !== $transactionStatus && '' !== $apiKey) {
+                    $updateRequest['transaction_status'] = $transactionStatus;
+                    $updateRequest['auth']['api_key'] = $apiKey;
+                    $response = $requestHelper->updateTransaction($updateRequest);
+                    
+                    if (isset($response)) {
+                        if (isset($response->reason_code) && (int)$response->reason_code === 0) {
+                            Db::getInstance()->update(
+                                'bayonet_antifraud_orders',
+                                [
+                                    'feedback_api' => 1,
+                                    'feedback_api_response' => json_encode(
+                                        [
+                                            'reason_code' => (int)$response->reason_code,
+                                            'reason_message' => $response->reason_message,
+                                        ]
+                                    ),
+                                    'current_status' => $transactionStatus,
+                                ],
+                                'order_id = '.(int)$params['id_order']
+                            );
+                        } elseif (isset($response->reason_code) && (int)$response->reason_code !== 0) {
+                            $message = str_replace("'", "-", $response->reason_message);
+                            Db::getInstance()->update(
+                                'bayonet_antifraud_orders',
+                                [
+                                    'feedback_api' => 0,
+                                    'feedback_api_response' => json_encode(
+                                        [
+                                            'reason_code' => (int)$response->reason_code,
+                                            'reason_message' => $message,
+                                        ]
+                                    ),
+                                    'current_status' => $transactionStatus,
+                                ],
+                                'order_id = '.(int)$params['id_order']
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public function hookHeader()
     {
         if (Tools::getValue('controller') != 'order-opc' && (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3))) {
@@ -686,16 +710,18 @@ class BayonetAntiFraud extends Module
         }
 
         if (1 === (int)Configuration::get('BAYONET_AF_API_MODE')) {
+            Media::addJsDef(['bayonet_api_mode' => (int)Configuration::get('BAYONET_AF_API_MODE')]);
             Media::addJsDef(array('bayonet_af_js_key' => Configuration::get('BAYONET_AF_JS_LIVE_KEY')));
         } elseif (0 === (int)Configuration::get('BAYONET_AF_API_MODE')) {
+            Media::addJsDef(['bayonet_api_mode' => (int)Configuration::get('BAYONET_AF_API_MODE')]);
             Media::addJsDef(array('bayonet_af_js_key' => Configuration::get('BAYONET_AF_JS_TEST_KEY')));
         }
 
-        Media::addJsDef(array('urlFingerprint' => $this->context->link->getModuleLink(
+        Media::addJsDef(['urlFingerprint' => $this->context->link->getModuleLink(
             $this->name,
             'fingerprint',
-            array()
-        )));
+            []
+        )]);
 
         $this->context->controller->registerJavascript(
             'module-bayonetantifraud',
@@ -703,11 +729,6 @@ class BayonetAntiFraud extends Module
         );
     }
     
-    /**
-     * Displays the Bayonet information corresponding to a specific order in the back office.
-     *
-     * @param object $params
-     */
     public function hookDisplayAdminOrder($params)
     {
         $blocklistIdSandbox = 0;
@@ -716,6 +737,19 @@ class BayonetAntiFraud extends Module
         $blocklistIdLive = 0;
         $whitelistLive = 0;
         $blocklistLive = 0;
+        $reasonCodeBlocklistSandbox = 'N/A';
+        $reasonCodeBlocklistLive = 'N/A';
+        $reasonCodeWhitelistSandbox = 'N/A';
+        $reasonCodeWhitelistLive = 'N/A';
+        $reasonMessageBlocklistSandbox = 'N/A';
+        $reasonMessageBlocklistLive = 'N/A';
+        $reasonMessageWhitelistSandbox = 'N/A';
+        $reasonMessageWhitelistLive = 'N/A';
+        $attemptedActionBlocklistSandbox = 'N/A';
+        $attemptedActionBlocklistLive = 'N/A';
+        $attemptedActionWhitelistSandbox = 'N/A';
+        $attemptedActionWhitelistLive = 'N/A';
+
         $apiMode = (int)Configuration::get('BAYONET_AF_API_MODE');
         $apiModeLabel = $apiMode === 0 ? $this->l('Sandbox (test)') : $this->l('Live (production)');
         $noKeys = false;
@@ -735,20 +769,28 @@ class BayonetAntiFraud extends Module
             (SELECT `email`, `id_customer` FROM `' . _DB_PREFIX_ . 'customer` WHERE `id_customer` = 
             (SELECT `id_customer` FROM `' . _DB_PREFIX_ . 'orders` WHERE 
             `id_order` = ' . (int)$params['id_order'] . ')) a');
-        $blocklistDataSandbox = Db::getInstance()->getRow('SELECT `blocklist_id`, `whitelist`, `blocklist` 
-            FROM `'._DB_PREFIX_.'bayonet_antifraud_blocklist` 
-            WHERE `email` =  \'' . $orderCustomer['email'] . '\' AND `api_mode` = 0');
-        $blocklistDataLive = Db::getInstance()->getRow('SELECT `blocklist_id`, `whitelist`, `blocklist` 
-            FROM `'._DB_PREFIX_.'bayonet_antifraud_blocklist` 
-            WHERE `email` =  \'' . $orderCustomer['email'] . '\' AND `api_mode` = 1');
+        $blocklistDataSandbox = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_. 'bayonet_antifraud_blocklist` WHERE `email` =  \'' . $orderCustomer['email'] . '\' AND `api_mode` = ' . 0);
+        $blocklistDataLive = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_. 'bayonet_antifraud_blocklist` WHERE `email` =  \'' . $orderCustomer['email'] . '\' AND `api_mode` = ' . 1);
 
-        if ($blocklisDatatSandbox !== false && $blocklistDataLive !== false) {
+        if ($blocklistDataSandbox !== false && $blocklistDataLive !== false) {
             $blocklistIdSandbox = $blocklistDataSandbox['blocklist_id'];
             $whitelistSandbox = $blocklistDataSandbox['whitelist'];
             $blocklistSandbox = $blocklistDataSandbox['blocklist'];
             $blocklistIdLive = $blocklistDataLive['blocklist_id'];
             $whitelistLive = $blocklistDataLive['whitelist'];
             $blocklistLive = $blocklistDataLive['blocklist'];
+            $reasonCodeBlocklistSandbox = NULL !== $blocklistDataSandbox['reason_code_blocklist'] ? $blocklistDataSandbox['reason_code_blocklist'] : 'N/A';
+            $reasonCodeBlocklistLive = NULL !== $blocklistDataLive['reason_code_blocklist'] ? $blocklistDataLive['reason_code_blocklist'] : 'N/A';
+            $reasonCodeWhitelistSandbox = NULL !== $blocklistDataSandbox['reason_code_whitelist'] ? $blocklistDataSandbox['reason_code_whitelist'] : 'N/A';
+            $reasonCodeWhitelistLive = NULL !== $blocklistDataLive['reason_code_whitelist'] ? $blocklistDataLive['reason_code_whitelist'] : 'N/A';
+            $reasonMessageBlocklistSandbox = NULL !== $blocklistDataSandbox['reason_message_blocklist'] ? $blocklistDataSandbox['reason_message_blocklist'] : 'N/A';
+            $reasonMessageBlocklistLive = NULL !== $blocklistDataLive['reason_message_blocklist'] ? $blocklistDataLive['reason_message_blocklist'] : 'N/A';
+            $reasonMessageWhitelistSandbox = NULL !== $blocklistDataSandbox['reason_message_whitelist'] ? $blocklistDataSandbox['reason_message_whitelist'] : 'N/A';
+            $reasonMessageWhitelistLive = NULL !== $blocklistDataLive['reason_message_whitelist'] ? $blocklistDataLive['reason_message_whitelist'] : 'N/A';
+            $attemptedActionBlocklistSandbox = NULL !== $blocklistDataSandbox['attempted_action_blocklist'] ? $blocklistDataSandbox['attempted_action_blocklist'] : 'N/A';
+            $attemptedActionBlocklistLive = NULL !== $blocklistDataLive['attempted_action_blocklist'] ? $blocklistDataLive['attempted_action_blocklist'] : 'N/A';
+            $attemptedActionWhitelistSandbox = NULL !== $blocklistDataSandbox['attempted_action_whitelist'] ? $blocklistDataSandbox['attempted_action_whitelist'] : 'N/A';
+            $attemptedActionWhitelistLive = NULL !== $blocklistDataLive['attempted_action_whitelist'] ? $blocklistDataLive['attempted_action_whitelist'] : 'N/A';
         }
         
         if ($displayedOrder) {
@@ -793,6 +835,18 @@ class BayonetAntiFraud extends Module
                     'blocklist_id_live' => $blocklistIdLive,
                     'whitelist_live' => $whitelistLive,
                     'blocklist_live' => $blocklistLive,
+                    'reason_code_blocklist_sandbox' => $reasonCodeBlocklistSandbox,
+                    'reason_code_blocklist_live' => $reasonCodeBlocklistLive,
+                    'reason_code_whitelist_sandbox' => $reasonCodeWhitelistSandbox,
+                    'reason_code_whitelist_live' => $reasonCodeWhitelistLive,
+                    'reason_message_blocklist_sandbox' => 'success' === $reasonMessageBlocklistSandbox ? $this->l('Correct') : $reasonMessageBlocklistSandbox,
+                    'reason_message_blocklist_live' => 'success' === $reasonMessageBlocklistLive ? $this->l('Correct') : $reasonMessageBlocklistLive,
+                    'reason_message_whitelist_sandbox' => 'success' === $reasonMessageWhitelistSandbox ? $this->l('Correct') : $reasonMessageWhitelistSandbox,
+                    'reason_message_whitelist_live' => 'success' === $reasonMessageWhitelistLive ? $this->l('Correct') : $reasonMessageWhitelistLive,
+                    'attempted_action_blocklist_sandbox' => 'N/A' === $attemptedActionBlocklistSandbox ? $attemptedActionBlocklistSandbox : ('Add' === $attemptedActionBlocklistSandbox ? $this->l('Add') : $this->l('Removal')),
+                    'attempted_action_blocklist_live' => 'N/A' === $attemptedActionBlocklistLive ? $attemptedActionBlocklistLive : ('Add' === $attemptedActionBlocklistLive ? $this->l('Add') : $this->l('Removal')),
+                    'attempted_action_whitelist_sandbox' => 'N/A' === $attemptedActionWhitelistSandbox ? $attemptedActionWhitelistSandbox : ('Add' === $attemptedActionWhitelistSandbox ? $this->l('Add') : $this->l('Removal')),
+                    'attempted_action_whitelist_live' => 'N/A' === $attemptedActionWhitelistLive ? $attemptedActionWhitelistLive : ('Add' === $attemptedActionWhitelistLive ? $this->l('Add') : $this->l('Removal')),
                     'current_api_mode' => $apiMode,
                     'no_keys' => $noKeys,
                 ));
@@ -821,24 +875,11 @@ class BayonetAntiFraud extends Module
         return $this->display(__FILE__, 'admin_order.tpl');
     }
 
-    /**
-     * Loads the necessary css file to set the Bayonet tab icon
-     *
-     * @param object $params
-     */
     public function hookDisplayBackOfficeHeader($params)
     {
         $this->context->controller->addCSS($this->_path . 'views/css/'.$this->name.'_bo.css', 'all');
     }
 
-    /**
-     * Inserts the email of a customer to the blocklist table if this doesn't
-     * exist in there already.
-     * Adds two rows, one for sandbox mode and another for live mode.
-     * 
-     * @param string $email
-     * @param int $customer
-     */
     private function insertBlocklist($email, $customer)
     {
         $query = 'SELECT * FROM `'._DB_PREFIX_.'bayonet_antifraud_blocklist` 
