@@ -61,7 +61,7 @@
 		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='API Mode' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The API Mode in which this order was analyzed' mod='bayonetantifraud'}</div></td>
 		  {if (int)$api_mode_order === 1}
 		    <td valign="top" align="left" style="vertical-align:center" >{l s='Live' mod='bayonetantifraud'}</td>
-		  {else if (int)$api_mode_order === 0}
+		  {elseif (int)$api_mode_order === 0}
 		    <td valign="top" align="left" style="vertical-align:center" >{l s='Sandbox' mod='bayonetantifraud'}</td>
 		  {/if}
 		  <td>&nbsp;</td>

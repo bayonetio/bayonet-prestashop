@@ -144,7 +144,7 @@ class RequestHelper
 
         if (0 === (int) $versionValidation) {
             $apiVersion = Configuration::get('BAYONET_AF_API_VERSION');
-        } else if(1 === (int) $versionValidation) {
+        } elseif(1 === (int) $versionValidation) {
             $apiVersion = $version;
         }
 

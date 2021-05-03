@@ -636,24 +636,24 @@ class BayonetAntiFraud extends Module
 
                 if (1 === (int)$bayonetOrder['api_mode']) {
                     $apiKey = Configuration::get('BAYONET_AF_API_LIVE_KEY');
-                } else if (0 === (int)$bayonetOrder['api_mode']) {
+                } elseif (0 === (int)$bayonetOrder['api_mode']) {
                     $apiKey = Configuration::get('BAYONET_AF_API_TEST_KEY');
                 }
 
                 if ('pending' === $bayonetOrder['current_status']) {
                     if (1 === (int)$params['newOrderStatus']->paid) {
                         $transactionStatus = 'success';
-                    } else if (false !== strpos(strtolower($params['newOrderStatus']->template), 'cancel')) {
+                    } elseif (false !== strpos(strtolower($params['newOrderStatus']->template), 'cancel')) {
                         $transactionStatus = 'cancelled';
                     }
-                } else if ('success' === $bayonetOrder['current_status']) {
+                } elseif ('success' === $bayonetOrder['current_status']) {
                     if (false !== strpos(strtolower($params['newOrderStatus']->template), 'cancel') ||
                     false !== strpos(strtolower($params['newOrderStatus']->template), 'refund')) {
                         $transactionStatus = 'cancelled';
-                    } else if (1 !== (int)$params['newOrderStatus']->paid) {
+                    } elseif (1 !== (int)$params['newOrderStatus']->paid) {
                         $transactionStatus = 'pending';
                     }
-                } else if ('cancelled' === $bayonetOrder['current_status']) {
+                } elseif ('cancelled' === $bayonetOrder['current_status']) {
                     if (1 === (int)$params['newOrderStatus']->paid) {
                         $transactionStatus = 'success';
                     }

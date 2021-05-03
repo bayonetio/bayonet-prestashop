@@ -114,7 +114,7 @@ class OrderHelper
                 if (1 === (int)$order->getCurrentOrderState()->paid) {
                     $transationStatus = 'success';
                     $requestBody['transaction_status'] = 'success';
-                } else if (0 === (int)$order->getCurrentOrderState()->paid) {
+                } elseif (0 === (int)$order->getCurrentOrderState()->paid) {
                     foreach ($order->getCurrentOrderState()->paid as $template) {
                         if (false !== strpos(strtolower($template), 'cancel') ||
                         false !== strpos(strtolower($template), 'refund')) {
