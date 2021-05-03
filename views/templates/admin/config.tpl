@@ -41,4 +41,3 @@
 	<br />
 	{l s='If you need any support regarding this module, you can either send a mail to' mod='bayonetantifraud'} <a href="mailto:soporte@bayonet.io">soporte@bayonet.io</a> {l s=' or contact us via Intercom on our ' mod='bayonetantifraud'} <a href="https://bayonet.io/" target="_blank" rel="noopener noreferrer">{l s='Website' mod='bayonetantifraud'}</a>{l s='.' mod='bayonetantifraud'}
 </div>
-

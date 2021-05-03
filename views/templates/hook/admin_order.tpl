@@ -44,10 +44,11 @@
   {else}
     <div class="table-responsive">
 	  <table class="table" width="100%" border="0" cellspacing="0" cellpadding="3" style="border-collapse:collapse">
-	    <col width="50%">
-		<col width="50%">
+	    <col width="40%">
+		<col width="40%">
+		<col width="20%">
 		<tr>
-		  <td rowspan="5" colspan="2" valign="center" align="center" style="vertical-align:center">
+		  <td rowspan="5" colspan="3" valign="center" align="center" style="vertical-align:center">
 		    <p><span style="font-size:1.5em;font-weight:bold;color:#f00">{$decision|escape:'html':'UTF-8'|htmlspecialchars_decode:3}</span><div style="font-size:15px;color:#4b4b4b"><strong>{$decision_message|escape:'html':'UTF-8'|htmlspecialchars_decode:3}</strong></div></p>
 		  </td>
 		  <td>&nbsp;</td>
@@ -60,20 +61,20 @@
 		<tr>
 		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='API Mode' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The API Mode in which this order was analyzed' mod='bayonetantifraud'}</div></td>
 		  {if (int)$api_mode_order === 1}
-		    <td valign="top" align="left" style="vertical-align:center" >{l s='Live' mod='bayonetantifraud'}</td>
-		  {elseif (int)$api_mode_order === 0}
-		    <td valign="top" align="left" style="vertical-align:center" >{l s='Sandbox' mod='bayonetantifraud'}</td>
+		    <td colspan="2" valign="top" align="left" style="vertical-align:center" >{l s='Live' mod='bayonetantifraud'}</td>
+		  {else if (int)$api_mode_order === 0}
+		    <td colspan="2" valign="top" align="left" style="vertical-align:center" >{l s='Sandbox' mod='bayonetantifraud'}</td>
 		  {/if}
 		  <td>&nbsp;</td>
 		</tr>
 		<tr>
 		  <td valign="top" align="center" style="vertical-align:center" ><strong>Bayonet Tracking ID</strong><div style="font-size:10px;color:#4b4b4b">{l s='Bayonet internal ID to track the status change on this order' mod='bayonetantifraud'}</div></td>
-		  <td valign="top" align="left" style="vertical-align:center" >{$bayonet_tracking_id|escape:'htmlall':'UTF-8'}</td>
+		  <td colspan="2" valign="top" align="left" style="vertical-align:center" >{$bayonet_tracking_id|escape:'htmlall':'UTF-8'}</td>
 		  <td>&nbsp;</td>
 		</tr>
 		<tr>
 		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='API Call Status' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The response obtained from Bayonet API after performing the analysis request' mod='bayonetantifraud'}</div></td>
-		  <td valign="top" align="left" style="vertical-align:center" >
+		  <td colspan="2" valign="top" align="left" style="vertical-align:center" >
 		    - {l s='Code: ' mod='bayonetantifraud'} {$reason_code|escape:'htmlall':'UTF-8'}
 		    <br />
 		    - {l s='API Call: ' mod='bayonetantifraud'} {$reason_message|escape:'htmlall':'UTF-8'}
@@ -83,44 +84,71 @@
 		{if strlen($triggered_rules) > 0}
 		  <tr>
 		    <td valign="top" align="center" style="vertical-align:top" ><strong>{l s='Triggered Rules' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The rules that were triggered in the analysis and led to this decision' mod='bayonetantifraud'}</div></td>
-		    <td valign="top" align="left" style="vertical-align:top">{$triggered_rules|escape:'html':'UTF-8'|htmlspecialchars_decode:3}</td>
+		    <td colspan="2" valign="top" align="left" style="vertical-align:top">{$triggered_rules|escape:'html':'UTF-8'|htmlspecialchars_decode:3}</td>
 		    <td>&nbsp;</td>
 		  </tr>
 		{/if}
 		<tr>
 		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Blocklist Status (sandbox)' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The current status of the customer\'s email in Bayonet Blocklist for sandbox (test) mode' mod='bayonetantifraud'}</div></td>
 		  {if (int)$blocklist_sandbox === 1}
-		    <td valign="top" align="left" style="vertical-align:center" >{l s='Added' mod='bayonetantifraud'}</td>
+		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Added' mod='bayonetantifraud'}</strong></td>
 		  {elseif (int)$blocklist_sandbox === 0}
-		    <td valign="top" align="left" style="vertical-align:center" >{l s='Not Added' mod='bayonetantifraud'}</td>
+		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Not Added' mod='bayonetantifraud'}</strong></td>
 		  {/if}
+		  <td valign="top" align="left" style="vertical-align:center" >
+			- {l s='Code: ' mod='bayonetantifraud'} {$reason_code_blocklist_sandbox|escape:'htmlall':'UTF-8'}
+			<br />
+			- {l s='API Call: ' mod='bayonetantifraud'} {$reason_message_blocklist_sandbox|escape:'htmlall':'UTF-8'}
+			<br />
+			- {l s='Attempted action: ' mod='bayonetantifraud'} {$attempted_action_blocklist_sandbox|escape:'htmlall':'UTF-8'}
+		  </td>
 		  <td>&nbsp;</td>
 		</tr>
 		<tr>
 		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Whitelist Status (sandbox)' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The current status of the customer\'s email in Bayonet Whitelist for sandbox (test) mode' mod='bayonetantifraud'}</div></td>
 		  {if (int)$whitelist_sandbox === 1}
-		    <td valign="top" align="left" style="vertical-align:center" >{l s='Added' mod='bayonetantifraud'}</td>
+		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Added' mod='bayonetantifraud'}</strong></td>
 		  {elseif (int)$whitelist_sandbox === 0}
-		    <td valign="top" align="left" style="vertical-align:center" >{l s='Not Added' mod='bayonetantifraud'}</td>
+		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Not Added' mod='bayonetantifraud'}</strong></td>
 		  {/if}
+		  <td valign="top" align="left" style="vertical-align:center" >
+			- {l s='Code: ' mod='bayonetantifraud'} {$reason_code_whitelist_sandbox|escape:'htmlall':'UTF-8'}
+			<br />
+			- {l s='API Call: ' mod='bayonetantifraud'} {$reason_message_whitelist_sandbox|escape:'htmlall':'UTF-8'}
+			<br />
+			- {l s='Attempted action: ' mod='bayonetantifraud'} {$attempted_action_whitelist_sandbox|escape:'htmlall':'UTF-8'}
+		  </td>
 		  <td>&nbsp;</td>
 		</tr>
 		<tr>
 		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Blocklist Status (live)' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The current status of the customer\'s email in Bayonet Blocklist for live (production) mode' mod='bayonetantifraud'}</div></td>
 		  {if (int)$blocklist_live === 1}
-		    <td valign="top" align="left" style="vertical-align:center" >{l s='Added' mod='bayonetantifraud'}</td>
+		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Added' mod='bayonetantifraud'}</strong></td>
 		  {elseif (int)$blocklist_live === 0}
-		    <td valign="top" align="left" style="vertical-align:center" >{l s='Not Added' mod='bayonetantifraud'}</td>
+		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Not Added' mod='bayonetantifraud'}</strong></td>
 		  {/if}
+		  <td valign="top" align="left" style="vertical-align:center" >
+			- {l s='Code: ' mod='bayonetantifraud'} {$reason_code_blocklist_live|escape:'htmlall':'UTF-8'}
+			<br />
+			- {l s='API Call: ' mod='bayonetantifraud'} {$reason_message_blocklist_live|escape:'htmlall':'UTF-8'}
+			<br />
+			- {l s='Attempted action: ' mod='bayonetantifraud'} {$attempted_action_blocklist_live|escape:'htmlall':'UTF-8'}
+		  </td>
 		  <td>&nbsp;</td>
 		</tr>
-		<tr>
 		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Whitelist Status (live)' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The current status of the customer\'s email in Bayonet Whitelist for live (production) mode' mod='bayonetantifraud'}</div></td>
 		  {if (int)$whitelist_live === 1}
-		    <td valign="top" align="left" style="vertical-align:center" >{l s='Added' mod='bayonetantifraud'}</td>
+		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Added' mod='bayonetantifraud'}</strong></td>
 		  {elseif (int)$whitelist_live === 0}
-		    <td valign="top" align="left" style="vertical-align:center" >{l s='Not Added' mod='bayonetantifraud'}</td>
+		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Not Added' mod='bayonetantifraud'}</strong></td>
 		  {/if}
+		  <td valign="top" align="left" style="vertical-align:center" >
+			- {l s='Code: ' mod='bayonetantifraud'} {$reason_code_whitelist_live|escape:'htmlall':'UTF-8'}
+			<br />
+			- {l s='API Call: ' mod='bayonetantifraud'} {$reason_message_whitelist_live|escape:'htmlall':'UTF-8'}
+			<br />
+			- {l s='Attempted action: ' mod='bayonetantifraud'} {$attempted_action_whitelist_live|escape:'htmlall':'UTF-8'}
+		  </td>
 		  <td>&nbsp;</td>
 		</tr>
 	  </table>

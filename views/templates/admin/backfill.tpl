@@ -28,19 +28,26 @@
 </script>
 
 <div class="panel">
-	<h3><i class="icon icon-cogs"></i> {l s='Historic Backfill' mod='bayonetantifraud'}</h3>
-	<p>{l s='The historic backfill is a process we perfom in order to get to know your store in a better way. We check all the orders in your store prior to this module\'s installation, in this way, we can detect patterns from your customers and how your store behaves in general. Doing this helps the module to have a better accuracy when analysing the new orders in your store to detect fraud.'  mod='bayonetantifraud'}</p>
+	<h3><i class="icon icon-cogs"></i> {l s='Historical Backfill' mod='bayonetantifraud'}</h3>
+	<p>{l s='The historical backfill is a process we perfom in order to get to know your store in a better way. We check all the orders in your store prior to this module\'s installation, in this way, we can detect patterns from your customers and how your store behaves in general. Doing this helps the module to have a better accuracy when analysing the new orders in your store to detect fraud.'  mod='bayonetantifraud'}</p>
 	<br />
 	<div class="text-center row">
 		<div class="col-md-12">
 			{if 1 === (int)$backfill_enable}
 				{if 0 === (int)$backfill_mode}
-					<div class="col-md-offset-2 col-md-8 col-sm-12">
-						<div id="error-msg"></div>
-					</div>
-					<div class="col-md-12">
-						<button class="btn btn-primary" id="initiate">{l s='Initiate Backfill' mod='bayonetantifraud'}</button>
-					</div>
+				    {if 1 === (int)$backfill_completed}
+					    <div class="col-md-12">
+						    <div class="alert alert-success">{l s='Backfill process has been already completed' mod='bayonetantifraud'}</div>
+						    <p></p>
+						</div>
+					{else}
+					    <div class="col-md-offset-2 col-md-8 col-sm-12">
+						    <div id="error-msg"></div>
+						</div>
+						<div class="col-md-12">
+						    <button class="btn btn-primary" id="initiate">{l s='Initiate Backfill' mod='bayonetantifraud'}</button>
+					    </div>
+					{/if}
 				{else}
 					<div class="col-md-2 col-sm-12">
 						<label class="control-label">
