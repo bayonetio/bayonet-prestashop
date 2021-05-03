@@ -334,8 +334,8 @@ class BayonetAntiFraud extends Module
         $backfillQuery = 'SELECT * FROM `'._DB_PREFIX_.'bayonet_antifraud_backfill`';
         $backfillData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($backfillQuery);
 
-        if (false !== $backfillData && NULL !== (int)$backfillData['backfill_status']) {
-            if (1 === (int)$backfillData['backfill_status']) {
+        if (false !== $backfillData && NULL !== (int)$backfillData[0]['backfill_status']) {
+            if (1 === (int)$backfillData[0]['backfill_status']) {
                 $backfillCompleted = 1;
             }
         }

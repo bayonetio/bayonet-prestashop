@@ -23,11 +23,12 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-let fingerprint = '';
-$(document).ready(function() {
+$$(document).ready(function() {
+  if (1 === parseInt(bayonet_enabled)) {
   $.getScript('https://cdn.bayonet.io/fingerprinting-2.0.min.js', function() {
   	initBayonet();
   });
+}
 });
 
 /**
@@ -54,7 +55,10 @@ function getResponse(response) {
     $.ajax({
       url: urlFingerprint,
       type: 'post',
-      data: { fingerprint: response.bayonet_fingerprint_token },
+      data: {
+        fingerprint: response.bayonet_fingerprint_token,
+        apiMode: bayonet_api_mode
+      },
       dataType: 'json'
     });
   }
