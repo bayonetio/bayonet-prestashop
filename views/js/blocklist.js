@@ -36,13 +36,13 @@ $(document).ready(function(){
       url: urlBlocklist,
       type: 'POST',
       data: {
-        mail:email,
-        customer:idCustomer,
-        id:idBlocklist,
-        whitelist:whitelist,
-        blocklist:blocklist,
+        mail: email,
+        customer: idCustomer,
+        id: idBlocklist,
+        whitelist: whitelist,
+        blocklist: blocklist,
         mode:'addWhite',
-        apiMode:apiMode
+        apiMode: apiMode
       },
       dataType: 'json',
       success: function(data) {
@@ -72,7 +72,7 @@ $(document).ready(function(){
         apiMode: apiMode
       },
       dataType: 'json',
-      success: function() {
+      success: function(data) {
         location.reload();
       },
     });
@@ -85,12 +85,6 @@ $(document).ready(function(){
     whitelist = $(this).attr('data-whitelist');
     blocklist = $(this).attr('data-blocklist');
     apiMode = $(this).attr('data-mode');
-
-    console.log(email);
-    console.log(idCustomer);
-    console.log(idBlocklist);
-    console.log(whitelist);
-    console.log(blocklist);
 
     $.ajax({
       url: urlBlocklist,
@@ -132,7 +126,7 @@ $(document).ready(function(){
         apiMode: apiMode
       },
       dataType: 'json',
-      success: function() {
+      success: function(data) {
         location.reload();
       },
     });
