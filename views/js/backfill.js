@@ -27,7 +27,7 @@ let interval = '';
 $(document).ready(function(){
   if (parseInt(backfillMode) === 1) {
     interval = setInterval(getStatus, 2000);
-  } 
+  }
 
   $('#initiate').on('click', function(){
     $.ajax({
@@ -41,9 +41,7 @@ $(document).ready(function(){
             url: urlBackfill,
             type: 'post',
             data: { mode: 'execute' },
-            dataType: 'json',
-            success: function(result) {
-            }
+            dataType: 'json'
           });
           location.reload();
         } else {
@@ -84,6 +82,10 @@ function getStatus(){
         $('.progress-bar').attr('aria-valuenow',data.percentage);
         $('.progress-bar').css('width',data.percentage+'%');
         $('.progress-bar').text(data.percentage+'%');
+        
+        if (data.percentage === 100) {
+          location.reload();
+        }
       } else {
         $('.progress-bar').attr('aria-valuenow',data.percentage);
         $('.progress-bar').css('width',data.percentage+'%');
