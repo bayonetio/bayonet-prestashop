@@ -23,18 +23,17 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-
 class OrderHelper
 {
     public function generateRequestBody($order, $cart, $customer, $currency, $type, $apiMode)
     {
         $requestBody = [];
-        $address_delivery = new Address((int)$cart->id_address_delivery);
-        $address_invoice = new Address((int)$cart->id_address_invoice);
-        $state_delivery = 0 !== $address_delivery->id_state ? (new State((int)$address_delivery->id_state))->name : "NA";
-        $country_delivery = new Country((int)$address_delivery->id_country);
-        $state_invoice = 0 !== $address_invoice->id_state ? (new State((int)$address_invoice->id_state))->name : "NA";
-        $country_invoice = new Country((int)$address_invoice->id_country);
+        $address_delivery = new Address((int) $cart->id_address_delivery);
+        $address_invoice = new Address((int) $cart->id_address_invoice);
+        $state_delivery = 0 !== $address_delivery->id_state ? (new State((int) $address_delivery->id_state))->name : 'NA';
+        $country_delivery = new Country((int) $address_delivery->id_country);
+        $state_invoice = 0 !== $address_invoice->id_state ? (new State((int) $address_invoice->id_state))->name : 'NA';
+        $country_invoice = new Country((int) $address_invoice->id_country);
         $products = $cart->getProducts();
         $products_list = [];
 
@@ -57,7 +56,7 @@ class OrderHelper
               'city' => $address_delivery->city,
               'state' => $state_delivery,
               'country' => $this->convertCountryCode($country_delivery->iso_code),
-              'zip_code' => $address_delivery->postcode
+              'zip_code' => $address_delivery->postcode,
             ],
             'billing_address' => [
               'line_1' => $address_invoice->address1,
@@ -65,10 +64,10 @@ class OrderHelper
               'city' => $address_invoice->city,
               'state' => $state_invoice,
               'country' => $this->convertCountryCode($country_invoice->iso_code),
-              'zip_code' => $address_invoice->postcode
+              'zip_code' => $address_invoice->postcode,
             ],
             'products' => $products_list,
-            'order_id' => (int)$order->id,
+            'order_id' => (int) $order->id,
             'transaction_amount' => $cart->getOrderTotal(),
             'currency_code' => $currency->iso_code,
             'transaction_time' => strtotime($order->date_add),
@@ -78,9 +77,9 @@ class OrderHelper
 
         if (!empty($address_invoice->phone) || !empty($address_invoice->phone_mobile)) {
             if (!empty($address_invoice->phone)) {
-                $requestBody['telephone'] = preg_replace("/[^0-9]/", "", $address_invoice->phone);
+                $requestBody['telephone'] = preg_replace('/[^0-9]/', '', $address_invoice->phone);
             } elseif (!empty($address_invoice->phone_mobile)) {
-                $requestBody['telephone'] = preg_replace("/[^0-9]/", "", $address_invoice->phone_mobile);
+                $requestBody['telephone'] = preg_replace('/[^0-9]/', '', $address_invoice->phone_mobile);
             }
         } else {
             $requestBody['telephone'] = null;
@@ -89,8 +88,8 @@ class OrderHelper
         $requestBody['payment_method'] = $this->getPaymentMethod($order);
 
         if ('new' === $type) {
-            $queryFingerprint = 'SELECT * FROM `'._DB_PREFIX_.'bayonet_antifraud_fingerprint`
-            WHERE `customer_id` = '.$customer->id. ' AND `api_mode` = ' .$apiMode;
+            $queryFingerprint = 'SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_fingerprint`
+            WHERE `customer_id` = ' . $customer->id . ' AND `api_mode` = ' . $apiMode;
             $fingerprintData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($queryFingerprint);
 
             if ($fingerprintData) {
@@ -101,7 +100,7 @@ class OrderHelper
                         [
                         'fingerprint_token' => '',
                     ],
-                        'customer_id = '.(int)$customer->id. ' AND api_mode = ' .$apiMode
+                        'customer_id = ' . (int) $customer->id . ' AND api_mode = ' . $apiMode
                     );
                 }
             }
@@ -110,11 +109,11 @@ class OrderHelper
         if ('backfill' === $type) {
             $transationStatus = '';
 
-            if (NULL !== $order->getCurrentOrderState()) {
-                if (1 === (int)$order->getCurrentOrderState()->paid) {
+            if (null !== $order->getCurrentOrderState()) {
+                if (1 === (int) $order->getCurrentOrderState()->paid) {
                     $transationStatus = 'success';
                     $requestBody['transaction_status'] = 'success';
-                } elseif (0 === (int)$order->getCurrentOrderState()->paid) {
+                } elseif (0 === (int) $order->getCurrentOrderState()->paid) {
                     foreach ($order->getCurrentOrderState()->paid as $template) {
                         if (false !== strpos(strtolower($template), 'cancel') ||
                         false !== strpos(strtolower($template), 'refund')) {
@@ -390,9 +389,9 @@ class OrderHelper
             'ZM' => 'ZMB', //Zambia
             'ZW' => 'ZWE', //Zimbabwe
         ];
-        
+
         $isoCode = isset($countries[$country]) ? $countries[$country] : $country;
-        
+
         return $isoCode;
     }
 
@@ -407,7 +406,7 @@ class OrderHelper
             'paypalmx' => 'paypal',
             'blockonomics' => 'crypto_currency',
         ];
-        
+
         if ('openpayprestashop' === $order->module) {
             if (false !== strpos(strtolower($order->payment), 'tarjeta') ||
                 false !== strpos(strtolower($order->payment), 'card')) {

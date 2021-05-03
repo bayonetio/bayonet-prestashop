@@ -27,5 +27,7 @@
     },
     "extra": {
         "installer-name": "Bayonet Anti-Fraud"
+    },
+    "require-dev": {
     }
 }

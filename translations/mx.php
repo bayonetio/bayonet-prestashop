@@ -1,7 +1,7 @@
 <?php
 
 global $_MODULE;
-$_MODULE = array();
+$_MODULE = [];
 $_MODULE['<{bayonet}prestashop>bayonet_742551183765832b62ebb7a7a137b745'] = 'Bayonet Anti-Fraude';
 $_MODULE['<{bayonet}prestashop>bayonet_8d0c06fe5ca1ba732d4b37ee5faac6b8'] = 'Un módulo que analizará los detalles de nuevas ordenes para detectar cualquier intento de fraude.';
 $_MODULE['<{bayonet}prestashop>bayonet_e6ef3daf88c494e7ed3beeb8aaf36a98'] = 'Por favor ingresa la llave de prueba del API de Bayonet';

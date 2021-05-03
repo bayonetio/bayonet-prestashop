@@ -23,13 +23,13 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-
 class RequestHelper
 {
     /**
      * Performs a consulting request to the Bayonet API
      *
      * @param array $requestBody
+     *
      * @return array
      */
     public function consulting($requestBody)
@@ -43,6 +43,7 @@ class RequestHelper
      * Performs a feedback historical request to the Bayonet API
      *
      * @param array $requestBody
+     *
      * @return array
      */
     public function feedbackHistorical($requestBody)
@@ -56,6 +57,7 @@ class RequestHelper
      * Performs an update transaction request to the Bayonet API
      *
      * @param array $requestBody
+     *
      * @return array
      */
     public function updateTransaction($requestBody)
@@ -70,6 +72,7 @@ class RequestHelper
      * Used only to validate fingerprint API keys
      *
      * @param string $requestBody
+     *
      * @return array
      */
     public function deviceFingerprint($requestBody)
@@ -90,6 +93,7 @@ class RequestHelper
      * Defines "whitelist/add" as the call to be executed in the request method
      *
      * @param array $requestBody
+     *
      * @return array
      */
     public function addWhitelist($requestBody)
@@ -103,6 +107,7 @@ class RequestHelper
      * Defines "whitelist/remove" as the call to be executed in the request method
      *
      * @param array $requestBody
+     *
      * @return array
      */
     public function removeWhitelist($requestBody)
@@ -116,6 +121,7 @@ class RequestHelper
      * Defines "block/add" as the call to be executed in the request method
      *
      * @param array $requestBody
+     *
      * @return array
      */
     public function addBlocklist($requestBody)
@@ -129,6 +135,7 @@ class RequestHelper
      * Defines "block/remove" as the call to be executed in the request method
      *
      * @param array $requestBody
+     *
      * @return array
      */
     public function removeBlocklist($requestBody)
@@ -139,17 +146,17 @@ class RequestHelper
     }
 
     private function request($endpoint, $requestBody, $api, $versionValidation, $version)
-    {   
+    {
         $apiVersion = '';
 
         if (0 === (int) $versionValidation) {
             $apiVersion = Configuration::get('BAYONET_AF_API_VERSION');
-        } elseif(1 === (int) $versionValidation) {
+        } elseif (1 === (int) $versionValidation) {
             $apiVersion = $version;
         }
 
         $requestJson = json_encode($requestBody);
-        $requestUrl = strcmp($api, 'bayonet') === 0 ? 'https://api.bayonet.io/'.$apiVersion.'/'.$endpoint :
+        $requestUrl = strcmp($api, 'bayonet') === 0 ? 'https://api.bayonet.io/' . $apiVersion . '/' . $endpoint :
             'https://fingerprinting.bayonet.io/v2/generate-fingerprint-token';
 
         $ch = curl_init($requestUrl);
@@ -158,7 +165,7 @@ class RequestHelper
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FAILONERROR, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json'
+            'Content-Type: application/json',
         ]);
 
         $response = curl_exec($ch);

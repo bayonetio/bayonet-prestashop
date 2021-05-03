@@ -23,7 +23,6 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-
 class BayonetantifraudFingerprintModuleFrontController extends ModuleFrontController
 {
     /**
@@ -35,27 +34,27 @@ class BayonetantifraudFingerprintModuleFrontController extends ModuleFrontContro
         $fingerprint = Tools::getValue('fingerprint');
         $apiMode = Tools::getValue('apiMode');
 
-        $queryFingerprint = 'SELECT * FROM `'._DB_PREFIX_.'bayonet_antifraud_fingerprint`
-            WHERE `customer_id` = '.$this->context->customer->id. ' AND `api_mode` = '.(int)$apiMode;
+        $queryFingerprint = 'SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_fingerprint`
+            WHERE `customer_id` = ' . $this->context->customer->id . ' AND `api_mode` = ' . (int) $apiMode;
         $fingerprintData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($queryFingerprint);
 
         if ($fingerprintData) {
             Db::getInstance()->update(
                 'bayonet_antifraud_fingerprint',
-                array(
+                [
                     'fingerprint_token' => $fingerprint,
-                ),
-                'customer_id = '.$this->context->customer->id. ' AND api_mode = ' .(int)$apiMode
+                ],
+                'customer_id = ' . $this->context->customer->id . ' AND api_mode = ' . (int) $apiMode
             );
         } else {
-            $data = array(
+            $data = [
                 'customer_id' => $this->context->customer->id,
                 'fingerprint_token' => $fingerprint,
-                'api_mode' => (int)$apiMode
-            );
+                'api_mode' => (int) $apiMode,
+            ];
             Db::getInstance()->insert('bayonet_antifraud_fingerprint', $data);
         }
-        
+
         exit;
     }
 }

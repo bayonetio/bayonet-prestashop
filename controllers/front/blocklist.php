@@ -23,8 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-
-include_once(dirname(__FILE__) . '/../../helper/RequestHelper.php');
+include_once dirname(__FILE__) . '/../../helper/RequestHelper.php';
 
 class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontController
 {
@@ -37,7 +36,7 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
     {
         parent::init();
         $this->requestHelper = new RequestHelper();
-        $apiMode = (int)Tools::getValue('apiMode');
+        $apiMode = (int) Tools::getValue('apiMode');
         $apiKey = '';
 
         if (0 === $apiMode) {
@@ -54,12 +53,12 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
         ];
 
         if ('addWhite' === Tools::getValue('mode')) {
-            if (1 === (int)Tools::getValue('blocklist')) {
+            if (1 === (int) Tools::getValue('blocklist')) {
                 $responseBlock = $this->removeBlock($request);
-                if (0 === (int)$responseBlock) {
+                if (0 === (int) $responseBlock) {
                     $this->addWhite($request);
                 }
-            } elseif (0 === (int)Tools::getValue('blocklist')) {
+            } elseif (0 === (int) Tools::getValue('blocklist')) {
                 $this->addWhite($request);
             }
             echo json_encode(1);
@@ -69,12 +68,12 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
             echo json_encode(1);
             exit;
         } elseif ('addBlock' == Tools::getValue('mode')) {
-            if (1 === (int)Tools::getValue('whitelist')) {
+            if (1 === (int) Tools::getValue('whitelist')) {
                 $responseWhite = $this->removeWhite($request);
-                if (0 === (int)$responseWhite) {
+                if (0 === (int) $responseWhite) {
                     $this->addBlock($request);
                 }
-            } elseif (0 === (int)Tools::getValue('whitelist')) {
+            } elseif (0 === (int) Tools::getValue('whitelist')) {
                 $this->addBlock($request);
             }
             echo json_encode(1);
@@ -96,29 +95,29 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
         $response = $this->requestHelper->addWhitelist($request);
 
         if (isset($response)) {
-            if (isset($response->reason_code) && 0 === (int)$response->reason_code) {
+            if (isset($response->reason_code) && 0 === (int) $response->reason_code) {
                 Db::getInstance()->update(
                     'bayonet_antifraud_blocklist',
                     [
                         'whitelist' => 1,
-                        'reason_code_whitelist' => (int)$response->reason_code,
+                        'reason_code_whitelist' => (int) $response->reason_code,
                         'reason_message_whitelist' => $response->reason_message,
-                        'attempted_action_whitelist' => 'Add'
+                        'attempted_action_whitelist' => 'Add',
                     ],
-                    'blocklist_id = ' .(int)Tools::getValue('id')
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
 
                 return $response->reason_code;
-            } elseif (isset($response->reason_code) && 0 !== (int)$response->reason_code) {
-                $message = str_replace("'", "-", $response->reason_message);
+            } elseif (isset($response->reason_code) && 0 !== (int) $response->reason_code) {
+                $message = str_replace("'", '-', $response->reason_message);
                 Db::getInstance()->update(
                     'bayonet_antifraud_blocklist',
                     [
-                        'reason_code_whitelist' => (int)$response->reason_code,
+                        'reason_code_whitelist' => (int) $response->reason_code,
                         'reason_message_whitelist' => $response->reason_message,
-                        'attempted_action_whitelist' => 'Add'
+                        'attempted_action_whitelist' => 'Add',
                     ],
-                    'blocklist_id = ' .(int)Tools::getValue('id')
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
 
                 return $response->reason_code;
@@ -136,29 +135,29 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
         $response = $this->requestHelper->removeWhitelist($request);
 
         if (isset($response)) {
-            if (isset($response->reason_code) && 0 === (int)$response->reason_code) {
+            if (isset($response->reason_code) && 0 === (int) $response->reason_code) {
                 Db::getInstance()->update(
                     'bayonet_antifraud_blocklist',
                     [
                         'whitelist' => 0,
-                        'reason_code_whitelist' => (int)$response->reason_code,
+                        'reason_code_whitelist' => (int) $response->reason_code,
                         'reason_message_whitelist' => $response->reason_message,
-                        'attempted_action_whitelist' => 'Remove'
+                        'attempted_action_whitelist' => 'Remove',
                     ],
-                    'blocklist_id = ' .(int)Tools::getValue('id')
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
 
                 return $response->reason_code;
-            } elseif (isset($response->reason_code) && 0 !== (int)$response->reason_code) {
-                $message = str_replace("'", "-", $response->reason_message);
+            } elseif (isset($response->reason_code) && 0 !== (int) $response->reason_code) {
+                $message = str_replace("'", '-', $response->reason_message);
                 Db::getInstance()->update(
                     'bayonet_antifraud_blocklist',
                     [
-                        'reason_code_whitelist' => (int)$response->reason_code,
+                        'reason_code_whitelist' => (int) $response->reason_code,
                         'reason_message_whitelist' => $response->reason_message,
-                        'attempted_action_whitelist' => 'Remove'
+                        'attempted_action_whitelist' => 'Remove',
                     ],
-                    'blocklist_id = ' .(int)Tools::getValue('id')
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
 
                 return $response->reason_code;
@@ -176,29 +175,29 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
         $response = $this->requestHelper->addBlocklist($request);
 
         if (isset($response)) {
-            if (isset($response->reason_code) && 0 === (int)$response->reason_code) {
+            if (isset($response->reason_code) && 0 === (int) $response->reason_code) {
                 Db::getInstance()->update(
                     'bayonet_antifraud_blocklist',
                     [
                         'blocklist' => 1,
-                        'reason_code_blocklist' => (int)$response->reason_code,
+                        'reason_code_blocklist' => (int) $response->reason_code,
                         'reason_message_blocklist' => $response->reason_message,
-                        'attempted_action_blocklist' => 'Add'
+                        'attempted_action_blocklist' => 'Add',
                     ],
-                    'blocklist_id = ' .(int)Tools::getValue('id')
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
 
                 return $response->reason_code;
-            } elseif (isset($response->reason_code) && 0 !== (int)$response->reason_code) {
-                $message = str_replace("'", "-", $response->reason_message);
+            } elseif (isset($response->reason_code) && 0 !== (int) $response->reason_code) {
+                $message = str_replace("'", '-', $response->reason_message);
                 Db::getInstance()->update(
                     'bayonet_antifraud_blocklist',
                     [
-                        'reason_code_blocklist' => (int)$response->reason_code,
+                        'reason_code_blocklist' => (int) $response->reason_code,
                         'reason_message_blocklist' => $response->reason_message,
-                        'attempted_action_blocklist' => 'Add'
+                        'attempted_action_blocklist' => 'Add',
                     ],
-                    'blocklist_id = ' .(int)Tools::getValue('id')
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
 
                 return $response->reason_code;
@@ -216,29 +215,29 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
         $response = $this->requestHelper->removeBlocklist($request);
 
         if (isset($response)) {
-            if (isset($response->reason_code) && 0 === (int)$response->reason_code) {
+            if (isset($response->reason_code) && 0 === (int) $response->reason_code) {
                 Db::getInstance()->update(
                     'bayonet_antifraud_blocklist',
                     [
                         'blocklist' => 0,
-                        'reason_code_blocklist' => (int)$response->reason_code,
+                        'reason_code_blocklist' => (int) $response->reason_code,
                         'reason_message_blocklist' => $response->reason_message,
-                        'attempted_action_blocklist' => 'Remove'
+                        'attempted_action_blocklist' => 'Remove',
                     ],
-                    'blocklist_id = ' .(int)Tools::getValue('id')
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
 
                 return $response->reason_code;
-            } elseif (isset($response->reason_code) && 0 !== (int)$response->reason_code) {
-                $message = str_replace("'", "-", $response->reason_message);
+            } elseif (isset($response->reason_code) && 0 !== (int) $response->reason_code) {
+                $message = str_replace("'", '-', $response->reason_message);
                 Db::getInstance()->update(
                     'bayonet_antifraud_blocklist',
                     [
-                        'reason_code_blocklist' => (int)$response->reason_code,
+                        'reason_code_blocklist' => (int) $response->reason_code,
                         'reason_message_blocklist' => $response->reason_message,
-                        'attempted_action_blocklist' => 'Remove'
+                        'attempted_action_blocklist' => 'Remove',
                     ],
-                    'blocklist_id = ' .(int)Tools::getValue('id')
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
 
                 return $response->reason_code;

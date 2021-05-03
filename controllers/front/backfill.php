@@ -23,8 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-
-include_once(dirname(__FILE__) . '/../../helper/RequestHelper.php');
+include_once dirname(__FILE__) . '/../../helper/RequestHelper.php';
 
 class BayonetantifraudBackfillModuleFrontController extends ModuleFrontController
 {
@@ -35,7 +34,7 @@ class BayonetantifraudBackfillModuleFrontController extends ModuleFrontControlle
     {
         parent::init();
         if ('initiate' === Tools::getValue('mode')) {
-            if (1 === (int)Configuration::get('BAYONET_AF_BACKFILL_MODE')) {
+            if (1 === (int) Configuration::get('BAYONET_AF_BACKFILL_MODE')) {
                 $response = [];
                 $response['result'] = 1;
                 echo json_encode($response);
@@ -76,15 +75,15 @@ class BayonetantifraudBackfillModuleFrontController extends ModuleFrontControlle
         $response['result'] = 0;
         echo json_encode($response);
 
-        $backfillQuery = 'SELECT * FROM `'._DB_PREFIX_.'bayonet_antifraud_backfill`';
+        $backfillQuery = 'SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_backfill`';
         $backfillData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($backfillQuery);
         $ordersQuery = '';
         $ordersData = [];
         $totalOrders = 0;
 
         if ($backfillData !== false && sizeof($backfillData) === 0) {
-            $ordersQuery = 'SELECT `id_order` FROM `'._DB_PREFIX_.'orders`
-                WHERE `id_order` NOT IN (SELECT `order_id` FROM `'._DB_PREFIX_.'bayonet_antifraud_orders`)';
+            $ordersQuery = 'SELECT `id_order` FROM `' . _DB_PREFIX_ . 'orders`
+                WHERE `id_order` NOT IN (SELECT `order_id` FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_orders`)';
             $ordersData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($ordersQuery);
 
             if ($ordersData !== false && sizeof($ordersData) > 0) {
@@ -98,18 +97,18 @@ class BayonetantifraudBackfillModuleFrontController extends ModuleFrontControlle
                 'last_processed_order' => '0',
                 'last_backfill_order' => $lastOrder['id_order'],
             ];
-            if(Db::getInstance()->insert('bayonet_antifraud_backfill', $data)) {
+            if (Db::getInstance()->insert('bayonet_antifraud_backfill', $data)) {
                 $backfillData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($backfillQuery);
             }
         } elseif ($backfillData !== false && sizeof($backfillData) > 0) {
-            $ordersQuery = 'SELECT `id_order` FROM `'._DB_PREFIX_.'orders`
-                WHERE `id_order` NOT IN (SELECT `order_id` FROM `'._DB_PREFIX_.'bayonet_antifraud_orders`)
-                AND `id_order` <= ' .(int)$backfillData[0]['last_backfill_order'];
-            if ((int)$backfillData[0]['processed_orders'] > 0) {
-                $ordersQuery .= ' AND `id_order` > ' .(int)$backfillData[0]['last_processed_order'];
+            $ordersQuery = 'SELECT `id_order` FROM `' . _DB_PREFIX_ . 'orders`
+                WHERE `id_order` NOT IN (SELECT `order_id` FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_orders`)
+                AND `id_order` <= ' . (int) $backfillData[0]['last_backfill_order'];
+            if ((int) $backfillData[0]['processed_orders'] > 0) {
+                $ordersQuery .= ' AND `id_order` > ' . (int) $backfillData[0]['last_processed_order'];
             }
 
-            $totalOrders = (int)$backfillData[0]['total_orders'];
+            $totalOrders = (int) $backfillData[0]['total_orders'];
             $ordersData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($ordersQuery);
         }
 
@@ -118,7 +117,7 @@ class BayonetantifraudBackfillModuleFrontController extends ModuleFrontControlle
             $orderHelper = new OrderHelper();
 
             foreach ($ordersData as $currentOrder) {
-                if ((int)$this->getBackfillMode() === 1) {
+                if ((int) $this->getBackfillMode() === 1) {
                     $order = new Order($currentOrder['id_order']);
                     $cart = new Cart($order->id_cart);
                     $customer = new Customer($order->id_customer);
@@ -127,11 +126,11 @@ class BayonetantifraudBackfillModuleFrontController extends ModuleFrontControlle
                     $requestBody = $orderHelper->generateRequestBody($order, $cart, $customer, $currency, 'backfill', 1);
                     $requestBody['auth']['api_key'] = Configuration::get('BAYONET_AF_API_LIVE_KEY');
                     $response = $requestHelper->feedbackHistorical($requestBody);
-                    
-                    $updateQuery = 'UPDATE `'._DB_PREFIX_.'bayonet_antifraud_backfill` 
-                        SET `processed_orders` = `processed_orders` + 1, `last_processed_order` = ' . (int)$order->id .
-                        ' WHERE `backfill_id` = ' . (int)$backfillData[0]['backfill_id'];
-                    
+
+                    $updateQuery = 'UPDATE `' . _DB_PREFIX_ . 'bayonet_antifraud_backfill` 
+                        SET `processed_orders` = `processed_orders` + 1, `last_processed_order` = ' . (int) $order->id .
+                        ' WHERE `backfill_id` = ' . (int) $backfillData[0]['backfill_id'];
+
                     Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($updateQuery);
                 } else {
                     exit;
@@ -143,7 +142,7 @@ class BayonetantifraudBackfillModuleFrontController extends ModuleFrontControlle
                 [
                     'backfill_status' => 1,
                 ],
-                'backfill_id = '.(int)$backfillData[0]['backfill_id']
+                'backfill_id = ' . (int) $backfillData[0]['backfill_id']
             );
             Configuration::updateValue('BAYONET_AF_BACKFILL_MODE', 0);
             exit;
@@ -172,9 +171,9 @@ class BayonetantifraudBackfillModuleFrontController extends ModuleFrontControlle
     {
         $response = [];
 
-        $backfillQuery = 'SELECT * FROM `'._DB_PREFIX_.'bayonet_antifraud_backfill`';
+        $backfillQuery = 'SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_backfill`';
         $backfillData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($backfillQuery);
-        $percentage = ((int)$backfillData[0]['processed_orders']/(int)$backfillData[0]['total_orders'])*100;
+        $percentage = ((int) $backfillData[0]['processed_orders'] / (int) $backfillData[0]['total_orders']) * 100;
         $response['percentage'] = ceil($percentage);
 
         $response['float'] = $percentage;
@@ -189,7 +188,7 @@ class BayonetantifraudBackfillModuleFrontController extends ModuleFrontControlle
      */
     private function getBackfillMode()
     {
-        $query = 'SELECT value FROM `'._DB_PREFIX_.'configuration` WHERE `name` = "BAYONET_AF_BACKFILL_MODE"';
+        $query = 'SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "BAYONET_AF_BACKFILL_MODE"';
         $val = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($query);
 
         $current_backfill_mode = $val[0]['value'];

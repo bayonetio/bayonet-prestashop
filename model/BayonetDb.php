@@ -23,7 +23,6 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-
 class BayonetDb
 {
     /**
@@ -34,7 +33,7 @@ class BayonetDb
         $sqlQueries = [];
         $installed = false;
 
-        $sqlQueries[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet_antifraud_orders` (
+        $sqlQueries[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bayonet_antifraud_orders` (
             `bayonet_id` int(11) NOT NULL AUTO_INCREMENT,
             `cart_id` int(11) NULL,
             `order_id` varchar(255) NOT NULL,
@@ -50,9 +49,9 @@ class BayonetDb
             `current_status` varchar(45) NULL,
             `date_add` timestamp default current_timestamp NOT NULL,
             PRIMARY KEY  (`bayonet_id`)
-        ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
-    
-        $sqlQueries[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet_antifraud_blocklist` (
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
+        $sqlQueries[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bayonet_antifraud_blocklist` (
             `blocklist_id` int(11) NOT NULL AUTO_INCREMENT,
             `customer_id` int(11) NOT NULL,
             `email` varchar(255) NOT NULL,
@@ -66,17 +65,17 @@ class BayonetDb
             `attempted_action_whitelist` varchar(45) default NULL,
             `api_mode` tinyint(1) NOT NULL,
             PRIMARY KEY  (`blocklist_id`)
-        ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
-        $sqlQueries[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet_antifraud_fingerprint` (
+        $sqlQueries[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bayonet_antifraud_fingerprint` (
             `fingerprint_id` int(11) NOT NULL AUTO_INCREMENT,
             `customer_id` int(11) NOT NULL,
             `fingerprint_token` varchar(45) default NULL,
             `api_mode` int(11) NOT NULL,
             PRIMARY KEY (`fingerprint_id`)
-        ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
-        $sqlQueries[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'bayonet_antifraud_backfill` (
+        $sqlQueries[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bayonet_antifraud_backfill` (
             `backfill_id` int(11) NOT NULL AUTO_INCREMENT,
             `backfill_status` int(11) default 0 NOT NULL,
             `processed_orders` int(11) default 0 NOT NULL,
@@ -84,7 +83,7 @@ class BayonetDb
             `last_processed_order` varchar(45) NOT NULL,
             `last_backfill_order` varchar(45) NOT NULL,
             PRIMARY KEY (`backfill_id`)
-        ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
         foreach ($sqlQueries as $query) {
             if (Db::getInstance()->execute($query)) {
@@ -98,16 +97,16 @@ class BayonetDb
     /**
      * Deletes the module tables from the database
      */
-    public static function dropTables() 
+    public static function dropTables()
     {
         $sqlQueries = [];
         $dropped = false;
-        
-        $sqlQueries[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'bayonet_antifraud_orders`;';
-        $sqlQueries[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'bayonet_antifraud_blocklist`;';
-        $sqlQueries[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'bayonet_antifraud_fingerprint`;';
-        $sqlQueries[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'bayonet_antifraud_backfill`;';
-        
+
+        $sqlQueries[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bayonet_antifraud_orders`;';
+        $sqlQueries[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bayonet_antifraud_blocklist`;';
+        $sqlQueries[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bayonet_antifraud_fingerprint`;';
+        $sqlQueries[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bayonet_antifraud_backfill`;';
+
         foreach ($sql as $query) {
             if (Db::getInstance()->execute($query) !== false) {
                 $dropped = true;
