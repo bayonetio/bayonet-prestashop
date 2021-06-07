@@ -23,6 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
 include_once dirname(__FILE__) . '/model/BayonetDb.php';
 include_once dirname(__FILE__) . '/helper/RequestHelper.php';
 include_once dirname(__FILE__) . '/helper/OrderHelper.php';
@@ -504,7 +505,6 @@ class BayonetAntiFraud extends Module
         }
 
         $dataToInsert = [];
-        $dataToUpdate = [];
         $requestHelper = new RequestHelper();
         $orderHelper = new OrderHelper();
         $order = $params['order'];
@@ -640,12 +640,12 @@ class BayonetAntiFraud extends Module
                 if ('pending' === $bayonetOrder['current_status']) {
                     if (1 === (int) $params['newOrderStatus']->paid) {
                         $transactionStatus = 'success';
-                    } elseif (false !== strpos(strtolower($params['newOrderStatus']->template), 'cancel')) {
+                    } elseif (false !== strpos(Tools::strtolower($params['newOrderStatus']->template), 'cancel')) {
                         $transactionStatus = 'cancelled';
                     }
                 } elseif ('success' === $bayonetOrder['current_status']) {
-                    if (false !== strpos(strtolower($params['newOrderStatus']->template), 'cancel') ||
-                    false !== strpos(strtolower($params['newOrderStatus']->template), 'refund')) {
+                    if (false !== strpos(Tools::strtolower($params['newOrderStatus']->template), 'cancel') ||
+                    false !== strpos(Tools::strtolower($params['newOrderStatus']->template), 'refund')) {
                         $transactionStatus = 'cancelled';
                     } elseif (1 !== (int) $params['newOrderStatus']->paid) {
                         $transactionStatus = 'pending';
@@ -748,9 +748,7 @@ class BayonetAntiFraud extends Module
         $attemptedActionWhitelistLive = 'N/A';
 
         $apiMode = (int) Configuration::get('BAYONET_AF_API_MODE');
-        $apiModeLabel = $apiMode === 0 ? $this->l('Sandbox (test)') : $this->l('Live (production)');
         $noKeys = false;
-        $disabled = '';
 
         if (1 === $apiMode && !Configuration::get('BAYONET_AF_API_LIVE_KEY')) {
             $noKeys = true;

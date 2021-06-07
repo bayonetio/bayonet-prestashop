@@ -23,6 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
 include_once dirname(__FILE__) . '/../../helper/RequestHelper.php';
 
 class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontController
@@ -114,7 +115,7 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
                     'bayonet_antifraud_blocklist',
                     [
                         'reason_code_whitelist' => (int) $response->reason_code,
-                        'reason_message_whitelist' => $response->reason_message,
+                        'reason_message_whitelist' => $message,
                         'attempted_action_whitelist' => 'Add',
                     ],
                     'blocklist_id = ' . (int) Tools::getValue('id')
@@ -154,7 +155,7 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
                     'bayonet_antifraud_blocklist',
                     [
                         'reason_code_whitelist' => (int) $response->reason_code,
-                        'reason_message_whitelist' => $response->reason_message,
+                        'reason_message_whitelist' => $message,
                         'attempted_action_whitelist' => 'Remove',
                     ],
                     'blocklist_id = ' . (int) Tools::getValue('id')
@@ -194,7 +195,7 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
                     'bayonet_antifraud_blocklist',
                     [
                         'reason_code_blocklist' => (int) $response->reason_code,
-                        'reason_message_blocklist' => $response->reason_message,
+                        'reason_message_blocklist' => $message,
                         'attempted_action_blocklist' => 'Add',
                     ],
                     'blocklist_id = ' . (int) Tools::getValue('id')
@@ -234,7 +235,7 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
                     'bayonet_antifraud_blocklist',
                     [
                         'reason_code_blocklist' => (int) $response->reason_code,
-                        'reason_message_blocklist' => $response->reason_message,
+                        'reason_message_blocklist' => $message,
                         'attempted_action_blocklist' => 'Remove',
                     ],
                     'blocklist_id = ' . (int) Tools::getValue('id')

@@ -23,6 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
 class OrderHelper
 {
     public function generateRequestBody($order, $cart, $customer, $currency, $type, $apiMode)
@@ -99,7 +100,7 @@ class OrderHelper
                         'bayonet_antifraud_fingerprint',
                         [
                         'fingerprint_token' => '',
-                    ],
+                        ],
                         'customer_id = ' . (int) $customer->id . ' AND api_mode = ' . $apiMode
                     );
                 }
@@ -115,8 +116,8 @@ class OrderHelper
                     $requestBody['transaction_status'] = 'success';
                 } elseif (0 === (int) $order->getCurrentOrderState()->paid) {
                     foreach ($order->getCurrentOrderState()->paid as $template) {
-                        if (false !== strpos(strtolower($template), 'cancel') ||
-                        false !== strpos(strtolower($template), 'refund')) {
+                        if (false !== strpos(Tools::strtolower($template), 'cancel') ||
+                        false !== strpos(Tools::strtolower($template), 'refund')) {
                             $transationStatus = 'cancelled';
                         }
                     }
@@ -408,15 +409,15 @@ class OrderHelper
         ];
 
         if ('openpayprestashop' === $order->module) {
-            if (false !== strpos(strtolower($order->payment), 'tarjeta') ||
-                false !== strpos(strtolower($order->payment), 'card')) {
+            if (false !== strpos(Tools::strtolower($order->payment), 'tarjeta') ||
+                false !== strpos(Tools::strtolower($order->payment), 'card')) {
                 $paymentMethod = 'tokenized_card';
-            } elseif (false !== strpos(strtolower($order->payment), 'bitcoin')) {
+            } elseif (false !== strpos(Tools::strtolower($order->payment), 'bitcoin')) {
                 $paymentMethod = 'crypto_currency';
             } else {
                 $paymentMethod = 'offline';
             }
-        } elseif (false !== strpos(strtolower($order->module), 'paypal')) {
+        } elseif (false !== strpos(Tools::strtolower($order->module), 'paypal')) {
             $paymentMethod = 'paypal';
         } else {
             foreach ($paymentMethods as $key => $value) {

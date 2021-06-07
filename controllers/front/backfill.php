@@ -23,6 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
 include_once dirname(__FILE__) . '/../../helper/RequestHelper.php';
 
 class BayonetantifraudBackfillModuleFrontController extends ModuleFrontController
@@ -88,7 +89,7 @@ class BayonetantifraudBackfillModuleFrontController extends ModuleFrontControlle
 
             if ($ordersData !== false && sizeof($ordersData) > 0) {
                 $lastOrder = end($ordersData);
-                $firstOrder = reset($ordersData);
+                reset($ordersData);
                 $totalOrders = sizeof($ordersData);
             }
 

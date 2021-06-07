@@ -23,6 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
 class BayonetDb
 {
     /**
@@ -107,7 +108,7 @@ class BayonetDb
         $sqlQueries[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bayonet_antifraud_fingerprint`;';
         $sqlQueries[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bayonet_antifraud_backfill`;';
 
-        foreach ($sql as $query) {
+        foreach ($sqlQueries as $query) {
             if (Db::getInstance()->execute($query) !== false) {
                 $dropped = true;
             }
