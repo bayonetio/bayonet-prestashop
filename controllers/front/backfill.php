@@ -124,7 +124,14 @@ class BayonetantifraudBackfillModuleFrontController extends ModuleFrontControlle
                     $customer = new Customer($order->id_customer);
                     $currency = new Currency($order->id_currency);
 
-                    $requestBody = $orderHelper->generateRequestBody($order, $cart, $customer, $currency, 'backfill', 1);
+                    $requestBody = $orderHelper->generateRequestBody(
+                        $order,
+                        $cart,
+                        $customer,
+                        $currency,
+                        'backfill',
+                        1
+                    );
                     $requestBody['auth']['api_key'] = Configuration::get('BAYONET_AF_API_LIVE_KEY');
                     $response = $requestHelper->feedbackHistorical($requestBody);
 

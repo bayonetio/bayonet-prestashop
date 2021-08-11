@@ -26,14 +26,29 @@
 
 class OrderHelper
 {
+    /**
+     * Generates a request body for an order with the format required in the
+     * Bayonet API. It takes the type parameters to decide whether the request
+     * body is for a consulting or backfill call.
+     * @param array $order
+     * @param array $cart
+     * @param array $customer
+     * @param array $currency
+     * @param string $type
+     * @param int $apiMode
+     *
+     * @return array
+     */
     public function generateRequestBody($order, $cart, $customer, $currency, $type, $apiMode)
     {
         $requestBody = [];
         $address_delivery = new Address((int) $cart->id_address_delivery);
         $address_invoice = new Address((int) $cart->id_address_invoice);
-        $state_delivery = 0 !== $address_delivery->id_state ? (new State((int) $address_delivery->id_state))->name : 'NA';
+        $state_delivery = 0 !== $address_delivery->id_state ?
+            (new State((int) $address_delivery->id_state))->name : 'NA';
         $country_delivery = new Country((int) $address_delivery->id_country);
-        $state_invoice = 0 !== $address_invoice->id_state ? (new State((int) $address_invoice->id_state))->name : 'NA';
+        $state_invoice = 0 !== $address_invoice->id_state ?
+            (new State((int) $address_invoice->id_state))->name : 'NA';
         $country_invoice = new Country((int) $address_invoice->id_country);
         $products = $cart->getProducts();
         $products_list = [];
@@ -108,34 +123,41 @@ class OrderHelper
         }
 
         if ('backfill' === $type) {
-            $transationStatus = '';
+            $transactionStatus = '';
 
             if (null !== $order->getCurrentOrderState()) {
                 if (1 === (int) $order->getCurrentOrderState()->paid) {
-                    $transationStatus = 'success';
+                    $transactionStatus = 'success';
                     $requestBody['transaction_status'] = 'success';
                 } elseif (0 === (int) $order->getCurrentOrderState()->paid) {
                     foreach ($order->getCurrentOrderState()->paid as $template) {
                         if (false !== strpos(Tools::strtolower($template), 'cancel') ||
                         false !== strpos(Tools::strtolower($template), 'refund')) {
-                            $transationStatus = 'cancelled';
+                            $transactionStatus = 'cancelled';
                         }
                     }
 
-                    if ('' === $transationStatus) {
-                        $transationStatus = 'pending';
+                    if ('' === $transactionStatus) {
+                        $transactionStatus = 'pending';
                     }
                 }
             } else {
-                $transationStatus = 'pending';
+                $transactionStatus = 'pending';
             }
 
-            $requestBody['transaction_status'] = $transationStatus;
+            $requestBody['transaction_status'] = $transactionStatus;
         }
 
         return $requestBody;
     }
 
+    /**
+     *  Converts the country codes to 3-letter ISO codes
+     * https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
+     * @param string 2 letter country code
+     *
+     * @return string ISO 3-letter country code
+     */
     public function convertCountryCode($country)
     {
         $countries = [
@@ -396,6 +418,13 @@ class OrderHelper
         return $isoCode;
     }
 
+    /**
+     * Gets the payment method of the order based on the module used to
+     * process the order.
+     * @param array $order
+     *
+     * @return string
+ */
     public function getPaymentMethod($order)
     {
         $paymentMethod = 'tokenized_card';
@@ -430,6 +459,13 @@ class OrderHelper
         return $paymentMethod;
     }
 
+    /**
+     * Gets the triggered rules, if present, of a successful consulting
+     * call to the Bayonet API while analyzing an order
+     * @param array $response
+     *
+     * @return string
+     */
     public function getTriggeredRules($response)
     {
         $triggeredRules = '';
