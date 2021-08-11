@@ -34,8 +34,8 @@ if (!defined('_PS_VERSION_')) {
 
 class BayonetAntiFraud extends Module
 {
-    protected $_html = '';
-    protected $_postErrors = [];
+    protected $html = '';
+    protected $postErrors = [];
 
     public function __construct()
     {
@@ -43,9 +43,9 @@ class BayonetAntiFraud extends Module
         $this->tab = 'payment_security';
         $this->version = '2.0.0';
         $this->author = 'Bayonet';
+        $this->ps_versions_compliancy = ['min' => '1.7.0.0', 'max' => _PS_VERSION_];
 
         $this->bootstrap = true;
-
         $this->controllers = ['backfill', 'blocklist', 'fingerprint'];
 
         parent::__construct();
@@ -72,7 +72,6 @@ class BayonetAntiFraud extends Module
             !$this->registerHook('actionOrderStatusUpdate') ||
             !$this->registerHook('displayPaymentTop') ||
             !$this->registerHook('displayAdminOrder') ||
-            !$this->registerHook('displayBackOfficeHeader') ||
             !$this->registerHook('displayHeader') ||
             !BayonetDb::createTables()) {
             return false;
@@ -81,7 +80,7 @@ class BayonetAntiFraud extends Module
         $this->addTabs();
 
         Configuration::updateValue('BAYONET_AF_ENABLE', 0);
-        Configuration::updateValue('BAYONET_AF_API_MODE', 0);
+        Configuration::updateValue('BAYONET_AF_API_MODE', 1);
         Configuration::updateValue('BAYONET_AF_API_VERSION', 'v2');
         Configuration::updateValue('BAYONET_AF_BACKFILL_MODE', 0);
         Configuration::updateValue('BAYONET_AF_API_TEST_KEY', null);
@@ -119,7 +118,7 @@ class BayonetAntiFraud extends Module
 
     public function addTabs()
     {
-        $languages = Language::getLanguages(false);
+        $languages = Language::getLanguages(true);
 
         //Main Parent menu
         if (!(int) Tab::getIdFromClassName('AdminBayonetAntiFraud')) {
@@ -139,12 +138,13 @@ class BayonetAntiFraud extends Module
 
         //Sub menu code
         if (!(int) Tab::getIdFromClassName('AdminBayonetOrders')) {
-            $parentTabID = Tab::getIdFromClassName('AdminBayonetAntiFraud');
+            $parentTabID = (int) Tab::getIdFromClassName('AdminBayonetAntiFraud');
             $parentTab = new Tab($parentTabID);
             $tab = new Tab();
             $tab->active = 1;
             $tab->class_name = 'AdminBayonetOrders';
             $tab->name = [];
+            $tab->icon = 'view_list';
 
             foreach ($languages as $language) {
                 $tab->name[$language['id_lang']] = $this->l('Orders Processed by Bayonet');
@@ -170,26 +170,8 @@ class BayonetAntiFraud extends Module
                         'label' => $this->l('Enabled'),
                         'name' => 'BAYONET_AF_ENABLE',
                         'desc' => $this->l('Enable the module'),
-                        'hint' => $this->l('Enabling this setting will activate the module, while disabling it will deactivate it so no orders will be processed by Bayonet'),
-                        'values' => [
-                            [
-                                'id' => 'active_on',
-                                'value' => 1,
-                                'label' => $this->l('Enabled'),
-                            ],
-                            [
-                                'id' => 'active_off',
-                                'value' => 0,
-                                'label' => $this->l('Disabled'),
-                            ],
-                        ],
-                    ],
-                    [
-                        'type' => 'switch',
-                        'label' => $this->l('Live Mode'),
-                        'name' => 'BAYONET_AF_API_MODE',
-                        'desc' => $this->l('Use Bayonet in Live Mode'),
-                        'hint' => $this->l('Enabling this setting will set the module to Live (production) Mode, disabling it will set the module to Sandbox (test) Mode'),
+                        'hint' => $this->l('Enabling this setting will activate the module, 
+                            while disabling it will deactivate it so no orders will be processed by Bayonet'),
                         'values' => [
                             [
                                 'id' => 'active_on',
@@ -214,24 +196,8 @@ class BayonetAntiFraud extends Module
                     [
                         'col' => 3,
                         'type' => 'text',
-                        'desc' => $this->l('Please enter a Bayonet sandbox (test) key'),
-                        'hint' => $this->l('Required to use the module in Sandbox (test) mode'),
-                        'name' => 'BAYONET_AF_API_TEST_KEY',
-                        'label' => $this->l('Bayonet Sandbox (test) Key'),
-                    ],
-                    [
-                        'col' => 3,
-                        'type' => 'text',
-                        'desc' => $this->l('Please enter a Device Fingerprint sandbox (test) key'),
-                        'hint' => $this->l('Required to use the module in Sandbox (test) mode'),
-                        'name' => 'BAYONET_AF_JS_TEST_KEY',
-                        'label' => $this->l('Device Fingerprint Sandbox (test) Key'),
-                    ],
-                    [
-                        'col' => 3,
-                        'type' => 'text',
                         'desc' => $this->l('Please enter a Bayonet live (production) key'),
-                        'hint' => $this->l('Required to use the module in Live (production) mode'),
+                        'hint' => $this->l('Required to enable the module'),
                         'name' => 'BAYONET_AF_API_LIVE_KEY',
                         'label' => $this->l('Bayonet Live (production) Key'),
                     ],
@@ -239,7 +205,7 @@ class BayonetAntiFraud extends Module
                         'col' => 3,
                         'type' => 'text',
                         'desc' => $this->l('Please enter a Device Fingerprint live (production) key'),
-                        'hint' => $this->l('Required to use the module in Live (production) mode'),
+                        'hint' => $this->l('Required to enable the module'),
                         'name' => 'BAYONET_AF_JS_LIVE_KEY',
                         'label' => $this->l('Device Fingerprint Live (production) Key'),
                     ],
@@ -255,18 +221,15 @@ class BayonetAntiFraud extends Module
 
     public function getConfigFormValues()
     {
-        $apiTestKey = '' !== Configuration::get('BAYONET_AF_API_TEST_KEY') ? str_repeat('*', 10) : Configuration::get('BAYONET_AF_API_TEST_KEY');
-        $apiLiveKey = '' !== Configuration::get('BAYONET_AF_API_LIVE_KEY') ? str_repeat('*', 10) : Configuration::get('BAYONET_AF_API_LIVE_KEY');
-        $jsTestKey = '' !== Configuration::get('BAYONET_AF_JS_TEST_KEY') ? str_repeat('*', 10) : Configuration::get('BAYONET_AF_JS_TEST_KEY');
-        $jsLiveKey = '' !== Configuration::get('BAYONET_AF_JS_LIVE_KEY') ? str_repeat('*', 10) : Configuration::get('BAYONET_AF_JS_LIVE_KEY');
+        $apiLiveKey = '' !== Configuration::get('BAYONET_AF_API_LIVE_KEY') ?
+            str_repeat('*', 10) : Configuration::get('BAYONET_AF_API_LIVE_KEY');
+        $jsLiveKey = '' !== Configuration::get('BAYONET_AF_JS_LIVE_KEY') ?
+            str_repeat('*', 10) : Configuration::get('BAYONET_AF_JS_LIVE_KEY');
 
         return [
             'BAYONET_AF_ENABLE' => Configuration::get('BAYONET_AF_ENABLE'),
-            'BAYONET_AF_API_MODE' => Configuration::get('BAYONET_AF_API_MODE'),
             'BAYONET_AF_API_VERSION' => Configuration::get('BAYONET_AF_API_VERSION'),
-            'BAYONET_AF_API_TEST_KEY' => $apiTestKey,
             'BAYONET_AF_API_LIVE_KEY' => $apiLiveKey,
-            'BAYONET_AF_JS_TEST_KEY' => $jsTestKey,
             'BAYONET_AF_JS_LIVE_KEY' => $jsLiveKey,
         ];
     }
@@ -284,7 +247,10 @@ class BayonetAntiFraud extends Module
         $helper->id = (int) Tools::getValue('id_carrier');
         $helper->identifier = $this->identifier;
         $helper->submit_action = 'btnSubmit';
-        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false) . '&configure=' . $this->name . '&tab_module=' . $this->tab . '&module_name=' . $this->name;
+        $helper->currentIndex = $this->context->link->getAdminLink(
+            'AdminModules',
+            false
+        ) . '&configure=' . $this->name . '&tab_module=' . $this->tab . '&module_name=' . $this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
         $helper->tpl_vars = [
             'fields_value' => $this->getConfigFormValues(),
@@ -306,9 +272,9 @@ class BayonetAntiFraud extends Module
         $backfillCompleted = 0;
 
         if (Tools::isSubmit('btnSubmit')) {
-            $this->_postValidation();
+            $this->postValidation();
             if (!count($this->postErrors)) {
-                $this->_postProcess();
+                $this->postProcess();
             } else {
                 foreach ($this->postErrors as $err) {
                     $this->html .= $this->displayError($err);
@@ -355,17 +321,16 @@ class BayonetAntiFraud extends Module
         return $this->html;
     }
 
-    public function _postValidation()
+    public function postValidation()
     {
         if (Tools::isSubmit('btnSubmit')) {
             $requestHelper = new RequestHelper();
 
-            if ((int) Tools::getValue('BAYONET_AF_ENABLE') === 1 && (Configuration::get('BAYONET_AF_API_TEST_KEY') === '' || Configuration::get('BAYONET_AF_JS_TEST_KEY') === '')) {
-                $this->postErrors[] = $this->l('The module cannot be enabled if no pair of keys have been saved first. Please add at least a pair of keys (sandbox & live) before enabling the module');
-            }
-
-            if ((int) Tools::getValue('BAYONET_AF_API_MODE') === 1 && (Configuration::get('BAYONET_AF_API_LIVE_KEY') === '' || Configuration::get('BAYONET_AF_JS_LIVE_KEY') === '')) {
-                $this->postErrors[] = $this->l('Cannot set the API mode to live (production) with no live (production) API keys saved. Please save your live (production) API keys first');
+            if ((int) Tools::getValue('BAYONET_AF_ENABLE') === 1 &&
+                (Configuration::get('BAYONET_AF_API_LIVE_KEY') === '' ||
+                Configuration::get('BAYONET_AF_JS_LIVE_KEY') === '')) {
+                $this->postErrors[] = $this->l('The module cannot be enabled if no pair of keys have been saved
+                first. Please add your pair of live keys before enabling the module');
             }
 
             if (!empty(trim(Tools::getValue('BAYONET_AF_API_VERSION')))) {
@@ -374,98 +339,75 @@ class BayonetAntiFraud extends Module
                     ],
                 ];
 
-                $response = $requestHelper->apiValidation($requestBody, trim(Tools::getValue('BAYONET_AF_API_VERSION')));
+                $response = $requestHelper->apiValidation(
+                    $requestBody,
+                    trim(Tools::getValue('BAYONET_AF_API_VERSION'))
+                );
 
                 if (!isset($response)) {
                     $this->postErrors[] = $this->l('This API version is invalid, please try again');
                 }
             } elseif (empty(trim(Tools::getValue('BAYONET_AF_API_VERSION')))) {
-                $this->postErrors[] = $this->l('Cannot save an empty value for the API version, please add an API version and try again');
+                $this->postErrors[] = $this->l('Cannot save an empty value for the API version,
+                please add an API version and try again');
             }
 
-            if (!empty(trim(Tools::getValue('BAYONET_AF_API_TEST_KEY'))) && ('**********' !== trim(Tools::getValue('BAYONET_AF_API_TEST_KEY')))) {
-                $requestBody['auth']['api_key'] = Tools::getValue('BAYONET_AF_API_TEST_KEY');
-                $response = $requestHelper->consulting($requestBody);
-
-                if (isset($response->reason_code) && (int) $response->reason_code !== 101) {
-                    switch ((int) $response->reason_code) {
-                        case 12:
-                            $this->postErrors[] = $this->l('Invalid value for the Bayonet sandbox key. Please check your key and try again');
-                            break;
-                        case 13:
-                            $this->postErrors[] = $this->l('Bayonet sandbox key: Source IP is not valid, please add your IP to the whitelist in Bayonet\'s console');
-                            break;
-                        case 15:
-                            $this->postErrors[] = $this->l('Bayonet sandbox key: The key you entered has expired, please generate a new key from Bayonet\'s console');
-                            break;
-                    }
-                }
-            }
-
-            if (!empty(trim(Tools::getValue('BAYONET_AF_JS_TEST_KEY'))) && ('**********' !== trim(Tools::getValue('BAYONET_AF_JS_TEST_KEY')))) {
-                $requestBody['auth']['jsKey'] = Tools::getValue('BAYONET_AF_JS_TEST_KEY');
-                $response = $requestHelper->deviceFingerprint($requestBody);
-
-                if (isset($response->reasonCode) && (int) $response->reasonCode !== 51) {
-                    switch ((int) $response->reasonCode) {
-                        case 12:
-                            $this->postErrors[] = $this->l('Invalid value for the Device Fingerprint sandbox key. Please check your key and try again');
-                            break;
-                        case 15:
-                            $this->postErrors[] = $this->l('Device Fingerprint sandbox key: The key you entered has expired, please generate a new key from Bayonet\'s console');
-                            break;
-                        case 16:
-                            $this->postErrors[] = $this->l('Device Fingerprint sandbox key: Store domain is not registered, please add your store domain to the whitelist in Bayonet\'s console');
-                            break;
-                    }
-                }
-            }
-
-            if (!empty(trim(Tools::getValue('BAYONET_AF_API_LIVE_KEY'))) && ('**********' !== trim(Tools::getValue('BAYONET_AF_API_LIVE_KEY')))) {
+            if (!empty(trim(Tools::getValue('BAYONET_AF_API_LIVE_KEY'))) &&
+                ('**********' !== trim(Tools::getValue('BAYONET_AF_API_LIVE_KEY')))) {
                 $requestBody['auth']['api_key'] = Tools::getValue('BAYONET_AF_API_LIVE_KEY');
                 $response = $requestHelper->consulting($requestBody);
 
                 if (isset($response->reason_code) && (int) $response->reason_code !== 101) {
                     switch ((int) $response->reason_code) {
                         case 12:
-                            $this->postErrors[] = $this->l('Invalid value for the Bayonet live key. Please check your key and try again');
+                            $this->postErrors[] = $this->l('Invalid value for the Bayonet live key.
+                            Please check your key and try again');
                             break;
                         case 13:
-                            $this->postErrors[] = $this->l('Bayonet sandbox key: Source IP is not valid, please add your IP to the whitelist in Bayonet\'s console');
+                            $this->postErrors[] = $this->l('Bayonet live key: Source IP is not valid,
+                            please add your IP to the whitelist in Bayonet\'s console');
                             break;
                         case 15:
-                            $this->postErrors[] = $this->l('Bayonet sandbox key: The key you entered has expired, please generate a new key from Bayonet\'s console');
+                            $this->postErrors[] = $this->l('Bayonet live key: The key you entered has expired,
+                            please generate a new key from Bayonet\'s console');
                             break;
                     }
                 }
-            } elseif (empty(trim(Tools::getValue('BAYONET_AF_API_LIVE_KEY'))) && 1 === (int) Configuration::get('BAYONET_AF_API_LIVE_KEY')) {
-                $this->postErros[] = $this->l('Cannot save an empty live (production) API key when the live (production) mode is enabled');
+            } elseif (empty(trim(Tools::getValue('BAYONET_AF_API_LIVE_KEY'))) &&
+                1 === (int) Configuration::get('BAYONET_AF_ENABLE')) {
+                $this->postErros[] = $this->l('Cannot save an empty API key when the module is enabled');
             }
 
-            if (!empty(trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY'))) && ('**********' !== trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY')))) {
+            if (!empty(trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY'))) &&
+                ('**********' !== trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY')))) {
                 $requestBody['auth']['jsKey'] = Tools::getValue('BAYONET_AF_JS_LIVE_KEY');
                 $response = $requestHelper->deviceFingerprint($requestBody);
 
                 if (isset($response->reasonCode) && (int) $response->reasonCode !== 51) {
                     switch ((int) $response->reasonCode) {
                         case 12:
-                            $this->postErrors[] = $this->l('Invalid value for the Device Fingerprint live key. Please check your key and try again');
+                            $this->postErrors[] = $this->l('Invalid value for the Device Fingerprint live key.
+                            Please check your key and try again');
                             break;
                         case 15:
-                            $this->postErrors[] = $this->l('Device Fingerprint live key: The key you entered has expired, please generate a new key from Bayonet\'s console');
+                            $this->postErrors[] = $this->l('Device Fingerprint live key:
+                            The key you entered has expired, please generate a new key from Bayonet\'s console');
                             break;
                         case 16:
-                            $this->postErrors[] = $this->l('Device Fingerprint live key: Store domain is not registered, please add your store domain to the whitelist in Bayonet\'s console');
+                            $this->postErrors[] = $this->l('Device Fingerprint live key:
+                            Store domain is not registered, please add your store domain to the whitelist in
+                            Bayonet\'s console');
                             break;
                     }
                 }
-            } elseif (empty(trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY'))) && 1 === (int) Configuration::get('BAYONET_AF_JS_LIVE_KEY')) {
-                $this->postErros[] = $this->l('Cannot save an empty live (production) API key when the live (production) mode is enabled');
+            } elseif (empty(trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY'))) &&
+                1 === (int) Configuration::get('BAYONET_AF_ENABLE')) {
+                $this->postErros[] = $this->l('Cannot save an empty API key when the module is enabled');
             }
         }
     }
 
-    public function _postProcess()
+    public function postProcess()
     {
         if (Tools::isSubmit('btnSubmit')) {
             $forms_values = $this->getConfigFormValues();
@@ -490,7 +432,6 @@ class BayonetAntiFraud extends Module
     public function hookActionValidateOrder($params)
     {
         if (0 === (int) Configuration::get('BAYONET_AF_ENABLE') ||
-           (!Configuration::get('BAYONET_AF_API_TEST_KEY') && 0 === (int) Configuration::get('BAYONET_AF_API_MODE')) ||
            (!Configuration::get('BAYONET_AF_API_LIVE_KEY') && 1 === (int) Configuration::get('BAYONET_AF_API_MODE'))) {
             return;
         }
@@ -498,9 +439,7 @@ class BayonetAntiFraud extends Module
         $apiMode = (int) Configuration::get('BAYONET_AF_API_MODE');
         $apiKey = '';
 
-        if (0 === $apiMode) {
-            $apiKey = Configuration::get('BAYONET_AF_API_TEST_KEY');
-        } elseif (1 === $apiMode) {
+        if (1 === $apiMode) {
             $apiKey = Configuration::get('BAYONET_AF_API_LIVE_KEY');
         }
 
@@ -623,7 +562,8 @@ class BayonetAntiFraud extends Module
         $apiKey = '';
         $transactionStatus = '';
         $requestHelper = new RequestHelper();
-        $bayonetOrder = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_orders` WHERE `order_id` = ' . (int) $params['id_order']);
+        $bayonetOrder = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_orders`
+            WHERE `order_id` = ' . (int) $params['id_order']);
 
         if (false !== $bayonetOrder) {
             if (null !== $bayonetOrder['bayonet_tracking_id'] && null !== $bayonetOrder['current_status']) {
@@ -633,8 +573,6 @@ class BayonetAntiFraud extends Module
 
                 if (1 === (int) $bayonetOrder['api_mode']) {
                     $apiKey = Configuration::get('BAYONET_AF_API_LIVE_KEY');
-                } elseif (0 === (int) $bayonetOrder['api_mode']) {
-                    $apiKey = Configuration::get('BAYONET_AF_API_TEST_KEY');
                 }
 
                 if ('pending' === $bayonetOrder['current_status']) {
@@ -702,16 +640,19 @@ class BayonetAntiFraud extends Module
 
     public function hookHeader()
     {
-        if (Tools::getValue('controller') != 'order-opc' && (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order.php' || $_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order-opc.php' || Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' || Tools::getValue('step') == 3))) {
+        if (Tools::getValue('controller') != 'order-opc' &&
+            (!($_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order.php' ||
+            $_SERVER['PHP_SELF'] == __PS_BASE_URI__ . 'order-opc.php' ||
+            Tools::getValue('controller') == 'order' || Tools::getValue('controller') == 'orderopc' ||
+            Tools::getValue('step') == 3))) {
             return;
         }
+
+        Media::addJsDef(['bayonet_enabled' => (int)Configuration::get('BAYONET_AF_ENABLE')]);
 
         if (1 === (int) Configuration::get('BAYONET_AF_API_MODE')) {
             Media::addJsDef(['bayonet_api_mode' => (int) Configuration::get('BAYONET_AF_API_MODE')]);
             Media::addJsDef(['bayonet_af_js_key' => Configuration::get('BAYONET_AF_JS_LIVE_KEY')]);
-        } elseif (0 === (int) Configuration::get('BAYONET_AF_API_MODE')) {
-            Media::addJsDef(['bayonet_api_mode' => (int) Configuration::get('BAYONET_AF_API_MODE')]);
-            Media::addJsDef(['bayonet_af_js_key' => Configuration::get('BAYONET_AF_JS_TEST_KEY')]);
         }
 
         Media::addJsDef(['urlFingerprint' => $this->context->link->getModuleLink(
@@ -728,70 +669,54 @@ class BayonetAntiFraud extends Module
 
     public function hookDisplayAdminOrder($params)
     {
-        $blocklistIdSandbox = 0;
-        $whitelistSandbox = 0;
-        $blocklistSandbox = 0;
         $blocklistIdLive = 0;
         $whitelistLive = 0;
         $blocklistLive = 0;
-        $reasonCodeBlocklistSandbox = 'N/A';
         $reasonCodeBlocklistLive = 'N/A';
-        $reasonCodeWhitelistSandbox = 'N/A';
         $reasonCodeWhitelistLive = 'N/A';
-        $reasonMessageBlocklistSandbox = 'N/A';
         $reasonMessageBlocklistLive = 'N/A';
-        $reasonMessageWhitelistSandbox = 'N/A';
         $reasonMessageWhitelistLive = 'N/A';
-        $attemptedActionBlocklistSandbox = 'N/A';
         $attemptedActionBlocklistLive = 'N/A';
-        $attemptedActionWhitelistSandbox = 'N/A';
         $attemptedActionWhitelistLive = 'N/A';
 
-        $apiMode = (int) Configuration::get('BAYONET_AF_API_MODE');
+        $apiMode = (int)Configuration::get('BAYONET_AF_API_MODE');
         $noKeys = false;
 
         if (1 === $apiMode && !Configuration::get('BAYONET_AF_API_LIVE_KEY')) {
             $noKeys = true;
-            $disabled = 'disabled';
-        } elseif (0 === $apiMode && !Configuration::get('BAYONET_AF_API_TEST_KEY')) {
-            $noKeys = true;
-            $disabled = 'disabled';
         }
-
+        
         $displayedOrder = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_orders` 
-            WHERE `order_id` = ' . (int) $params['id_order']);
+            WHERE `order_id` = ' . (int)$params['id_order']);
         $orderCustomer = Db::getInstance()->getRow('SELECT a.`email`, a.`id_customer` FROM 
             (SELECT `email`, `id_customer` FROM `' . _DB_PREFIX_ . 'customer` WHERE `id_customer` = 
             (SELECT `id_customer` FROM `' . _DB_PREFIX_ . 'orders` WHERE 
-            `id_order` = ' . (int) $params['id_order'] . ')) a');
-        $blocklistDataSandbox = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_blocklist` WHERE `email` =  \'' . $orderCustomer['email'] . '\' AND `api_mode` = ' . 0);
-        $blocklistDataLive = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_blocklist` WHERE `email` =  \'' . $orderCustomer['email'] . '\' AND `api_mode` = ' . 1);
+            `id_order` = ' . (int)$params['id_order'] . ')) a');
+        $blocklistDataLive = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.
+            'bayonet_antifraud_blocklist` WHERE `email` =  \'' . $orderCustomer['email'] . '\' AND `api_mode` = ' . 1);
 
-        if ($blocklistDataSandbox !== false && $blocklistDataLive !== false) {
-            $blocklistIdSandbox = $blocklistDataSandbox['blocklist_id'];
-            $whitelistSandbox = $blocklistDataSandbox['whitelist'];
-            $blocklistSandbox = $blocklistDataSandbox['blocklist'];
+        if ($blocklistDataLive !== false) {
             $blocklistIdLive = $blocklistDataLive['blocklist_id'];
             $whitelistLive = $blocklistDataLive['whitelist'];
             $blocklistLive = $blocklistDataLive['blocklist'];
-            $reasonCodeBlocklistSandbox = null !== $blocklistDataSandbox['reason_code_blocklist'] ? $blocklistDataSandbox['reason_code_blocklist'] : 'N/A';
-            $reasonCodeBlocklistLive = null !== $blocklistDataLive['reason_code_blocklist'] ? $blocklistDataLive['reason_code_blocklist'] : 'N/A';
-            $reasonCodeWhitelistSandbox = null !== $blocklistDataSandbox['reason_code_whitelist'] ? $blocklistDataSandbox['reason_code_whitelist'] : 'N/A';
-            $reasonCodeWhitelistLive = null !== $blocklistDataLive['reason_code_whitelist'] ? $blocklistDataLive['reason_code_whitelist'] : 'N/A';
-            $reasonMessageBlocklistSandbox = null !== $blocklistDataSandbox['reason_message_blocklist'] ? $blocklistDataSandbox['reason_message_blocklist'] : 'N/A';
-            $reasonMessageBlocklistLive = null !== $blocklistDataLive['reason_message_blocklist'] ? $blocklistDataLive['reason_message_blocklist'] : 'N/A';
-            $reasonMessageWhitelistSandbox = null !== $blocklistDataSandbox['reason_message_whitelist'] ? $blocklistDataSandbox['reason_message_whitelist'] : 'N/A';
-            $reasonMessageWhitelistLive = null !== $blocklistDataLive['reason_message_whitelist'] ? $blocklistDataLive['reason_message_whitelist'] : 'N/A';
-            $attemptedActionBlocklistSandbox = null !== $blocklistDataSandbox['attempted_action_blocklist'] ? $blocklistDataSandbox['attempted_action_blocklist'] : 'N/A';
-            $attemptedActionBlocklistLive = null !== $blocklistDataLive['attempted_action_blocklist'] ? $blocklistDataLive['attempted_action_blocklist'] : 'N/A';
-            $attemptedActionWhitelistSandbox = null !== $blocklistDataSandbox['attempted_action_whitelist'] ? $blocklistDataSandbox['attempted_action_whitelist'] : 'N/A';
-            $attemptedActionWhitelistLive = null !== $blocklistDataLive['attempted_action_whitelist'] ? $blocklistDataLive['attempted_action_whitelist'] : 'N/A';
+            $reasonCodeBlocklistLive = null !== $blocklistDataLive['reason_code_blocklist'] ?
+                $blocklistDataLive['reason_code_blocklist'] : 'N/A';
+            $reasonCodeWhitelistLive = null !== $blocklistDataLive['reason_code_whitelist'] ?
+                $blocklistDataLive['reason_code_whitelist'] : 'N/A';
+            $reasonMessageBlocklistLive = null !== $blocklistDataLive['reason_message_blocklist'] ?
+                $blocklistDataLive['reason_message_blocklist'] : 'N/A';
+            $reasonMessageWhitelistLive = null !== $blocklistDataLive['reason_message_whitelist'] ?
+                $blocklistDataLive['reason_message_whitelist'] : 'N/A';
+            $attemptedActionBlocklistLive = null !== $blocklistDataLive['attempted_action_blocklist'] ?
+                $blocklistDataLive['attempted_action_blocklist'] : 'N/A';
+            $attemptedActionWhitelistLive = null !== $blocklistDataLive['attempted_action_whitelist'] ?
+                $blocklistDataLive['attempted_action_whitelist'] : 'N/A';
         }
-
+        
         if ($displayedOrder) {
             $apiResponse = $displayedOrder['consulting_api_response'];
             $apiResponse = rtrim($apiResponse, ',');
-            $apiResponse = '[' . trim($apiResponse) . ']';
+            $apiResponse = "[" . trim($apiResponse) . "]";
             $metadata = json_decode($apiResponse, true);
             $decisionMessage = '';
 
@@ -810,38 +735,36 @@ class BayonetAntiFraud extends Module
                     'not_consulting_order' => false,
                     'unprocessed_order' => false,
                     'decision_message' => $decisionMessage,
-                    'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#' .
+                    'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#'.
                         (('accept' === $displayedOrder['decision']) ? '339933' :
                             (('decline' === $displayedOrder['decision']) ? 'f00' :
-                                ('review' === $displayedOrder['decision'] ? 'ff7f27' : '000000'))) . '">' .
+                                ('review' === $displayedOrder['decision'] ? 'ff7f27' : '000000'))).'">'.
                         (('accept' == $displayedOrder['decision']) ? $this->l('ACCEPTED') :
                             (('decline' === $displayedOrder['decision']) ? $this->l('DECLINED') :
-                                ('review' === $displayedOrder['decision'] ? $this->l('REVIEW') : 'ERROR'))) . '</span>',
+                                ('review' === $displayedOrder['decision'] ? $this->l('REVIEW') : 'ERROR'))).'</span>',
                     'bayonet_tracking_id' => $displayedOrder['bayonet_tracking_id'],
                     'reason_code' => $metadata[0]['reason_code'],
-                    'reason_message' => 'success' === $metadata[0]['reason_message'] ? $this->l('Correct') : $metadata[0]['reason_message'],
+                    'reason_message' => 'success' === $metadata[0]['reason_message'] ?
+                        $this->l('Correct') : $metadata[0]['reason_message'],
                     'triggered_rules' => $displayedOrder['triggered_rules'],
                     'api_mode_order' => $displayedOrder['api_mode'],
                     'customer_email' => $orderCustomer['email'],
                     'customer_id' => $orderCustomer['id_customer'],
-                    'blocklist_id_sandbox' => $blocklistIdSandbox,
-                    'whitelist_sandbox' => $whitelistSandbox,
-                    'blocklist_sandbox' => $blocklistSandbox,
                     'blocklist_id_live' => $blocklistIdLive,
                     'whitelist_live' => $whitelistLive,
                     'blocklist_live' => $blocklistLive,
-                    'reason_code_blocklist_sandbox' => $reasonCodeBlocklistSandbox,
                     'reason_code_blocklist_live' => $reasonCodeBlocklistLive,
-                    'reason_code_whitelist_sandbox' => $reasonCodeWhitelistSandbox,
                     'reason_code_whitelist_live' => $reasonCodeWhitelistLive,
-                    'reason_message_blocklist_sandbox' => 'success' === $reasonMessageBlocklistSandbox ? $this->l('Correct') : $reasonMessageBlocklistSandbox,
-                    'reason_message_blocklist_live' => 'success' === $reasonMessageBlocklistLive ? $this->l('Correct') : $reasonMessageBlocklistLive,
-                    'reason_message_whitelist_sandbox' => 'success' === $reasonMessageWhitelistSandbox ? $this->l('Correct') : $reasonMessageWhitelistSandbox,
-                    'reason_message_whitelist_live' => 'success' === $reasonMessageWhitelistLive ? $this->l('Correct') : $reasonMessageWhitelistLive,
-                    'attempted_action_blocklist_sandbox' => 'N/A' === $attemptedActionBlocklistSandbox ? $attemptedActionBlocklistSandbox : ('Add' === $attemptedActionBlocklistSandbox ? $this->l('Add') : $this->l('Removal')),
-                    'attempted_action_blocklist_live' => 'N/A' === $attemptedActionBlocklistLive ? $attemptedActionBlocklistLive : ('Add' === $attemptedActionBlocklistLive ? $this->l('Add') : $this->l('Removal')),
-                    'attempted_action_whitelist_sandbox' => 'N/A' === $attemptedActionWhitelistSandbox ? $attemptedActionWhitelistSandbox : ('Add' === $attemptedActionWhitelistSandbox ? $this->l('Add') : $this->l('Removal')),
-                    'attempted_action_whitelist_live' => 'N/A' === $attemptedActionWhitelistLive ? $attemptedActionWhitelistLive : ('Add' === $attemptedActionWhitelistLive ? $this->l('Add') : $this->l('Removal')),
+                    'reason_message_blocklist_live' => 'success' === $reasonMessageBlocklistLive ?
+                        $this->l('Correct') : $reasonMessageBlocklistLive,
+                    'reason_message_whitelist_live' => 'success' === $reasonMessageWhitelistLive ?
+                        $this->l('Correct') : $reasonMessageWhitelistLive,
+                    'attempted_action_blocklist_live' => 'N/A' === $attemptedActionBlocklistLive ?
+                        $attemptedActionBlocklistLive : ('Add' === $attemptedActionBlocklistLive ?
+                        $this->l('Add') : $this->l('Removal')),
+                    'attempted_action_whitelist_live' => 'N/A' === $attemptedActionWhitelistLive ?
+                        $attemptedActionWhitelistLive : ('Add' === $attemptedActionWhitelistLive ?
+                        $this->l('Add') : $this->l('Removal')),
                     'current_api_mode' => $apiMode,
                     'no_keys' => $noKeys,
                 ]);
@@ -858,21 +781,16 @@ class BayonetAntiFraud extends Module
             ]);
         }
 
-        $ajax_controller_url = $this->context->link->getModuleLink(
+        $ajax_controller_url = rawurlencode($this->context->link->getModuleLink(
             $this->name,
             'blocklist',
             ['ajax' => true]
-        );
+        ));
 
         $this->smarty->assign('path', $this->_path);
         $this->smarty->assign('urlBlocklist', $ajax_controller_url);
-
+            
         return $this->display(__FILE__, 'admin_order.tpl');
-    }
-
-    public function hookDisplayBackOfficeHeader($params)
-    {
-        $this->context->controller->addCSS($this->_path . 'views/css/' . $this->name . '_bo.css', 'all');
     }
 
     private function insertBlocklist($email, $customer)
@@ -885,11 +803,8 @@ class BayonetAntiFraud extends Module
             $blocklistInsert = [
                 'customer_id' => $customer,
                 'email' => $email,
-                'api_mode' => 0,
+                'api_mode' => 1,
             ];
-            Db::getInstance()->insert('bayonet_antifraud_blocklist', $blocklistInsert);
-
-            $blocklistInsert['api_mode'] = 1;
             Db::getInstance()->insert('bayonet_antifraud_blocklist', $blocklistInsert);
         }
     }

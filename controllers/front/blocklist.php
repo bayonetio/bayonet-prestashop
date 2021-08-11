@@ -40,9 +40,7 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
         $apiMode = (int) Tools::getValue('apiMode');
         $apiKey = '';
 
-        if (0 === $apiMode) {
-            $apiKey = Configuration::get('BAYONET_AF_API_TEST_KEY');
-        } elseif (1 === $apiMode) {
+        if (1 === $apiMode) {
             $apiKey = Configuration::get('BAYONET_AF_API_LIVE_KEY');
         }
 

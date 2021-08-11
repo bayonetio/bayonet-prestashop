@@ -24,7 +24,7 @@
 *}
 
 <script type="text/javascript">
-    var backfillMode = "{$backfill_mode}";    
+    var backfillMode = "{$backfill_mode|intval}";    
 </script>
 
 <div class="panel">
@@ -68,7 +68,7 @@
 				{/if}
 			{else}
 				<div class="col-md-12">
-				  <div class="alert alert-danger">{l s='Please save your live API keys and set the API mode to live to enable this feature' mod='bayonetantifraud'}</div>
+				  <div class="alert alert-danger">{l s='Please save your live API keys to enable this feature' mod='bayonetantifraud'}</div>
 					<p></p>
 				</div>
 			{/if}

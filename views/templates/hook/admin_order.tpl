@@ -25,7 +25,7 @@
 
 <script type="text/javascript" src="{$path|escape:'htmlall':'UTF-8'}views/js/blocklist.js"></script>
 <script type="text/javascript">
-    var urlBlocklist = "{$urlBlocklist}";    
+    var urlBlocklist = decodeURIComponent("{$urlBlocklist|escape:'htmlall':'UTF-8'}");    
 </script>
 
 <div class="panel">
@@ -59,15 +59,6 @@
 		<tr></tr>
 		<tr></tr>
 		<tr>
-		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='API Mode' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The API Mode in which this order was analyzed' mod='bayonetantifraud'}</div></td>
-		  {if (int)$api_mode_order === 1}
-		    <td colspan="2" valign="top" align="left" style="vertical-align:center" >{l s='Live' mod='bayonetantifraud'}</td>
-		  {else if (int)$api_mode_order === 0}
-		    <td colspan="2" valign="top" align="left" style="vertical-align:center" >{l s='Sandbox' mod='bayonetantifraud'}</td>
-		  {/if}
-		  <td>&nbsp;</td>
-		</tr>
-		<tr>
 		  <td valign="top" align="center" style="vertical-align:center" ><strong>Bayonet Tracking ID</strong><div style="font-size:10px;color:#4b4b4b">{l s='Bayonet internal ID to track the status change on this order' mod='bayonetantifraud'}</div></td>
 		  <td colspan="2" valign="top" align="left" style="vertical-align:center" >{$bayonet_tracking_id|escape:'htmlall':'UTF-8'}</td>
 		  <td>&nbsp;</td>
@@ -89,39 +80,7 @@
 		  </tr>
 		{/if}
 		<tr>
-		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Blocklist Status (sandbox)' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The current status of the customer\'s email in Bayonet Blocklist for sandbox (test) mode' mod='bayonetantifraud'}</div></td>
-		  {if (int)$blocklist_sandbox === 1}
-		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Added' mod='bayonetantifraud'}</strong></td>
-		  {elseif (int)$blocklist_sandbox === 0}
-		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Not Added' mod='bayonetantifraud'}</strong></td>
-		  {/if}
-		  <td valign="top" align="left" style="vertical-align:center" >
-			- {l s='Code: ' mod='bayonetantifraud'} {$reason_code_blocklist_sandbox|escape:'htmlall':'UTF-8'}
-			<br />
-			- {l s='API Call: ' mod='bayonetantifraud'} {$reason_message_blocklist_sandbox|escape:'htmlall':'UTF-8'}
-			<br />
-			- {l s='Attempted action: ' mod='bayonetantifraud'} {$attempted_action_blocklist_sandbox|escape:'htmlall':'UTF-8'}
-		  </td>
-		  <td>&nbsp;</td>
-		</tr>
-		<tr>
-		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Whitelist Status (sandbox)' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The current status of the customer\'s email in Bayonet Whitelist for sandbox (test) mode' mod='bayonetantifraud'}</div></td>
-		  {if (int)$whitelist_sandbox === 1}
-		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Added' mod='bayonetantifraud'}</strong></td>
-		  {elseif (int)$whitelist_sandbox === 0}
-		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Not Added' mod='bayonetantifraud'}</strong></td>
-		  {/if}
-		  <td valign="top" align="left" style="vertical-align:center" >
-			- {l s='Code: ' mod='bayonetantifraud'} {$reason_code_whitelist_sandbox|escape:'htmlall':'UTF-8'}
-			<br />
-			- {l s='API Call: ' mod='bayonetantifraud'} {$reason_message_whitelist_sandbox|escape:'htmlall':'UTF-8'}
-			<br />
-			- {l s='Attempted action: ' mod='bayonetantifraud'} {$attempted_action_whitelist_sandbox|escape:'htmlall':'UTF-8'}
-		  </td>
-		  <td>&nbsp;</td>
-		</tr>
-		<tr>
-		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Blocklist Status (live)' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The current status of the customer\'s email in Bayonet Blocklist for live (production) mode' mod='bayonetantifraud'}</div></td>
+		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Blocklist Status' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The current status of the customer\'s email in Bayonet Blocklist' mod='bayonetantifraud'}</div></td>
 		  {if (int)$blocklist_live === 1}
 		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Added' mod='bayonetantifraud'}</strong></td>
 		  {elseif (int)$blocklist_live === 0}
@@ -136,7 +95,7 @@
 		  </td>
 		  <td>&nbsp;</td>
 		</tr>
-		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Whitelist Status (live)' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The current status of the customer\'s email in Bayonet Whitelist for live (production) mode' mod='bayonetantifraud'}</div></td>
+		  <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Whitelist Status' mod='bayonetantifraud'}</strong><div style="font-size:10px;color:#4b4b4b">{l s='The current status of the customer\'s email in Bayonet Whitelist' mod='bayonetantifraud'}</div></td>
 		  {if (int)$whitelist_live === 1}
 		    <td valign="top" align="center" style="vertical-align:center" ><strong>{l s='Added' mod='bayonetantifraud'}</strong></td>
 		  {elseif (int)$whitelist_live === 0}
@@ -154,46 +113,11 @@
 	  </table>
 	  <div style="text-align:right; width:100%; padding:0;">
 	    <p>
-		  {if (int)$current_api_mode === 0}
-		    <strong>{l s='Current API Mode: ' mod='bayonetantifraud'} {l s='Sandbox (test)' mod='bayonetantifraud'}</strong>
-		  {elseif (int)$current_api_mode === 1}
-		    <strong>{l s='Current API Mode: ' mod='bayonetantifraud'} {l s='Live (production)' mod='bayonetantifraud'}</strong>
-		  {/if}
 		  {if $no_keys}
-		    <div style="font-size:10px;color:#4b4b4b">{l s='The API key for the current API mode has not been added yet, please add it to enable the blocklist buttons' mod='bayonetantifraud'}</div>
-		  {else}
-		    <div style="font-size:10px;color:#4b4b4b">{l s='The actions of the buttons below will apply changes only in the API Mode currently set' mod='bayonetantifraud'}</div>
+		    <div style="font-size:10px;color:#4b4b4b">{l s='The API key has not been added yet, please add it to enable the blocklist/whitelist buttons' mod='bayonetantifraud'}</div>
 		  {/if}
 		</p>
-	    {if (int)$current_api_mode === 0}
-	      {if (int)$blocklist_id_sandbox > 0}
-            {if (int)$whitelist_sandbox === 1}
-			  {if $no_keys}
-			    <button class="btn btn-success" disabled id="btn-removeWhite" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Remove Customer\'s Email from Bayonet Whitelist' mod='bayonetantifraud'}</button>
-                <button class="btn btn-danger" disabled id="btn-addBlock" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Add Customer\'s Email to Bayonet Blocklist' mod='bayonetantifraud'}</button>
-			  {else}
-			    <button class="btn btn-success" id="btn-removeWhite" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Remove Customer\'s Email from Bayonet Whitelist' mod='bayonetantifraud'}</button>
-                <button class="btn btn-danger" id="btn-addBlock" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Add Customer\'s Email to Bayonet Blocklist' mod='bayonetantifraud'}</button>
-			  {/if}
-            {elseif (int)$blocklist_sandbox === 1}
-			  {if $no_keys}
-			    <button class="btn btn-success" disabled id="btn-addWhite" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Add Customer\'s Email to Bayonet Whitelist' mod='bayonetantifraud'}</button>
-                <button class="btn btn-danger" disabled id="btn-removeBlock" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Remove Customer\'s Email from Bayonet Blocklist' mod='bayonetantifraud'}</button>
-			  {else}
-			    <button class="btn btn-success" id="btn-addWhite" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Add Customer\'s Email to Bayonet Whitelist' mod='bayonetantifraud'}</button>
-                <button class="btn btn-danger" id="btn-removeBlock" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Remove Customer\'s Email from Bayonet Blocklist' mod='bayonetantifraud'}</button>
-			  {/if}
-            {elseif (int)$whitelist_sandbox === 0 && (int)blocklist_sandbox === 0}
-			  {if $no_keys}
-                <button class="btn btn-success" disabled id="btn-addWhite" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Add Customer\'s Email to Bayonet Whitelist' mod='bayonetantifraud'}</button>
-                <button class="btn btn-danger" disabled id="btn-addBlock" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Add Customer\'s Email to Bayonet Blocklist' mod='bayonetantifraud'}</button>
-			  {else}
-			    <button class="btn btn-success" id="btn-addWhite" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Add Customer\'s Email to Bayonet Whitelist' mod='bayonetantifraud'}</button>
-                <button class="btn btn-danger" id="btn-addBlock" data-mail="{$customer_email|escape:'htmlall':'UTF-8'}" data-customer="{$customer_id|escape:'htmlall':'UTF-8'}" data-id="{$blocklist_id_sandbox|escape:'htmlall':'UTF-8'}" data-whitelist="{$whitelist_sandbox|escape:'htmlall':'UTF-8'}" data-blocklist="{$blocklist_sandbox|escape:'htmlall':'UTF-8'}" data-mode="{$current_api_mode|escape:'htmlall':'UTF-8'}">{l s='Add Customer\'s Email to Bayonet Blocklist' mod='bayonetantifraud'}</button>
-			  {/if}
-            {/if}
-          {/if}
-	    {elseif (int)$current_api_mode === 1}
+	    {if (int)$current_api_mode === 1}
 	      {if (int)$blocklist_id_live > 0}
             {if (int)$whitelist_live === 1}
 			  {if $no_keys}
