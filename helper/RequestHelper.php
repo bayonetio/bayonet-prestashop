@@ -146,6 +146,16 @@ class RequestHelper
         return $listResponse;
     }
 
+    /**
+     * Performs a request to either the Bayonet or Device Fingerprint API.
+     * @param string $endpoint
+     * @param array $requestBody
+     * @param string $api
+     * @param int $versionValidation
+     * @param int $version
+     *
+     * @return array
+     */
     private function request($endpoint, $requestBody, $api, $versionValidation, $version)
     {
         $apiVersion = '';

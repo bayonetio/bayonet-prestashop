@@ -23,7 +23,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-$$(document).ready(function() {
+$(document).ready(function() {
   if (1 === parseInt(bayonet_enabled)) {
   $.getScript('https://cdn.bayonet.io/fingerprinting-2.0.min.js', function() {
   	initBayonet();
