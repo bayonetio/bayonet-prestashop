@@ -80,7 +80,7 @@ $_MODULE['<{bayonetantifraud}prestashop>config_e6e17ec4b3aafbc4ac645c30c47b4ea9'
 $_MODULE['<{bayonetantifraud}prestashop>config_15bbb9d0bbf25e8d2978de1168c749dc'] = 'Sitio Web';
 $_MODULE['<{bayonetantifraud}prestashop>config_5058f1af8388633f609cadb75a75dc9d'] = '.';
 $_MODULE['<{bayonetantifraud}prestashop>backfill_635f75d7ae8837b22b5cc244e70f40b5'] = 'Backfill Histórico';
-$_MODULE['<{bayonetantifraud}prestashop>backfill_1e1c33f308a96db11c8051d4b0bd989c'] = 'El backfill histórico es un proceso que realizamos para conocer de mejor manera tu tienda. Revisamos todas las ordenes en tu tienda previo a la instalación de este módulo, de esta manera, podemos detectar patrones de tus clientes y como se comporta tu tienda en general. El hacer esto ayuda al módulo a tener una mejor precisión al momento de analizar las nuevas ordenes en búsqueda de fraude.';
+$_MODULE['<{bayonetantifraud}prestashop>backfill_1e1c33f308a96db11c8051d4b0bd989c'] = 'El backfill histórico es un proceso que realizamos para conocer de mejor manera su tienda. Revisamos todas las ordenes en su tienda previo a la instalación de este módulo, de esta manera, podemos detectar patrones de sus clientes y como se comporta su tienda en general. El hacer esto ayuda al módulo a tener una mejor precisión al momento de analizar las nuevas ordenes en búsqueda de fraude.';
 $_MODULE['<{bayonetantifraud}prestashop>backfill_d657c3b5fef6477b98fc7aa254ad0081'] = 'Proceso de Backfill previamente completado';
 $_MODULE['<{bayonetantifraud}prestashop>backfill_ec412ac34141995c25a9826f6b519be0'] = 'Iniciar Backfill';
 $_MODULE['<{bayonetantifraud}prestashop>backfill_c2c40ef43e7caf5a72bdf58726bfe90c'] = 'Estatus del Backfill';
@@ -93,5 +93,5 @@ $_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_a240fa27925a635b08dc2
 $_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_93e42307885f7ff045fde10b8ad96c75'] = 'El ID del orden';
 $_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_4606735b94033362ada7ef991589fff8'] = 'Un ID generado por el API de Bayonet para esta transacción';
 $_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_5d30f54fc5f12894fd1afbf4d41c5969'] = 'Decisión';
-$_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_2b652bd24090e9542f6dfa345e5a5d78'] = 'La decisión obtenida después del análisis de la orden, esto es lo que se usa para decidir que hacer con una orden, si una orden tiene DECLINE en este campo, deberías cancelarla de inmediato';
+$_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_2b652bd24090e9542f6dfa345e5a5d78'] = 'La decisión obtenida después del análisis de la orden, esto es lo que se usa para decidir que hacer con una orden, si una orden tiene DECLINE en este campo, debería cancelarla de inmediato';
 $_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_35747d4e6fe0bc9866b6ceba3812294f'] = 'Configuraciones de Bayonet';
