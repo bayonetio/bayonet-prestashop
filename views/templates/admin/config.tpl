@@ -32,12 +32,12 @@
 	<br />
 	<br />
 	{l s='Enabling this module\'s features will require for you to enter your API keys, to obtain them you need to log into' mod='bayonetantifraud'} <a href="https://bayonet.io/login" target="_blank" rel="noopener noreferrer">{l s='Bayonet\'s Console' mod='bayonetantifraud'}</a> {l s='with your Bayonet credentials, once you are logged in, go to the ' mod='bayonetantifraud'} <a href="https://bayonet.io/developers/setup" target="_blank" rel="noopener noreferrer">{l s='Setup section' mod='bayonetantifraud'}</a>{l s=', where you can get them or generate them if you haven\'t done that.' mod='bayonetantifraud'}
-	{l s='If you haven\'t received your Bayonet credentials yet, please send an email to' mod='bayonetantifraud'} <a href="mailto:contacto@bayonet.io">contacto@bayonet.io</a>
+	{l s='If you haven\'t received your Bayonet credentials yet, please send an email to' mod='bayonetantifraud'} <a href="mailto:prestashop@bayonet.io">prestashop@bayonet.io</a>
 	{l s='with your information to provide you with them.' mod='bayonetantifraud'}
 	<br />
 	<br />
 	{l s='In order to be able to use Bayonet in Live Mode properly, you must add both your IP address and your domain to the whitelist in' mod='bayonetantifraud'} <a href="https://bayonet.io/login" target="_blank" rel="noopener noreferrer">{l s='Bayonet\'s Console' mod='bayonetantifraud'}</a>. {l s='This is located in the' mod='bayonetantifraud'} <a href="https://bayonet.io/developers/setup" target="_blank" rel="noopener noreferrer">{l s='Setup section' mod='bayonetantifraud'}</a>, {l s='the same place where you get your API keys.' mod='bayonetantifraud'}
 	<br />
 	<br />
-	{l s='If you need any support regarding this module, you can either send a mail to' mod='bayonetantifraud'} <a href="mailto:soporte@bayonet.io">soporte@bayonet.io</a> {l s=' or contact us via Intercom on our ' mod='bayonetantifraud'} <a href="https://bayonet.io/" target="_blank" rel="noopener noreferrer">{l s='Website' mod='bayonetantifraud'}</a>{l s='.' mod='bayonetantifraud'}
+	{l s='If you need any support regarding this module, you can either send a mail to' mod='bayonetantifraud'} <a href="mailto:prestashop@bayonet.io">prestashop@bayonet.io</a> {l s=' or contact us via Intercom on our ' mod='bayonetantifraud'} <a href="https://bayonet.io/" target="_blank" rel="noopener noreferrer">{l s='Website' mod='bayonetantifraud'}</a>{l s='.' mod='bayonetantifraud'}
 </div>
