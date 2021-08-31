@@ -20,6 +20,7 @@ $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_ba0884a78b9bb589feedac0
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_6bccbe4c8850cdb81f8709ac66fb0ac5'] = 'Llave Live (producción) de Device Fingerprint';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_c9cc8cce247e49bae79f15173ce97354'] = 'Guardar';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_97ddbb0c317f6bf78ec294436a0b444b'] = 'El módulo no puede ser habilitado si ningún par de llaves es guardado primero. Por favor agregue su par de llaves live antes de habilitar el módulo';
+$_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_d6f7bf44f582fc30e376678834df7870'] = 'No se puede guardar una llave del API vacía cuando el módulo se encuentra actualmente habilitado';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_7ad1709f005eb8e4ef7d86312b9880ec'] = 'Esta versión del API es inválida, por favor intente de nuevo';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_49b9d7d9e6a67ca65660301179fc92f7'] = 'No se puede guardar un valor vacío para la versión del API, por favor agregue una versión del API e intente de nuevo';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_f901c4637a0ce9b05e1b1aa7d466b9a7'] = 'Valor inválido para llave live de Bayonet. Por favor revise su llave e intente de nuevo';

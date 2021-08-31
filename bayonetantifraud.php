@@ -333,6 +333,12 @@ class BayonetAntiFraud extends Module
                 first. Please add your pair of live keys before enabling the module');
             }
 
+            if ((int) Configuration::get('BAYONET_AF_ENABLE') === 1 &&
+                (trim(Tools::getValue('BAYONET_AF_API_LIVE_KEY')) === '' ||
+                trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY')) === '')) {
+                $this->postErrors[] = $this->l('Cannot save an empty API key when the module is currently enabled');
+            }
+
             if (!empty(trim(Tools::getValue('BAYONET_AF_API_VERSION')))) {
                 $requestBody = [
                     'auth' => [
