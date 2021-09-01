@@ -24,7 +24,7 @@ $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_d6f7bf44f582fc30e376678
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_7ad1709f005eb8e4ef7d86312b9880ec'] = 'Esta versión del API es inválida, por favor intente de nuevo';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_49b9d7d9e6a67ca65660301179fc92f7'] = 'No se puede guardar un valor vacío para la versión del API, por favor agregue una versión del API e intente de nuevo';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_f901c4637a0ce9b05e1b1aa7d466b9a7'] = 'Valor inválido para llave live de Bayonet. Por favor revise su llave e intente de nuevo';
-$_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_62b4d8faf456b947ef9d3b6eef64a913'] = 'Llave live de Bayonet: IP de origen no es válida, por favor agregue su IP a la whitelist en la console de Bayone';
+$_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_62b4d8faf456b947ef9d3b6eef64a913'] = 'Llave live de Bayonet: IP de origen no es válida, por favor agregue su IP a la whitelist en la consola de Bayonet';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_1126725df74ae53b3345d34dc3b91e31'] = 'Llave live de Bayonet: la llave que ingresó ha expirado, por favor genere una nueva llave desde la consola de Bayonet';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_300711ab6c9bb8fbffe6402c5ec4aa0d'] = 'No se puede guardar una llave vacía del API cuando el módulo se encuentra habilitado';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_40000d7145343de00cd8d106a11c1f40'] = 'Valor inválido para la llave live de Device Fingerprint. Por favor revise su llave e intente de nuevo';
@@ -71,13 +71,15 @@ $_MODULE['<{bayonetantifraud}prestashop>config_0e0fddd49efb230d2ce8354473424867'
 $_MODULE['<{bayonetantifraud}prestashop>config_afa7f0f44a4b849cc2f6d27799e5fb4a'] = 'con sus credenciales de Bayonet, una vez que haya ingresado, vaya a';
 $_MODULE['<{bayonetantifraud}prestashop>config_93efa5664cb03f1dc5bfde56397dee36'] = 'sección de Setup';
 $_MODULE['<{bayonetantifraud}prestashop>config_53b308aab5ad93c8e3d472b9a22398e3'] = ', donde puede obtenerlas o generarlas si no lo ha hecho.';
-$_MODULE['<{bayonetantifraud}prestashop>config_c7ed8e2c8a6ab4481b6d2f5087d4f336'] = 'Si no ha recibido sus credenciales de Bayonet aún, por favor mande un correo electrónico a';
+$_MODULE['<{bayonetantifraud}prestashop>config_c7ed8e2c8a6ab4481b6d2f5087d4f336'] = 'Si no ha recibido sus credenciales de Bayonet aún, por favor envíe un correo electrónico a';
 $_MODULE['<{bayonetantifraud}prestashop>config_68130ac722fffd80ad60829e0c0f0324'] = 'con su información para proveérselas.';
 $_MODULE['<{bayonetantifraud}prestashop>config_145331a0b1d7381fe24b5313f1811256'] = 'Para poder usar Bayonet en Modo Live adecuadamente, debe agregar tanto su dirección IP y su dominio a la whitelist en';
 $_MODULE['<{bayonetantifraud}prestashop>config_e4865437738d3a1608a4c1a361cfef27'] = 'Esto está localizado en la';
 $_MODULE['<{bayonetantifraud}prestashop>config_7f5e669311a2d3250e7ad850815f1ecd'] = 'el mismo lugar donde obtiene sus llaves del API.';
-$_MODULE['<{bayonetantifraud}prestashop>config_b7c48d3689434700d7c714e9fb07bc63'] = 'Si necesita soporte acerca de este módulo, puede ya sea mandar un correo electrónico a';
-$_MODULE['<{bayonetantifraud}prestashop>config_e6e17ec4b3aafbc4ac645c30c47b4ea9'] = 'o contáctarnos via Intercom en nuestro';
+$_MODULE['<{bayonetantifraud}prestashop>config_1450c8f58c1b5bde425d6f31996f443a'] = 'Si necesita soporte acerca de este módulo, puede contactarnos usando la';
+$_MODULE['<{bayonetantifraud}prestashop>config_a659500df2d06b753605fea41bb02890'] = 'URL de soporte de PrestaShop';
+$_MODULE['<{bayonetantifraud}prestashop>config_624813d47b2914ee6ae4d0c29a9fa1da'] = 'Para cualquier otro asunto, siéntase libre de enviar un correo electrónico a';
+$_MODULE['<{bayonetantifraud}prestashop>config_e6e17ec4b3aafbc4ac645c30c47b4ea9'] = 'o contactarnos via Intercom en nuestro';
 $_MODULE['<{bayonetantifraud}prestashop>config_15bbb9d0bbf25e8d2978de1168c749dc'] = 'Sitio Web';
 $_MODULE['<{bayonetantifraud}prestashop>config_5058f1af8388633f609cadb75a75dc9d'] = '.';
 $_MODULE['<{bayonetantifraud}prestashop>backfill_635f75d7ae8837b22b5cc244e70f40b5'] = 'Backfill Histórico';
@@ -94,5 +96,5 @@ $_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_a240fa27925a635b08dc2
 $_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_93e42307885f7ff045fde10b8ad96c75'] = 'El ID del orden';
 $_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_4606735b94033362ada7ef991589fff8'] = 'Un ID generado por el API de Bayonet para esta transacción';
 $_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_5d30f54fc5f12894fd1afbf4d41c5969'] = 'Decisión';
-$_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_2b652bd24090e9542f6dfa345e5a5d78'] = 'La decisión obtenida después del análisis de la orden, esto es lo que se usa para decidir que hacer con una orden, si una orden tiene DECLINE en este campo, debería cancelarla de inmediato';
+$_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_2b652bd24090e9542f6dfa345e5a5d78'] = 'La decisión obtenida después del análisis de la orden, esto es lo que se usa para decidir que hacer con una orden, si una orden tiene DECLINE en este campo, deberías cancelarla de inmediato';
 $_MODULE['<{bayonetantifraud}prestashop>adminbayonetorders_35747d4e6fe0bc9866b6ceba3812294f'] = 'Configuraciones de Bayonet';
