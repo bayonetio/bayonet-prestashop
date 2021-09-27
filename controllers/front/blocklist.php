@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-include_once dirname(__FILE__) . '/../../helper/RequestHelper.php';
+include_once _PS_MODULE_DIR_ . '/bayonetantifraud/helper/RequestHelper.php';
 
 class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontController
 {
@@ -60,11 +60,11 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
             } elseif (0 === (int) Tools::getValue('blocklist')) {
                 $this->addWhite($request);
             }
-            echo json_encode(1);
+            echo json_encode(0);
             exit;
         } elseif ('removeWhite' === Tools::getValue('mode')) {
             $this->removeWhite($request);
-            echo json_encode(1);
+            echo json_encode(0);
             exit;
         } elseif ('addBlock' == Tools::getValue('mode')) {
             if (1 === (int) Tools::getValue('whitelist')) {
@@ -75,11 +75,11 @@ class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontControll
             } elseif (0 === (int) Tools::getValue('whitelist')) {
                 $this->addBlock($request);
             }
-            echo json_encode(1);
+            echo json_encode(0);
             exit;
         } elseif ('removeBlock' == Tools::getValue('mode')) {
             $this->removeBlock($request);
-            echo json_encode(1);
+            echo json_encode(0);
             exit;
         }
     }

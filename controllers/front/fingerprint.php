@@ -39,7 +39,7 @@ class BayonetantifraudFingerprintModuleFrontController extends ModuleFrontContro
             WHERE `customer_id` = ' . $this->context->customer->id . ' AND `api_mode` = ' . (int) $apiMode;
         $fingerprintData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($queryFingerprint);
 
-        if ($fingerprintData) {
+        if (isset($fingerprintData) && false !== $fingerprintData) {
             Db::getInstance()->update(
                 'bayonet_antifraud_fingerprint',
                 [

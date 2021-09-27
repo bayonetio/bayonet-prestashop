@@ -105,10 +105,10 @@ class OrderHelper
 
         if ('new' === $type) {
             $queryFingerprint = 'SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_fingerprint`
-            WHERE `customer_id` = ' . $customer->id . ' AND `api_mode` = ' . $apiMode;
+                WHERE `customer_id` = ' . $customer->id . ' AND `api_mode` = ' . $apiMode;
             $fingerprintData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($queryFingerprint);
 
-            if ($fingerprintData) {
+            if (isset($fingerprintData) && false !== $fingerprintData) {
                 if ($fingerprintData[0]['fingerprint_token'] !== '') {
                     $requestBody['bayonet_fingerprint_token'] = $fingerprintData[0]['fingerprint_token'];
                     Db::getInstance()->update(
@@ -130,7 +130,7 @@ class OrderHelper
                     $transactionStatus = 'success';
                     $requestBody['transaction_status'] = 'success';
                 } elseif (0 === (int) $order->getCurrentOrderState()->paid) {
-                    foreach ($order->getCurrentOrderState()->paid as $template) {
+                    foreach ($order->getCurrentOrderState()->template as $template) {
                         if (false !== strpos(Tools::strtolower($template), 'cancel') ||
                         false !== strpos(Tools::strtolower($template), 'refund')) {
                             $transactionStatus = 'cancelled';
@@ -429,8 +429,8 @@ class OrderHelper
     {
         $paymentMethod = 'tokenized_card';
         $paymentMethods = [
-            'bankwire' => 'offline',
-            'cheque' => 'offline',
+            'ps_wirepayment' => 'offline',
+            'ps_checkpayment' => 'offline',
             'paypal' => 'paypal',
             'paypalusa' => 'paypal',
             'paypalmx' => 'paypal',

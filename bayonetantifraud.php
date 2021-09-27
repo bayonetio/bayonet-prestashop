@@ -24,9 +24,9 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-include_once dirname(__FILE__) . '/model/BayonetDb.php';
-include_once dirname(__FILE__) . '/helper/RequestHelper.php';
-include_once dirname(__FILE__) . '/helper/OrderHelper.php';
+include_once _PS_MODULE_DIR_ . '/bayonetantifraud/model/BayonetDb.php';
+include_once _PS_MODULE_DIR_ . '/bayonetantifraud/helper/OrderHelper.php';
+include_once _PS_MODULE_DIR_ . '/bayonetantifraud/helper/RequestHelper.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -63,6 +63,8 @@ class BayonetAntiFraud extends Module
                 'parent_class_name' => 'ShopParameters',
             ],
         ];
+
+        $this->module_key = 'be26e9dbd19530bee7d3e20ca9cff94e';
     }
 
     public function install()
@@ -298,7 +300,7 @@ class BayonetAntiFraud extends Module
         $backfillQuery = 'SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_backfill`';
         $backfillData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($backfillQuery);
 
-        if (false !== $backfillData && null !== (int) $backfillData[0]['backfill_status']) {
+        if (isset($backfillData) && false !== $backfillData && isset($backfillData[0]) && null !== (int) $backfillData[0]['backfill_status']) {
             if (1 === (int) $backfillData[0]['backfill_status']) {
                 $backfillCompleted = 1;
             }
@@ -571,7 +573,7 @@ class BayonetAntiFraud extends Module
         $bayonetOrder = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_orders`
             WHERE `order_id` = ' . (int) $params['id_order']);
 
-        if (false !== $bayonetOrder) {
+        if (isset($bayonetOrder) && false !== $bayonetOrder) {
             if (null !== $bayonetOrder['bayonet_tracking_id'] && null !== $bayonetOrder['current_status']) {
                 $updateRequest = [
                     'bayonet_tracking_id' => $bayonetOrder['bayonet_tracking_id'],
@@ -698,10 +700,13 @@ class BayonetAntiFraud extends Module
             (SELECT `email`, `id_customer` FROM `' . _DB_PREFIX_ . 'customer` WHERE `id_customer` = 
             (SELECT `id_customer` FROM `' . _DB_PREFIX_ . 'orders` WHERE 
             `id_order` = ' . (int)$params['id_order'] . ')) a');
-        $blocklistDataLive = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.
-            'bayonet_antifraud_blocklist` WHERE `email` =  \'' . $orderCustomer['email'] . '\' AND `api_mode` = ' . 1);
+        
+        if (isset($orderCustomer) && false !== $orderCustomer) {
+            $blocklistDataLive = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.
+                'bayonet_antifraud_blocklist` WHERE `email` =  \'' . $orderCustomer['email'] . '\' AND `api_mode` = ' . 1);
+        }
 
-        if ($blocklistDataLive !== false) {
+        if (isset($blocklistDataLive) && false !== $blocklistDataLive) {
             $blocklistIdLive = $blocklistDataLive['blocklist_id'];
             $whitelistLive = $blocklistDataLive['whitelist'];
             $blocklistLive = $blocklistDataLive['blocklist'];
@@ -719,7 +724,7 @@ class BayonetAntiFraud extends Module
                 $blocklistDataLive['attempted_action_whitelist'] : 'N/A';
         }
         
-        if ($displayedOrder) {
+        if (isset($displayedOrder) && false !== $displayedOrder) {
             $apiResponse = $displayedOrder['consulting_api_response'];
             $apiResponse = rtrim($apiResponse, ',');
             $apiResponse = "[" . trim($apiResponse) . "]";
@@ -805,7 +810,7 @@ class BayonetAntiFraud extends Module
             WHERE `email` = ' . '\'' . $email . '\'';
         $blocklistData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($query);
 
-        if ($blocklistData !== false && sizeof($blocklistData) === 0) {
+        if (isset($blocklistData) && $blocklistData !== false && sizeof($blocklistData) === 0) {
             $blocklistInsert = [
                 'customer_id' => $customer,
                 'email' => $email,
