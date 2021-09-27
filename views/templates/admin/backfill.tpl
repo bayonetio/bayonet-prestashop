@@ -38,11 +38,11 @@
 				    {if 1 === (int)$backfill_completed}
 					    <div class="col-md-12">
 						    <div class="alert alert-success">{l s='Backfill process has been already completed' mod='bayonetantifraud'}</div>
-						    <p></p>
+						    <br></br>
 						</div>
 					{else}
 					    <div class="col-md-offset-2 col-md-8 col-sm-12">
-						    <div id="error-msg"></div>
+						    <div class="alert alert-danger" id="error-backfill-initiate" hidden="true">{l s='Unable to initiate historical backfill, please try again' mod='bayonetantifraud'}</div>
 						</div>
 						<div class="col-md-12">
 						    <button class="btn btn-primary" id="initiate">{l s='Initiate Backfill' mod='bayonetantifraud'}</button>
@@ -62,6 +62,9 @@
 						  </div>
 						</div>
 					</div>
+					<div class="col-md-offset-2 col-md-8 col-sm-12">
+					    <div class="alert alert-danger" id="error-backfill-stop" hidden="true">{l s='Unable to stop historical backfill, please try again' mod='bayonetantifraud'}</div>
+					</div>
 					<div class="col-md-12">
 						<button class="btn btn-primary" id="stop">{l s='Stop Backfill' mod='bayonetantifraud'}</button>
 					</div>
@@ -69,7 +72,7 @@
 			{else}
 				<div class="col-md-12">
 				  <div class="alert alert-danger">{l s='Please save your live API keys to enable this feature' mod='bayonetantifraud'}</div>
-					<p></p>
+					<br></br>
 				</div>
 			{/if}
 		</div>
