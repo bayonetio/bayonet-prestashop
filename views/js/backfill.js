@@ -41,11 +41,11 @@ $(document).ready(function(){
             url: urlBackfill,
             type: 'post',
             data: { mode: 'execute' },
-            dataType: 'json'
+            dataType: 'json',
           });
           location.reload();
         } else {
-          $('#error-msg').html('<div class="alert alert-danger" id="error-msg">Unable to initiate historic backfill please try again</div>');
+          $('#error-backfill-initiate').attr('hidden', false);
         }
       }
     });
@@ -61,7 +61,7 @@ $(document).ready(function(){
         if(parseInt(data.result) === 0) {
           location.reload();
         } else {
-          $('#error-msg').html('<div class="alert alert-danger" id="error-msg">Unable to stop historic backfill please try again</div>');
+          $('#error-backfill-stop').attr('hidden', false);
         }
       }
     });

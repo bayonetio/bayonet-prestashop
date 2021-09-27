@@ -25,12 +25,18 @@
 
 $(document).ready(function(){
   $('#btn-addWhite').on('click', function(){
-    email = $(this).attr('data-mail');
-    idCustomer = $(this).attr('data-customer');
-    idBlocklist = $(this).attr('data-id');
-    whitelist = $(this).attr('data-whitelist');
-    blocklist = $(this).attr('data-blocklist');
-    apiMode = $(this).attr('data-mode');
+    var email = $(this).attr('data-mail');
+    var idCustomer = $(this).attr('data-customer');
+    var idBlocklist = $(this).attr('data-id');
+    var whitelist = $(this).attr('data-whitelist');
+    var blocklist = $(this).attr('data-blocklist');
+    var apiMode = $(this).attr('data-mode');
+
+    if ($('#btn-addBlock').length) {
+      $('#btn-addBlock').prop("disabled", true);
+    } else if ($('#btn-removeBlock').length) {
+      $('#btn-removeBlock').prop("disabled", true);
+    }
 
     $.ajax({
       url: urlBlocklist,
@@ -52,12 +58,16 @@ $(document).ready(function(){
   });
 
   $('#btn-removeWhite').on('click', function(){
-    email = $(this).attr('data-mail');
-    idCustomer = $(this).attr('data-customer');
-    idBlocklist = $(this).attr('data-id');
-    whitelist = $(this).attr('data-whitelist');
-    blocklist = $(this).attr('data-blocklist');
-    apiMode = $(this).attr('data-mode');
+    var email = $(this).attr('data-mail');
+    var idCustomer = $(this).attr('data-customer');
+    var idBlocklist = $(this).attr('data-id');
+    var whitelist = $(this).attr('data-whitelist');
+    var blocklist = $(this).attr('data-blocklist');
+    var apiMode = $(this).attr('data-mode');
+
+    if ($('#btn-addBlock').length) {
+      $('#btn-addBlock').prop("disabled", true);
+    }
 
     $.ajax({
       url: urlBlocklist,
@@ -79,12 +89,18 @@ $(document).ready(function(){
   });
 
   $('#btn-addBlock').on('click', function(){
-    email = $(this).attr('data-mail');
-    idCustomer = $(this).attr('data-customer');
-    idBlocklist = $(this).attr('data-id');
-    whitelist = $(this).attr('data-whitelist');
-    blocklist = $(this).attr('data-blocklist');
-    apiMode = $(this).attr('data-mode');
+    var email = $(this).attr('data-mail');
+    var idCustomer = $(this).attr('data-customer');
+    var idBlocklist = $(this).attr('data-id');
+    var whitelist = $(this).attr('data-whitelist');
+    var blocklist = $(this).attr('data-blocklist');
+    var apiMode = $(this).attr('data-mode');
+
+    if ($('#btn-addWhite').length) {
+      $('#btn-addWhite').prop("disabled", true);
+    } else if ($('#btn-removeWhite').length) {
+      $('#btn-removeWhite').prop("disabled", true);
+    }
 
     $.ajax({
       url: urlBlocklist,
@@ -106,12 +122,16 @@ $(document).ready(function(){
   });
 
   $('#btn-removeBlock').on('click', function(){
-    email = $(this).attr('data-mail');
-    idCustomer = $(this).attr('data-customer');
-    idBlocklist = $(this).attr('data-id');
-    whitelist = $(this).attr('data-whitelist');
-    blocklist = $(this).attr('data-blocklist');
-    apiMode = $(this).attr('data-mode');
+    var email = $(this).attr('data-mail');
+    var idCustomer = $(this).attr('data-customer');
+    var idBlocklist = $(this).attr('data-id');
+    var whitelist = $(this).attr('data-whitelist');
+    var blocklist = $(this).attr('data-blocklist');
+    var apiMode = $(this).attr('data-mode');
+
+    if ($('#btn-addWhite').length) {
+      $('#btn-addWhite').prop("disabled", true);
+    }
 
     $.ajax({
       url: urlBlocklist,
