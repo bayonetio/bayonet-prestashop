@@ -1,256 +1,249 @@
 <?php
 /**
- * 2007-2019 PrestaShop SA and Contributors
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Academic Free License (AFL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/AFL-3.0
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to https://www.prestashop.com for more information.
- *
- * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2019 PrestaShop SA and Contributors
- * @license   https://opensource.org/licenses/AFL-3.0  Academic Free License (AFL 3.0)
- * International Registered Trademark & Property of PrestaShop SA
- */
+* 2007-2021 PrestaShop
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the Academic Free License (AFL 3.0)
+* that is bundled with this package in the file LICENSE.txt.
+* It is also available through the world-wide-web at this URL:
+* http://opensource.org/licenses/afl-3.0.php
+* If you did not receive a copy of the license and are unable to
+* obtain it through the world-wide-web, please send an email
+* to license@prestashop.com so we can send you a copy immediately.
+*
+* DISCLAIMER
+*
+* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+* versions in the future. If you wish to customize PrestaShop for your
+* needs please refer to http://www.prestashop.com for more information.
+*
+*  @author    PrestaShop SA <contact@prestashop.com>
+*  @copyright 2007-2021 PrestaShop SA
+*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+*  International Registered Trademark & Property of PrestaShop SA
+*/
 
-class BayonetBlocklistModuleFrontController extends ModuleFrontController
+include_once _PS_MODULE_DIR_ . '/bayonetantifraud/helper/RequestHelper.php';
+
+/**
+ * Controller class for the blocklist feature
+ */
+class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontController
 {
-    private $api_key;
-    private $bayonet;
-    private $request;
+    protected $requestHelper;
 
     /**
      * Gets the 'mode' value and evaluates it to execute the correct function(s).
-     * It also initializes the Bayonet object with the API key creates the request body.
      */
     public function init()
     {
         parent::init();
-        if (0 == Configuration::get('BAYONET_API_MODE')) {
-            $this->api_key = Configuration::get('BAYONET_API_TEST_KEY');
-        } elseif (1 == Configuration::get('BAYONET_API_MODE')) {
-            $this->api_key = Configuration::get('BAYONET_API_LIVE_KEY');
+        $this->requestHelper = new RequestHelper();
+        $apiMode = (int) Tools::getValue('apiMode');
+        $apiKey = '';
+
+        if (1 === $apiMode) {
+            $apiKey = Configuration::get('BAYONET_AF_API_LIVE_KEY');
         }
 
-        $this->bayonet = new BayonetClient([
-            'api_key' => $this->api_key
-        ]);
-
-        $this->request = [
+        $request = [
+            'auth' => [
+                'api_key' => $apiKey,
+            ],
             'email' => Tools::getValue('mail'),
         ];
 
-        if ('addWhite' == Tools::getValue('mode')) {
-            if (1 == Tools::getValue('blacklist')) {
-                $this->removeBlack();
+        if ('addWhite' === Tools::getValue('mode')) {
+            if (1 === (int) Tools::getValue('blocklist')) {
+                $responseBlock = $this->removeBlock($request);
+                if (0 === (int) $responseBlock) {
+                    $this->addWhite($request);
+                }
+            } elseif (0 === (int) Tools::getValue('blocklist')) {
+                $this->addWhite($request);
             }
-            $this->addWhite();
+            echo json_encode(0);
             exit;
-        } elseif ('removeWhite' == Tools::getValue('mode')) {
-            $this->removeWhite();
+        } elseif ('removeWhite' === Tools::getValue('mode')) {
+            $this->removeWhite($request);
+            echo json_encode(0);
             exit;
-        } elseif ('addBlack' == Tools::getValue('mode')) {
-            if (1 == Tools::getValue('whitelist')) {
-                $this->removeWhite();
+        } elseif ('addBlock' == Tools::getValue('mode')) {
+            if (1 === (int) Tools::getValue('whitelist')) {
+                $responseWhite = $this->removeWhite($request);
+                if (0 === (int) $responseWhite) {
+                    $this->addBlock($request);
+                }
+            } elseif (0 === (int) Tools::getValue('whitelist')) {
+                $this->addBlock($request);
             }
-            $this->addBlack();
+            echo json_encode(0);
             exit;
-        } elseif ('removeBlack' == Tools::getValue('mode')) {
-            $this->removeBlack();
+        } elseif ('removeBlock' == Tools::getValue('mode')) {
+            $this->removeBlock($request);
+            echo json_encode(0);
             exit;
         }
     }
 
     /**
-     * Executes the process to add a customer to the whitelist, sending a call to the API
-     * and then checking if the customer's record was already on the database table to
-     * either insert or update its information.
+     * Executes the process to add a customer's mail to the whitelist,
+     * sending a call to the API and then updating update its information
+     * in the table in the database.
      */
-    public function addWhite()
+    public function addWhite($request)
     {
-        $this->bayonet->addWhiteList([
-            'body' => $this->request,
-            'on_success' => function ($response) {
-                if (Tools::getValue('id') > 0) {
-                    Db::getInstance()->update(
-                        'bayonet_blocklist',
-                        array(
-                            'whitelist' => 1,
-                            'response_code' => $response->reason_code,
-                            'response_message' => $response->reason_message,
-                        ),
-                        'id_blocklist = '.(int)Tools::getValue('id')
-                    );
-                } elseif (Tools::getValue('id') == 0) {
-                    $data = array(
-                        'id_customer' => Tools::getValue('customer'),
-                        'email' => Tools::getValue('mail'),
+        $response = $this->requestHelper->addWhitelist($request);
+
+        if (isset($response)) {
+            if (isset($response->reason_code) && 0 === (int) $response->reason_code) {
+                Db::getInstance()->update(
+                    'bayonet_antifraud_blocklist',
+                    [
                         'whitelist' => 1,
-                        'response_code' => $response->reason_code,
-                        'response_message' => $response->reason_message,
-                        'api_mode' => Configuration::get('BAYONET_API_MODE'),
-                    );
-                    Db::getInstance()->insert('bayonet_blocklist', $data);
-                }
-            },
-            'on_failure' => function ($response) {
-                $message = str_replace("'", "-", $response->reason_message);
-                if (Tools::getValue('id') > 0) {
-                    Db::getInstance()->update(
-                        'bayonet_blocklist',
-                        array(
-                            'response_code' => $response->reason_code,
-                            'response_message' => $message,
-                        ),
-                        'id_blocklist = '.(int)Tools::getValue('id')
-                    );
-                } elseif (Tools::getValue('id') == 0) {
-                    $data = array(
-                        'id_customer' => Tools::getValue('customer'),
-                        'email' => Tools::getValue('mail'),
+                        'reason_code_whitelist' => (int) $response->reason_code,
+                        'reason_message_whitelist' => $response->reason_message,
+                        'attempted_action_whitelist' => 'Add',
+                    ],
+                    'blocklist_id = ' . (int) Tools::getValue('id')
+                );
+
+                return $response->reason_code;
+            } elseif (isset($response->reason_code) && 0 !== (int) $response->reason_code) {
+                $message = str_replace("'", '-', $response->reason_message);
+                Db::getInstance()->update(
+                    'bayonet_antifraud_blocklist',
+                    [
+                        'reason_code_whitelist' => (int) $response->reason_code,
+                        'reason_message_whitelist' => $message,
+                        'attempted_action_whitelist' => 'Add',
+                    ],
+                    'blocklist_id = ' . (int) Tools::getValue('id')
+                );
+
+                return $response->reason_code;
+            }
+        }
+    }
+
+    /**
+     * Executes the process to remove a customer's mail from the whitelist,
+     * sending a call to the API and then updating update its information
+     * in the table in the database.
+     */
+    public function removeWhite($request)
+    {
+        $response = $this->requestHelper->removeWhitelist($request);
+
+        if (isset($response)) {
+            if (isset($response->reason_code) && 0 === (int) $response->reason_code) {
+                Db::getInstance()->update(
+                    'bayonet_antifraud_blocklist',
+                    [
                         'whitelist' => 0,
-                        'response_code' => $response->reason_code,
-                        'response_message' => $message,
-                        'api_mode' => Configuration::get('BAYONET_API_MODE'),
-                    );
-                    Db::getInstance()->insert('bayonet_blocklist', $data);
-                }
-            },
-        ]);
+                        'reason_code_whitelist' => (int) $response->reason_code,
+                        'reason_message_whitelist' => $response->reason_message,
+                        'attempted_action_whitelist' => 'Remove',
+                    ],
+                    'blocklist_id = ' . (int) Tools::getValue('id')
+                );
+
+                return $response->reason_code;
+            } elseif (isset($response->reason_code) && 0 !== (int) $response->reason_code) {
+                $message = str_replace("'", '-', $response->reason_message);
+                Db::getInstance()->update(
+                    'bayonet_antifraud_blocklist',
+                    [
+                        'reason_code_whitelist' => (int) $response->reason_code,
+                        'reason_message_whitelist' => $message,
+                        'attempted_action_whitelist' => 'Remove',
+                    ],
+                    'blocklist_id = ' . (int) Tools::getValue('id')
+                );
+
+                return $response->reason_code;
+            }
+        }
     }
 
     /**
-     * Executes the process to remove a customer from the whitelist, sending a call to the API
-     * and then updating update its information on the table in the database.
+     * Executes the process to add a customer's mail to the blacklist,
+     * sending a call to the API and then updating update its information
+     * in the table in the database.
      */
-    public function removeWhite()
+    public function addBlock($request)
     {
-        $this->bayonet->removeWhiteList([
-            'body' => $this->request,
-            'on_success' => function ($response) {
+        $response = $this->requestHelper->addBlocklist($request);
+
+        if (isset($response)) {
+            if (isset($response->reason_code) && 0 === (int) $response->reason_code) {
                 Db::getInstance()->update(
-                    'bayonet_blocklist',
-                    array(
-                        'whitelist' => 0,
-                        'response_code' => $response->reason_code,
-                        'response_message' => $response->reason_message,
-                    ),
-                    'id_blocklist = '.(int)Tools::getValue('id')
+                    'bayonet_antifraud_blocklist',
+                    [
+                        'blocklist' => 1,
+                        'reason_code_blocklist' => (int) $response->reason_code,
+                        'reason_message_blocklist' => $response->reason_message,
+                        'attempted_action_blocklist' => 'Add',
+                    ],
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
-            },
-            'on_failure' => function ($response) {
-                $message = str_replace("'", "-", $response->reason_message);
+
+                return $response->reason_code;
+            } elseif (isset($response->reason_code) && 0 !== (int) $response->reason_code) {
+                $message = str_replace("'", '-', $response->reason_message);
                 Db::getInstance()->update(
-                    'bayonet_blocklist',
-                    array(
-                        'response_code' => $response->reason_code,
-                        'response_message' => $message,
-                    ),
-                    'id_blocklist = '.(int)Tools::getValue('id')
+                    'bayonet_antifraud_blocklist',
+                    [
+                        'reason_code_blocklist' => (int) $response->reason_code,
+                        'reason_message_blocklist' => $message,
+                        'attempted_action_blocklist' => 'Add',
+                    ],
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
-            },
-        ]);
+
+                return $response->reason_code;
+            }
+        }
     }
 
     /**
-     * Executes the process to add a customer to the blacklist, sending a call to the API
-     * and then checking if the customer's record was already on the database table to
-     * either insert or update its information.
+     * Executes the process to remove a customer's mail from the blacklist,
+     * sending a call to the API and then updating update its information
+     * in the table in the database.
      */
-    public function addBlack()
+    public function removeBlock($request)
     {
-        $this->bayonet->addBlackList([
-            'body' => $this->request,
-            'on_success' => function ($response) {
-                if (Tools::getValue('id') > 0) {
-                    Db::getInstance()->update(
-                        'bayonet_blocklist',
-                        array(
-                            'blacklist' => 1,
-                            'response_code' => $response->reason_code,
-                            'response_message' => $response->reason_message,
-                        ),
-                        'id_blocklist = '.(int)Tools::getValue('id')
-                    );
-                } elseif (Tools::getValue('id') == 0) {
-                    $data = array(
-                        'id_customer' => Tools::getValue('customer'),
-                        'email' => Tools::getValue('mail'),
-                        'blacklist' => 1,
-                        'response_code' => $response->reason_code,
-                        'response_message' => $response->reason_message,
-                        'api_mode' => Configuration::get('BAYONET_API_MODE'),
-                    );
-                    Db::getInstance()->insert('bayonet_blocklist', $data);
-                }
-            },
-            'on_failure' => function ($response) {
-                $message = str_replace("'", "-", $response->reason_message);
-                if (Tools::getValue('id') > 0) {
-                    Db::getInstance()->update(
-                        'bayonet_blocklist',
-                        array(
-                            'response_code' => $response->reason_code,
-                            'response_message' => $message,
-                        ),
-                        'id_blocklist = '.(int)Tools::getValue('id')
-                    );
-                } elseif (Tools::getValue('id') == 0) {
-                    $data = array(
-                        'id_customer' => Tools::getValue('customer'),
-                        'email' => Tools::getValue('mail'),
-                        'blacklist' => 0,
-                        'response_code' => $response->reason_code,
-                        'response_message' => $message,
-                        'api_mode' => Configuration::get('BAYONET_API_MODE'),
-                    );
-                    Db::getInstance()->insert('bayonet_blocklist', $data);
-                }
-            },
-        ]);
-    }
+        $response = $this->requestHelper->removeBlocklist($request);
 
-    /**
-     * Executes the process to remove a customer from the blacklist, sending a call to the API
-     * and then updating update its information on the table in the database.
-     */
-    public function removeBlack()
-    {
-        $this->bayonet->removeBlackList([
-            'body' => $this->request,
-            'on_success' => function ($response) {
+        if (isset($response)) {
+            if (isset($response->reason_code) && 0 === (int) $response->reason_code) {
                 Db::getInstance()->update(
-                    'bayonet_blocklist',
-                    array(
-                        'blacklist' => 0,
-                        'response_code' => $response->reason_code,
-                        'response_message' => $response->reason_message,
-                    ),
-                    'id_blocklist = '.(int)Tools::getValue('id')
+                    'bayonet_antifraud_blocklist',
+                    [
+                        'blocklist' => 0,
+                        'reason_code_blocklist' => (int) $response->reason_code,
+                        'reason_message_blocklist' => $response->reason_message,
+                        'attempted_action_blocklist' => 'Remove',
+                    ],
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
-            },
-            'on_failure' => function ($response) {
-                $message = str_replace("'", "-", $response->reason_message);
+
+                return $response->reason_code;
+            } elseif (isset($response->reason_code) && 0 !== (int) $response->reason_code) {
+                $message = str_replace("'", '-', $response->reason_message);
                 Db::getInstance()->update(
-                    'bayonet_blocklist',
-                    array(
-                        'response_code' => $response->reason_code,
-                        'response_message' => $message,
-                    ),
-                    'id_blocklist = '.(int)Tools::getValue('id')
+                    'bayonet_antifraud_blocklist',
+                    [
+                        'reason_code_blocklist' => (int) $response->reason_code,
+                        'reason_message_blocklist' => $message,
+                        'attempted_action_blocklist' => 'Remove',
+                    ],
+                    'blocklist_id = ' . (int) Tools::getValue('id')
                 );
-            },
-        ]);
+
+                return $response->reason_code;
+            }
+        }
     }
 }

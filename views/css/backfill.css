@@ -23,43 +23,14 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-$(document).ready(function() {
-  if (1 === parseInt(bayonet_enabled)) {
-  $.getScript('https://cdn.bayonet.io/fingerprinting-2.0.min.js', function() {
-  	initBayonet();
-  });
-}
-});
-
-/**
- * Initializes the device fingerprint script and executes
- * the callback function to get the generated token.
- */
-function initBayonet() {
-  _bayonet.init({
-    js_key: bayonet_af_js_key,
-    callback_function: "getResponse"
-  });
-  _bayonet.track();
+.progress {
+	width: 100%;
+	background-color: #dcdcdc !important;
+    height: 35px !important;
 }
 
-
-/**
- * Gets the response from the fingerprint script and sends the
- * fingerprint token to the php fingerprint controller via an ajax call.
- *
- * @param {Object} response
- */
-function getResponse(response) {
-  if(response.bayonet_fingerprint_token) {
-    $.ajax({
-      url: urlFingerprint,
-      type: 'post',
-      data: {
-        fingerprint: response.bayonet_fingerprint_token,
-        apiMode: bayonet_api_mode
-      },
-      dataType: 'json'
-    });
-  }
+.progress-bar {
+	width: 0%;
+    line-height: 35px !important;
+    font-size: 17px !important;
 }
