@@ -24,12 +24,16 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+/**
+ * Utility class to retrieve data from orders and build a request body
+ */
 class OrderHelper
 {
     /**
      * Generates a request body for an order with the format required in the
      * Bayonet API. It takes the type parameters to decide whether the request
      * body is for a consulting or backfill call.
+     *
      * @param array $order
      * @param array $cart
      * @param array $customer
@@ -108,7 +112,7 @@ class OrderHelper
                 WHERE `customer_id` = ' . $customer->id . ' AND `api_mode` = ' . $apiMode;
             $fingerprintData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($queryFingerprint);
 
-            if (isset($fingerprintData) && false !== $fingerprintData) {
+            if (isset($fingerprintData) && false !== $fingerprintData && isset($fingerprintData[0])) {
                 if ($fingerprintData[0]['fingerprint_token'] !== '') {
                     $requestBody['bayonet_fingerprint_token'] = $fingerprintData[0]['fingerprint_token'];
                     Db::getInstance()->update(
@@ -154,6 +158,7 @@ class OrderHelper
     /**
      *  Converts the country codes to 3-letter ISO codes
      * https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3
+     *
      * @param string 2 letter country code
      *
      * @return string ISO 3-letter country code
@@ -421,10 +426,11 @@ class OrderHelper
     /**
      * Gets the payment method of the order based on the module used to
      * process the order.
+     *
      * @param array $order
      *
      * @return string
- */
+     */
     public function getPaymentMethod($order)
     {
         $paymentMethod = 'tokenized_card';
@@ -462,6 +468,7 @@ class OrderHelper
     /**
      * Gets the triggered rules, if present, of a successful consulting
      * call to the Bayonet API while analyzing an order
+     *
      * @param array $response
      *
      * @return string

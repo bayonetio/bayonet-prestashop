@@ -24,6 +24,9 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+/**
+ * Controller class for the device fingerprint feature
+ */
 class BayonetantifraudFingerprintModuleFrontController extends ModuleFrontController
 {
     /**
@@ -39,18 +42,18 @@ class BayonetantifraudFingerprintModuleFrontController extends ModuleFrontContro
             WHERE `customer_id` = ' . $this->context->customer->id . ' AND `api_mode` = ' . (int) $apiMode;
         $fingerprintData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($queryFingerprint);
 
-        if (isset($fingerprintData) && false !== $fingerprintData) {
+        if (isset($fingerprintData) && false !== $fingerprintData && 0 < sizeof($fingerprintData)) {
             Db::getInstance()->update(
                 'bayonet_antifraud_fingerprint',
                 [
-                    'fingerprint_token' => $fingerprint,
+                    'fingerprint_token' => pSQL($fingerprint),
                 ],
                 'customer_id = ' . $this->context->customer->id . ' AND api_mode = ' . (int) $apiMode
             );
-        } else {
+        } elseif (isset($fingerprintData) && false !== $fingerprintData && 0 === sizeof($fingerprintData)) {
             $data = [
                 'customer_id' => $this->context->customer->id,
-                'fingerprint_token' => $fingerprint,
+                'fingerprint_token' => pSQL($fingerprint),
                 'api_mode' => (int) $apiMode,
             ];
             Db::getInstance()->insert('bayonet_antifraud_fingerprint', $data);
