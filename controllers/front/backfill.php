@@ -27,6 +27,9 @@
 include_once _PS_MODULE_DIR_ . '/bayonetantifraud/helper/OrderHelper.php';
 include_once _PS_MODULE_DIR_ . '/bayonetantifraud/helper/RequestHelper.php';
 
+/**
+ * Controller class for the backfill process
+ */
 class BayonetantifraudBackfillModuleFrontController extends ModuleFrontController
 {
     /**
@@ -191,7 +194,7 @@ class BayonetantifraudBackfillModuleFrontController extends ModuleFrontControlle
             $response['percentage'] = ceil($percentage);
             $response['result'] = 0;
         }
-        
+
         echo json_encode($response);
         exit;
     }

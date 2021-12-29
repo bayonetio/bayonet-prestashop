@@ -24,6 +24,9 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+/**
+ * Utility class to perform requests to the Bayonet API
+ */
 class RequestHelper
 {
     /**
@@ -148,6 +151,7 @@ class RequestHelper
 
     /**
      * Performs a request to either the Bayonet or Device Fingerprint API.
+     *
      * @param string $endpoint
      * @param array $requestBody
      * @param string $api

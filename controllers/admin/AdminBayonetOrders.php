@@ -24,6 +24,9 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+/**
+ * Controller class for the custom tab data
+ */
 class AdminBayonetOrdersController extends ModuleAdminController
 {
     public function __construct()
@@ -163,7 +166,7 @@ class AdminBayonetOrdersController extends ModuleAdminController
             [],
             [
                 'id_customer' => $id_customer,
-                'viewcustomer' => 1
+                'viewcustomer' => 1,
             ]
         ) . '&id_order=' . (int) $value . '&vieworder';
 

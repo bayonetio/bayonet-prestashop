@@ -32,6 +32,9 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+/**
+ * Main class of the module
+ */
 class BayonetAntiFraud extends Module
 {
     protected $html = '';
@@ -300,7 +303,8 @@ class BayonetAntiFraud extends Module
         $backfillQuery = 'SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_backfill`';
         $backfillData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($backfillQuery);
 
-        if (isset($backfillData) && false !== $backfillData && isset($backfillData[0]) && null !== (int) $backfillData[0]['backfill_status']) {
+        if (isset($backfillData) && false !== $backfillData && isset($backfillData[0]) &&
+            null !== (int) $backfillData[0]['backfill_status']) {
             if (1 === (int) $backfillData[0]['backfill_status']) {
                 $backfillCompleted = 1;
             }
@@ -473,16 +477,16 @@ class BayonetAntiFraud extends Module
             $dataToInsert['executed'] = 1;
 
             if (isset($response->reason_code) && (int) $response->reason_code === 0) {
-                $dataToInsert['decision'] = $response->decision;
-                $dataToInsert['bayonet_tracking_id'] = $response->bayonet_tracking_id;
+                $dataToInsert['decision'] = pSQL($response->decision);
+                $dataToInsert['bayonet_tracking_id'] = pSQL($response->bayonet_tracking_id);
                 $dataToInsert['consulting_api'] = 1;
                 $dataToInsert['consulting_api_response'] = json_encode(
                     [
                         'reason_code' => (int) $response->reason_code,
-                        'reason_message' => $response->reason_message,
+                        'reason_message' => pSQL($response->reason_message),
                     ]
                 );
-                $dataToInsert['triggered_rules'] = $orderHelper->getTriggeredRules($response);
+                $dataToInsert['triggered_rules'] = pSQL($orderHelper->getTriggeredRules($response));
                 $dataToInsert['api_mode'] = $apiMode;
 
                 Db::getInstance()->insert('bayonet_antifraud_orders', $dataToInsert);
@@ -508,10 +512,10 @@ class BayonetAntiFraud extends Module
                                 'feedback_api_response' => json_encode(
                                     [
                                         'reason_code' => (int) $updateResponse->reason_code,
-                                        'reason_message' => $updateResponse->reason_message,
+                                        'reason_message' => pSQL($updateResponse->reason_message),
                                     ]
                                 ),
-                                'current_status' => $transactionStatus,
+                                'current_status' => pSQL($transactionStatus),
                             ],
                             'order_id = ' . (int) $order->id
                         );
@@ -524,10 +528,10 @@ class BayonetAntiFraud extends Module
                                 'feedback_api_response' => json_encode(
                                     [
                                         'reason_code' => (int) $updateResponse->reason_code,
-                                        'reason_message' => $message,
+                                        'reason_message' => pSQL($message),
                                     ]
                                 ),
-                                'current_status' => $transactionStatus,
+                                'current_status' => pSQL($transactionStatus),
                             ],
                             'order_id = ' . (int) $order->id
                         );
@@ -541,7 +545,7 @@ class BayonetAntiFraud extends Module
                 $dataToInsert['consulting_api_response'] = json_encode(
                     [
                         'reason_code' => (int) $response->reason_code,
-                        'reason_message' => $message,
+                        'reason_message' => pSQL($message),
                     ]
                 );
                 $dataToInsert['api_mode'] = $apiMode;
@@ -616,10 +620,10 @@ class BayonetAntiFraud extends Module
                                     'feedback_api_response' => json_encode(
                                         [
                                             'reason_code' => (int) $response->reason_code,
-                                            'reason_message' => $response->reason_message,
+                                            'reason_message' => pSQL($response->reason_message),
                                         ]
                                     ),
-                                    'current_status' => $transactionStatus,
+                                    'current_status' => pSQL($transactionStatus),
                                 ],
                                 'order_id = ' . (int) $params['id_order']
                             );
@@ -632,10 +636,10 @@ class BayonetAntiFraud extends Module
                                     'feedback_api_response' => json_encode(
                                         [
                                             'reason_code' => (int) $response->reason_code,
-                                            'reason_message' => $message,
+                                            'reason_message' => pSQL($message),
                                         ]
                                     ),
-                                    'current_status' => $transactionStatus,
+                                    'current_status' => pSQL($transactionStatus),
                                 ],
                                 'order_id = ' . (int) $params['id_order']
                             );
@@ -656,7 +660,7 @@ class BayonetAntiFraud extends Module
             return;
         }
 
-        Media::addJsDef(['bayonet_enabled' => (int)Configuration::get('BAYONET_AF_ENABLE')]);
+        Media::addJsDef(['bayonet_enabled' => (int) Configuration::get('BAYONET_AF_ENABLE')]);
 
         if (1 === (int) Configuration::get('BAYONET_AF_API_MODE')) {
             Media::addJsDef(['bayonet_api_mode' => (int) Configuration::get('BAYONET_AF_API_MODE')]);
@@ -687,23 +691,24 @@ class BayonetAntiFraud extends Module
         $attemptedActionBlocklistLive = 'N/A';
         $attemptedActionWhitelistLive = 'N/A';
 
-        $apiMode = (int)Configuration::get('BAYONET_AF_API_MODE');
+        $apiMode = (int) Configuration::get('BAYONET_AF_API_MODE');
         $noKeys = false;
 
         if (1 === $apiMode && !Configuration::get('BAYONET_AF_API_LIVE_KEY')) {
             $noKeys = true;
         }
-        
+
         $displayedOrder = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_orders` 
-            WHERE `order_id` = ' . (int)$params['id_order']);
+            WHERE `order_id` = ' . (int) $params['id_order']);
         $orderCustomer = Db::getInstance()->getRow('SELECT a.`email`, a.`id_customer` FROM 
             (SELECT `email`, `id_customer` FROM `' . _DB_PREFIX_ . 'customer` WHERE `id_customer` = 
             (SELECT `id_customer` FROM `' . _DB_PREFIX_ . 'orders` WHERE 
-            `id_order` = ' . (int)$params['id_order'] . ')) a');
-        
+            `id_order` = ' . (int) $params['id_order'] . ')) a');
+
         if (isset($orderCustomer) && false !== $orderCustomer) {
-            $blocklistDataLive = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.
-                'bayonet_antifraud_blocklist` WHERE `email` =  \'' . $orderCustomer['email'] . '\' AND `api_mode` = ' . 1);
+            $blocklistDataLive = Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ .
+                'bayonet_antifraud_blocklist` WHERE `email` =  \'' . pSQL($orderCustomer['email']) .
+                '\' AND `api_mode` = ' . 1);
         }
 
         if (isset($blocklistDataLive) && false !== $blocklistDataLive) {
@@ -723,11 +728,23 @@ class BayonetAntiFraud extends Module
             $attemptedActionWhitelistLive = null !== $blocklistDataLive['attempted_action_whitelist'] ?
                 $blocklistDataLive['attempted_action_whitelist'] : 'N/A';
         }
-        
+
         if (isset($displayedOrder) && false !== $displayedOrder) {
+            $pos = 0;
+            $triggered_rules = '';
+
+            if (0 < Tools::strlen($displayedOrder['triggered_rules'])) {
+                $pos = strpos($displayedOrder['triggered_rules'], '-');
+            }
+
+            if (false !== $pos) {
+                $triggered_rules = Tools::substr($displayedOrder['triggered_rules'], 0, $pos+1) .
+                  str_replace('-', '<br>-', Tools::substr($displayedOrder['triggered_rules'], $pos+1));
+            }
+            
             $apiResponse = $displayedOrder['consulting_api_response'];
             $apiResponse = rtrim($apiResponse, ',');
-            $apiResponse = "[" . trim($apiResponse) . "]";
+            $apiResponse = '[' . trim($apiResponse) . ']';
             $metadata = json_decode($apiResponse, true);
             $decisionMessage = '';
 
@@ -746,18 +763,18 @@ class BayonetAntiFraud extends Module
                     'not_consulting_order' => false,
                     'unprocessed_order' => false,
                     'decision_message' => $decisionMessage,
-                    'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#'.
+                    'decision' => '<span style="font-size:1.5em;font-weight:bold;color:#' .
                         (('accept' === $displayedOrder['decision']) ? '339933' :
                             (('decline' === $displayedOrder['decision']) ? 'f00' :
-                                ('review' === $displayedOrder['decision'] ? 'ff7f27' : '000000'))).'">'.
+                                ('review' === $displayedOrder['decision'] ? 'ff7f27' : '000000'))) . '">' .
                         (('accept' == $displayedOrder['decision']) ? $this->l('ACCEPTED') :
                             (('decline' === $displayedOrder['decision']) ? $this->l('DECLINED') :
-                                ('review' === $displayedOrder['decision'] ? $this->l('REVIEW') : 'ERROR'))).'</span>',
+                                ('review' === $displayedOrder['decision'] ? $this->l('REVIEW') : 'ERROR'))) . '</span>',
                     'bayonet_tracking_id' => $displayedOrder['bayonet_tracking_id'],
                     'reason_code' => $metadata[0]['reason_code'],
                     'reason_message' => 'success' === $metadata[0]['reason_message'] ?
                         $this->l('Correct') : $metadata[0]['reason_message'],
-                    'triggered_rules' => $displayedOrder['triggered_rules'],
+                    'triggered_rules' => $triggered_rules,
                     'api_mode_order' => $displayedOrder['api_mode'],
                     'customer_email' => $orderCustomer['email'],
                     'customer_id' => $orderCustomer['id_customer'],
@@ -800,20 +817,20 @@ class BayonetAntiFraud extends Module
 
         $this->smarty->assign('path', $this->_path);
         $this->smarty->assign('urlBlocklist', $ajax_controller_url);
-            
+
         return $this->display(__FILE__, 'admin_order.tpl');
     }
 
     private function insertBlocklist($email, $customer)
     {
         $query = 'SELECT * FROM `' . _DB_PREFIX_ . 'bayonet_antifraud_blocklist` 
-            WHERE `email` = ' . '\'' . $email . '\'';
+            WHERE `email` = ' . '\'' . pSQL($email) . '\'';
         $blocklistData = Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS($query);
 
         if (isset($blocklistData) && $blocklistData !== false && sizeof($blocklistData) === 0) {
             $blocklistInsert = [
                 'customer_id' => $customer,
-                'email' => $email,
+                'email' => pSQL($email),
                 'api_mode' => 1,
             ];
             Db::getInstance()->insert('bayonet_antifraud_blocklist', $blocklistInsert);

@@ -24,6 +24,9 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+/**
+ * Utility class to install the module's tables in the database
+ */
 class BayonetDb
 {
     /**

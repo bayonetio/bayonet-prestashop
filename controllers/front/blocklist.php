@@ -26,6 +26,9 @@
 
 include_once _PS_MODULE_DIR_ . '/bayonetantifraud/helper/RequestHelper.php';
 
+/**
+ * Controller class for the blocklist feature
+ */
 class BayonetantifraudBlocklistModuleFrontController extends ModuleFrontController
 {
     protected $requestHelper;
