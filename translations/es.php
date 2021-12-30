@@ -26,10 +26,14 @@ $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_49b9d7d9e6a67ca65660301
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_f901c4637a0ce9b05e1b1aa7d466b9a7'] = 'Valor inválido para llave live de Bayonet. Por favor revise su llave e intente de nuevo';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_62b4d8faf456b947ef9d3b6eef64a913'] = 'Llave live de Bayonet: IP de origen no es válida, por favor agregue su IP a la whitelist en la consola de Bayonet';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_1126725df74ae53b3345d34dc3b91e31'] = 'Llave live de Bayonet: la llave que ingresó ha expirado, por favor genere una nueva llave desde la consola de Bayonet';
+$_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_a1bd0e182d0b22833a544963efedc8f1'] = 'Llave live de Bayonet: Ha ocurrido un error mientras se guardaba la llave. Por favor intente de nuevo.';
+$_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_6c3107d48492a4b7363c0c4c1b0608aa'] = 'Llave live de Bayonet: Ha ocurrido un error mientras se guardaba la llave. Por favor intente de nuevo.';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_300711ab6c9bb8fbffe6402c5ec4aa0d'] = 'No se puede guardar una llave vacía del API cuando el módulo se encuentra habilitado';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_40000d7145343de00cd8d106a11c1f40'] = 'Valor inválido para la llave live de Device Fingerprint. Por favor revise su llave e intente de nuevo';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_2dfc90d37b00739c3523ac0d7fc7793d'] = 'Llave live de Device Fingerprint: la llave que ingresó ha expirado, por favor genere una nueva llave desde la consola de Bayonet';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_4ec1df44b0eee05b25aec9be71280cf9'] = 'Llave live de Device Fingerprint: Dominio de la tienda no registrado, por favor agregue el dominio de su tienda a la whitelist en la consola de Bayonet';
+$_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_ecfeaa816698874a71cdc22b6d1b22d4'] = 'Llave live de Device Fingerprint: Ha ocurrido un error mientras se guardaba la llave. Por favor intente de nuevo.';
+$_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_b115f600e665c09c795715bf294c61b9'] = 'Llave live de Device Fingerprint: Ha ocurrido un error mientras se guardaba la llave. Por favor intente de nuevo.';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_c888438d14855d7d96a2724ee9c306bd'] = 'Configuraciones actualizadas';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_9fec0f1cc9fa2cf1842701c48f4ed34e'] = 'Bajo riesgo de fraude. Debería aceptar la orden';
 $_MODULE['<{bayonetantifraud}prestashop>bayonetantifraud_10352aa3989ebbdfe643fd3276c8b4e3'] = 'Medio riesgo de fraude. Por favor revise la orden';

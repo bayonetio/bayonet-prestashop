@@ -383,7 +383,14 @@ class BayonetAntiFraud extends Module
                             $this->postErrors[] = $this->l('Bayonet live key: The key you entered has expired,
                             please generate a new key from Bayonet\'s console');
                             break;
+                        default:
+                            $this->postErrors[] = $this->l('Bayonet live key: 
+                            An error ocurred while validating the key. Please try again.');
+                            break;
                     }
+                } elseif (!isset($response->reason_code)) {
+                    $this->postErrors[] = $this->l('Bayonet live key:
+                    An error ocurred while validating the key. Please try again.');
                 }
             } elseif (empty(trim(Tools::getValue('BAYONET_AF_API_LIVE_KEY'))) &&
                 1 === (int) Configuration::get('BAYONET_AF_ENABLE')) {
@@ -394,8 +401,9 @@ class BayonetAntiFraud extends Module
                 ('**********' !== trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY')))) {
                 $requestBody['auth']['jsKey'] = Tools::getValue('BAYONET_AF_JS_LIVE_KEY');
                 $response = $requestHelper->deviceFingerprint($requestBody);
-
-                if (isset($response->reasonCode) && (int) $response->reasonCode !== 51) {
+                
+                if (isset($response->reasonCode) && (int)$response->reasonCode !== 0 &&
+                    (int)$response->reasonCode !== 51) {
                     switch ((int) $response->reasonCode) {
                         case 12:
                             $this->postErrors[] = $this->l('Invalid value for the Device Fingerprint live key.
@@ -410,7 +418,14 @@ class BayonetAntiFraud extends Module
                             Store domain is not registered, please add your store domain to the whitelist in
                             Bayonet\'s console');
                             break;
+                        default:
+                            $this->postErrors[] = $this->l('Device Fingerprint live key:
+                            An error ocurred while validating the key. Please try again.');
+                            break;
                     }
+                } elseif (!isset($response->reasonCode)) {
+                    $this->postErrors[] = $this->l('Device Fingerprint live key:
+                    An error ocurred while validating the key. Please try again.');
                 }
             } elseif (empty(trim(Tools::getValue('BAYONET_AF_JS_LIVE_KEY'))) &&
                 1 === (int) Configuration::get('BAYONET_AF_ENABLE')) {
